@@ -1,9 +1,10 @@
-﻿using Telegram.Bot;
-using Telegram.Bot.Polling;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
+using Telegram.Bot;
 using Telegram.Bot.Exceptions;
+using Telegram.Bot.Polling;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using WeatherAlertsBot.OpenWeatherAPI;
 
 var configuration = new ConfigurationBuilder()
                  .AddJsonFile($"appsettings.json", true, true).Build();
@@ -37,7 +38,12 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
     if (userMessageText.ToLower().Contains("weather")) message = "I`ll send you the weather!";
     else if (userMessageText.ToLower().Contains("something")) message = "something";
 
-    await botClient.SendTextMessageAsync(update.Message.Chat.Id, message, cancellationToken: cancellationToken);
+
+    WeatherHandler weatherHandler = new();
+    var result = await weatherHandler.GetCurrentWeatherByCoordinatesAsync(44.34, 10.99);
+    //var result = await weatherHandler.GetLattitudeAndLongitudeByCityNameAsync("London");
+
+    await botClient.SendTextMessageAsync(update.Message.Chat.Id, result.Name, cancellationToken: cancellationToken);
 }
 
 async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
