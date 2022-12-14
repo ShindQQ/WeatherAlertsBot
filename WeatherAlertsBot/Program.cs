@@ -4,6 +4,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using WeatherAlertsBot.OpenWeatherAPI;
 
 var configuration = new ConfigurationBuilder()
@@ -31,19 +32,37 @@ cansellationTokenSource.Cancel();
 
 async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
 {
-    var userMessageText = update.Message.Text;
+    var weatherHandler = new WeatherHandler();
+    if (update.Message != null)
+    {
+        var userMessageText = update.Message.Text;
+        if (userMessageText.ToLower().Contains("/start"))
+        {
+            await botClient.SendTextMessageAsync(update.Message.Chat.Id,
+                @"`Hello!\nTo receive weather by city name send me the message in format: weather [city_name]`",
+                ParseMode.MarkdownV2, cancellationToken: cancellationToken);
+        }
+        else if (userMessageText.ToLower().Contains("weather"))
+        {
+            var weatherResponseForUser = await weatherHandler.CreateResponseForUser(userMessageText);
+            var errorMessage = weatherResponseForUser.ErrorMessage;
 
-    string message = "Something went wrong";
+            if (string.IsNullOrEmpty(errorMessage))
+            {
+                var location = await botClient.SendLocationAsync(update.Message.Chat.Id,
+                   weatherResponseForUser.Lattitude, weatherResponseForUser.Longitude,
+                   cancellationToken: cancellationToken);
+                await botClient.SendTextMessageAsync(location.Chat.Id,
+                   @$"`Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature} °C, 
+               feels like {weatherResponseForUser.FeelsLike} °C.`",
+                   ParseMode.MarkdownV2, cancellationToken: cancellationToken, replyToMessageId: location.MessageId);
+                return;
+            }
 
-    if (userMessageText.ToLower().Contains("weather")) message = "I`ll send you the weather!";
-    else if (userMessageText.ToLower().Contains("something")) message = "something";
-
-
-    WeatherHandler weatherHandler = new();
-    var result = await weatherHandler.GetCurrentWeatherByCoordinatesAsync(44.34, 10.99);
-    //var result = await weatherHandler.GetLattitudeAndLongitudeByCityNameAsync("London");
-
-    await botClient.SendTextMessageAsync(update.Message.Chat.Id, result.Name, cancellationToken: cancellationToken);
+            await botClient.SendTextMessageAsync(update.Message.Chat.Id,
+                   errorMessage, ParseMode.MarkdownV2, cancellationToken: cancellationToken);
+        };
+    }
 }
 
 async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)

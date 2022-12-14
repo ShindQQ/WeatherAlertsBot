@@ -17,16 +17,16 @@ public sealed class WeatherHandler
         OpenWeatherApiKey = configuration["OpenWeatherApiKey"];
     }
 
-    public async ValueTask<WeatherForecastResult> GetCurrentWeatherByCoordinatesAsync(double lattitude, double longitude)
+    public async ValueTask<WeatherForecastResult> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
     {
-        string url = $"https://api.openweathermap.org/data/2.5/weather?lat={lattitude}&lon={longitude}&appid={OpenWeatherApiKey}";
+        string url = @$"https://api.openweathermap.org/data/2.5/weather?lat={lattitude}&lon={longitude}&appid={OpenWeatherApiKey}";
 
         return await GetResponseFromOpenWeatherAPI<WeatherForecastResult>(url);
     }
 
     public async ValueTask<IEnumerable<CoordinatesInfo>> GetLattitudeAndLongitudeByCityNameAsync(string cityName)
     {
-        string url = $"http://api.openweathermap.org/geo/1.0/direct?q={cityName}&appid={OpenWeatherApiKey}";
+        string url = @$"http://api.openweathermap.org/geo/1.0/direct?q={cityName}&appid={OpenWeatherApiKey}";
 
         return await GetResponseFromOpenWeatherAPI<IEnumerable<CoordinatesInfo>>(url);
     }
@@ -41,5 +41,35 @@ public sealed class WeatherHandler
         }
 
         return await response.Content.ReadFromJsonAsync<T>();
+    }
+
+    public async ValueTask<WeatherResponseForUser> CreateResponseForUser(string userMessage)
+    {
+        var splittedUserMessage = userMessage.Trim().Split(' ', 2);
+
+        if (!splittedUserMessage[0].ToLower().Equals("weather"))
+        {
+            return new WeatherResponseForUser { ErrorMessage = @"Format of the input was wrong\!" };
+        }
+
+        var coordinatesInfo = await GetLattitudeAndLongitudeByCityNameAsync(splittedUserMessage[1]);
+
+        if (coordinatesInfo.Count() <= 0)
+        {
+            return new WeatherResponseForUser { ErrorMessage = @"No data was found for your request\!" };
+        }
+
+        var coordinatesInfoFirst = coordinatesInfo.First();
+
+        var temperatureInfo = await GetCurrentWeatherByCoordinatesAsync(coordinatesInfoFirst.Lattitude, coordinatesInfoFirst.Longitude);
+
+        return new WeatherResponseForUser
+        {
+            CityName = coordinatesInfoFirst.Name,
+            Temperature = temperatureInfo.TemperatureInfo.Temperature - 273.15f,
+            FeelsLike = temperatureInfo.TemperatureInfo.FeelsLike - 273.15f,
+            Longitude = coordinatesInfoFirst.Longitude,
+            Lattitude = coordinatesInfoFirst.Lattitude
+        };
     }
 }
