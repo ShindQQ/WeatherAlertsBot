@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.Net.Http.Json;
+using Telegram.Bot.Types;
 
 namespace WeatherAlertsBot.OpenWeatherAPI;
 
@@ -43,7 +44,7 @@ public sealed class WeatherHandler
         return await response.Content.ReadFromJsonAsync<T>();
     }
 
-    public async ValueTask<WeatherResponseForUser> CreateResponseForUser(string userMessage)
+    public async ValueTask<WeatherResponseForUser> SendWeatherByUserMessageAsync(string userMessage)
     {
         var splittedUserMessage = userMessage.Trim().Split(' ', 2);
 
@@ -70,6 +71,18 @@ public sealed class WeatherHandler
             FeelsLike = temperatureInfo.TemperatureInfo.FeelsLike - 273.15f,
             Longitude = coordinatesInfoFirst.Longitude,
             Lattitude = coordinatesInfoFirst.Lattitude
+        };
+    }
+
+    public async ValueTask<WeatherResponseForUser> SendWeatherByUserLocationAsync(Location userLocation)
+    {
+        var weatherResponseForUser = await GetCurrentWeatherByCoordinatesAsync((float)userLocation.Latitude, (float)userLocation.Longitude); ;
+
+        return new WeatherResponseForUser
+        {
+            CityName = weatherResponseForUser.Name,
+            Temperature = weatherResponseForUser.TemperatureInfo.Temperature - 273.15f,
+            FeelsLike = weatherResponseForUser.TemperatureInfo.FeelsLike - 273.15f
         };
     }
 }

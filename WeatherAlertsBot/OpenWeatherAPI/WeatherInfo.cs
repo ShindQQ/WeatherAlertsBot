@@ -5,5 +5,5 @@ namespace WeatherAlertsBot.OpenWeatherAPI;
 public sealed class WeatherInfo
 {
     [JsonPropertyName("main")]
-    public string main { get; set; }
+    public string TypeOfWeather { get; set; }
 }
