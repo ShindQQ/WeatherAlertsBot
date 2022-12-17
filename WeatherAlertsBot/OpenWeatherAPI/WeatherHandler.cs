@@ -48,7 +48,7 @@ public sealed class WeatherHandler
     {
         var splittedUserMessage = userMessage.Trim().Split(' ', 2);
 
-        if (!splittedUserMessage[0].ToLower().Equals("weather"))
+        if (!splittedUserMessage[0].ToLower().StartsWith("/weather"))
         {
             return new WeatherResponseForUser { ErrorMessage = @"Format of the input was wrong\!" };
         }

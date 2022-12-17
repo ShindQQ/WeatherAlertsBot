@@ -22,30 +22,42 @@ public sealed class UpdateHandler
         CancellationToken = cancellationToken;
     }
 
-    public async Task HandleMessageTextAsync()
+    public async Task HandleMessageAsync()
     {
-        if (Update.Message.Text != null)
+        if (Update.Message != null)
         {
             var userMessageText = Update.Message.Text;
 
-            await HandleStartMessageAsync(userMessageText);
-            await HandleWeatherMessageAsync(userMessageText);
+            if (userMessageText != null)
+            {
+
+                if (!await HandleStartMessageAsync(userMessageText) && !await HandleWeatherMessageAsync(userMessageText))
+                {
+                    await HandleErrorMessageAsync();
+                }
+            }
+
+            await HandleLocationMessageAsync();
         }
     }
 
-    public async Task HandleStartMessageAsync(string userMessageText)
+    private async Task<bool> HandleStartMessageAsync(string userMessageText)
     {
-        if (userMessageText.ToLower().Contains("/start"))
+        if (userMessageText.ToLower().Equals("/start"))
         {
             await BotClient.SendTextMessageAsync(Update.Message.Chat.Id,
-                "`Hello!\nTo receive weather by city name send me the message in format: weather [city_name]!`",
+                "`Hello!\nTo receive weather by city name send me the message in format: /weather [city_name]!\nOr just send me your location!`",
                 ParseMode.MarkdownV2, cancellationToken: CancellationToken);
+
+            return true;
         }
+
+        return false;
     }
 
-    public async Task HandleWeatherMessageAsync(string userMessageText)
+    private async Task<bool> HandleWeatherMessageAsync(string userMessageText)
     {
-        if (userMessageText.ToLower().Contains("weather"))
+        if (userMessageText.ToLower().StartsWith("/weather"))
         {
             var weatherResponseForUser = await weatherHandler.SendWeatherByUserMessageAsync(userMessageText);
             var errorMessage = weatherResponseForUser.ErrorMessage;
@@ -57,28 +69,38 @@ public sealed class UpdateHandler
                    cancellationToken: CancellationToken);
                 await BotClient.SendTextMessageAsync(location.Chat.Id,
                    @$"`Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature} °C, " +
-                   "feels like {weatherResponseForUser.FeelsLike} °C.`",
+                   $"feels like {weatherResponseForUser.FeelsLike} °C.`",
                    ParseMode.MarkdownV2, cancellationToken: CancellationToken, replyToMessageId: location.MessageId);
-                return;
+
+                return true;
             }
 
             await BotClient.SendTextMessageAsync(Update.Message.Chat.Id,
                    errorMessage, ParseMode.MarkdownV2, cancellationToken: CancellationToken);
-        };
+        }
+
+        return false;
     }
 
-    public async Task HandleMessageLocationAsync()
+    private async Task HandleLocationMessageAsync()
     {
-        if (Update.Message.Location != null)
-        {
-            var userLocation = Update.Message.Location;
+        var userLocation = Update.Message.Location;
 
+        if (userLocation != null)
+        {
             var weatherResponseForUser = await weatherHandler.SendWeatherByUserLocationAsync(userLocation);
 
             await BotClient.SendTextMessageAsync(Update.Message.Chat.Id,
                        @$"`Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature} °C, " +
-                       "feels like {weatherResponseForUser.FeelsLike} °C.`",
+                       $"feels like {weatherResponseForUser.FeelsLike} °C.`",
                        ParseMode.MarkdownV2, cancellationToken: CancellationToken);
         }
+    }
+
+    private async Task HandleErrorMessageAsync()
+    {
+        await BotClient.SendTextMessageAsync(Update.Message.Chat.Id,
+            "`Hello!\nTo receive weather by city name send me the message in format: /weather [city_name]!\nOr just send me your location!`",
+            ParseMode.MarkdownV2, cancellationToken: CancellationToken);
     }
 }

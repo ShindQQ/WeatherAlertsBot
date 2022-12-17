@@ -36,8 +36,7 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
 
     UpdateHandler updateHandler = new(botClient, update, cancellationToken);
 
-    await updateHandler.HandleMessageTextAsync();
-    await updateHandler.HandleMessageLocationAsync();
+    await updateHandler.HandleMessageAsync();
 }
 
 async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
