@@ -5,16 +5,37 @@ using WeatherAlertsBot.OpenWeatherAPI;
 
 namespace WeatherAlertsBot.TelegramBotHandlers;
 
+/// <summary>
+///     Telegram Bot Update Handler
+/// </summary>
 public sealed class UpdateHandler
 {
+    /// <summary>
+    ///     A client interface to use Telegram Bot API
+    /// </summary>
     ITelegramBotClient BotClient { get; set; }
 
+    /// <summary>
+    ///     Incoming update from user
+    /// </summary>
     Update Update { get; set; }
 
+    /// <summary>
+    ///     Cancellation Token
+    /// </summary>
     CancellationToken CancellationToken { get; set; }
 
+    /// <summary>
+    ///     Weather Hanlder
+    /// </summary>
     WeatherHandler weatherHandler = new();
 
+    /// <summary>
+    ///     Constructor
+    /// </summary>
+    /// <param name="telegramBotClient">A client interface to use Telegram Bot API</param>
+    /// <param name="update">Incoming update from user</param>
+    /// <param name="cancellationToken">Cancellation Token</param>
     public UpdateHandler(ITelegramBotClient telegramBotClient, Update update, CancellationToken cancellationToken)
     {
         BotClient = telegramBotClient;
@@ -22,6 +43,10 @@ public sealed class UpdateHandler
         CancellationToken = cancellationToken;
     }
 
+    /// <summary>
+    ///     Handling user message
+    /// </summary>
+    /// <returns>Task</returns>
     public async Task HandleMessageAsync()
     {
         if (Update.Message != null)
@@ -30,7 +55,6 @@ public sealed class UpdateHandler
 
             if (userMessageText != null)
             {
-
                 if (!await HandleStartMessageAsync(userMessageText) && !await HandleWeatherMessageAsync(userMessageText))
                 {
                     await HandleErrorMessageAsync();
@@ -41,6 +65,11 @@ public sealed class UpdateHandler
         }
     }
 
+    /// <summary>
+    ///     Handling /start message
+    /// </summary>
+    /// <param name="userMessageText">Message sent by user</param>
+    /// <returns>True if user`s message equals /start, false if not</returns>
     private async Task<bool> HandleStartMessageAsync(string userMessageText)
     {
         if (userMessageText.ToLower().Equals("/start"))
@@ -55,6 +84,11 @@ public sealed class UpdateHandler
         return false;
     }
 
+    /// <summary>
+    ///     Handling /weather [city_name] message
+    /// </summary>
+    /// <param name="userMessageText">Message sent by user</param>
+    /// <returns>True if user`s message starts with /weather and there were no troubles with request, false if there was troubleshooting</returns>
     private async Task<bool> HandleWeatherMessageAsync(string userMessageText)
     {
         if (userMessageText.ToLower().StartsWith("/weather"))
@@ -82,6 +116,10 @@ public sealed class UpdateHandler
         return false;
     }
 
+    /// <summary>
+    ///     Handling user location message
+    /// </summary>
+    /// <returns>Task</returns>
     private async Task HandleLocationMessageAsync()
     {
         var userLocation = Update.Message.Location;
@@ -97,6 +135,10 @@ public sealed class UpdateHandler
         }
     }
 
+    /// <summary>
+    ///     Handling error message type
+    /// </summary>
+    /// <returns>Task</returns>
     private async Task HandleErrorMessageAsync()
     {
         await BotClient.SendTextMessageAsync(Update.Message.Chat.Id,
