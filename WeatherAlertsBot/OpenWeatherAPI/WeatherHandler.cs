@@ -105,7 +105,8 @@ public sealed class WeatherHandler
             Temperature = temperatureInfo.TemperatureInfo.Temperature - 273.15f,
             FeelsLike = temperatureInfo.TemperatureInfo.FeelsLike - 273.15f,
             Longitude = coordinatesInfoFirst.Longitude,
-            Lattitude = coordinatesInfoFirst.Lattitude
+            Lattitude = coordinatesInfoFirst.Lattitude,
+            WeatherInfo = temperatureInfo.WeatherInfo.First().TypeOfWeather
         };
     }
 
@@ -116,13 +117,14 @@ public sealed class WeatherHandler
     /// <returns>WeatherResponseForUser</returns>
     public async ValueTask<WeatherResponseForUser> SendWeatherByUserLocationAsync(Location userLocation)
     {
-        var weatherResponseForUser = await GetCurrentWeatherByCoordinatesAsync((float)userLocation.Latitude, (float)userLocation.Longitude); ;
+        var temperatureInfo = await GetCurrentWeatherByCoordinatesAsync((float)userLocation.Latitude, (float)userLocation.Longitude); ;
 
         return new WeatherResponseForUser
         {
-            CityName = weatherResponseForUser.Name,
-            Temperature = weatherResponseForUser.TemperatureInfo.Temperature - 273.15f,
-            FeelsLike = weatherResponseForUser.TemperatureInfo.FeelsLike - 273.15f
+            CityName = temperatureInfo.Name,
+            Temperature = temperatureInfo.TemperatureInfo.Temperature - 273.15f,
+            FeelsLike = temperatureInfo.TemperatureInfo.FeelsLike - 273.15f,
+            WeatherInfo = temperatureInfo.WeatherInfo.First().TypeOfWeather
         };
     }
 }

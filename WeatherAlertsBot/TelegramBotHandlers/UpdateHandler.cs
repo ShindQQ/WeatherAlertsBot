@@ -75,7 +75,8 @@ public sealed class UpdateHandler
         if (userMessageText.ToLower().Equals("/start"))
         {
             await BotClient.SendTextMessageAsync(Update.Message.Chat.Id,
-                "`Hello!\nTo receive weather by city name send me the message in format: /weather [city_name]!\nOr just send me your location!`",
+                "`Hello!\nTo receive weather by city name send me the message in format: /weather [city_name]!\n`" +
+                "`Or just send me your location!`",
                 ParseMode.MarkdownV2, cancellationToken: CancellationToken);
 
             return true;
@@ -103,7 +104,7 @@ public sealed class UpdateHandler
                    cancellationToken: CancellationToken);
                 await BotClient.SendTextMessageAsync(location.Chat.Id,
                    @$"`Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature} °C, " +
-                   $"feels like {weatherResponseForUser.FeelsLike} °C.`",
+                   $"feels like {weatherResponseForUser.FeelsLike} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`",
                    ParseMode.MarkdownV2, cancellationToken: CancellationToken, replyToMessageId: location.MessageId);
 
                 return true;
@@ -130,7 +131,7 @@ public sealed class UpdateHandler
 
             await BotClient.SendTextMessageAsync(Update.Message.Chat.Id,
                        @$"`Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature} °C, " +
-                       $"feels like {weatherResponseForUser.FeelsLike} °C.`",
+                       $"feels like {weatherResponseForUser.FeelsLike} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`",
                        ParseMode.MarkdownV2, cancellationToken: CancellationToken);
         }
     }
@@ -142,7 +143,8 @@ public sealed class UpdateHandler
     private async Task HandleErrorMessageAsync()
     {
         await BotClient.SendTextMessageAsync(Update.Message.Chat.Id,
-            "`Hello!\nTo receive weather by city name send me the message in format: /weather [city_name]!\nOr just send me your location!`",
+            "`Hello!\nTo receive weather by city name send me the message in format: /weather [city_name]!\n`" + 
+            "`Or just send me your location!`",
             ParseMode.MarkdownV2, cancellationToken: CancellationToken);
     }
 }

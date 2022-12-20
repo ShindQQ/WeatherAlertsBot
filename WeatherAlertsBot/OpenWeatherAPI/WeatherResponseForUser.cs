@@ -31,6 +31,11 @@ public sealed class WeatherResponseForUser
     public float FeelsLike { get; set; }
 
     /// <summary>
+    ///     Which weather it`s now (snowing, sunny, etc.)
+    /// </summary>
+    public string WeatherInfo { get; set; } = string.Empty;
+
+    /// <summary>
     ///     Error message for user if there were some troubles for his request
     /// </summary>
     public string ErrorMessage { get; set; } = string.Empty;
