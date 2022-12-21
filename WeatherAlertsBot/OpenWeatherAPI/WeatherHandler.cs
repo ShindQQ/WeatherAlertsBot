@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System.Net.Http.Json;
 using Telegram.Bot.Types;
+using WeatherAlertsBot.Requesthandlers;
 
 namespace WeatherAlertsBot.OpenWeatherAPI;
 
@@ -10,14 +10,14 @@ namespace WeatherAlertsBot.OpenWeatherAPI;
 public sealed class WeatherHandler
 {
     /// <summary>
-    ///     HttpClient 
-    /// </summary>
-    private static readonly HttpClient HttpClient = new();
-
-    /// <summary>
     ///     Our Api Key
     /// </summary>
     private string OpenWeatherApiKey { get; init; }
+
+    /// <summary>
+    ///     Class of logic for calling APIs
+    /// </summary>
+    private readonly APIsRequestsHandler APIsRequestsHandler = new();
 
     /// <summary>
     ///     Constructor for api key inicializing 
@@ -38,9 +38,9 @@ public sealed class WeatherHandler
     /// <returns>WeatherForecastResult</returns>
     public async ValueTask<WeatherForecastResult> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
     {
-        string url = @$"https://api.openweathermap.org/data/2.5/weather?lat={lattitude}&lon={longitude}&appid={OpenWeatherApiKey}";
+        string url = $"https://api.openweathermap.org/data/2.5/weather?lat={lattitude}&lon={longitude}&appid={OpenWeatherApiKey}";
 
-        return await GetResponseFromOpenWeatherAPI<WeatherForecastResult>(url);
+        return await APIsRequestsHandler.GetResponseFromAPI<WeatherForecastResult>(url);
     }
 
     /// <summary>
@@ -50,29 +50,11 @@ public sealed class WeatherHandler
     /// <returns>CoordinatesInfo</returns>
     public async ValueTask<IEnumerable<CoordinatesInfo>> GetLattitudeAndLongitudeByCityNameAsync(string cityName)
     {
-        string url = @$"http://api.openweathermap.org/geo/1.0/direct?q={cityName}&appid={OpenWeatherApiKey}";
+        string url = $"http://api.openweathermap.org/geo/1.0/direct?q={cityName}&appid={OpenWeatherApiKey}";
 
-        return await GetResponseFromOpenWeatherAPI<IEnumerable<CoordinatesInfo>>(url);
+        return await APIsRequestsHandler.GetResponseFromAPI<IEnumerable<CoordinatesInfo>>(url);
     }
 
-    /// <summary>
-    ///     Receiving response from OpenWeatherAPI
-    /// </summary>
-    /// <typeparam name="T">Describing type for deserializing</typeparam>
-    /// <param name="url">Url for request</param>
-    /// <returns>T as deserialized response from request</returns>
-    /// <exception cref="HttpRequestException">If response`s status code isn`t 200</exception>
-    public async ValueTask<T> GetResponseFromOpenWeatherAPI<T>(string url)
-    {
-        var response = await HttpClient.GetAsync(url);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new HttpRequestException("Some troubles happened with your request!");
-        }
-
-        return await response.Content.ReadFromJsonAsync<T>();
-    }
 
     /// <summary>
     ///     Generating data for response for the user
@@ -90,7 +72,7 @@ public sealed class WeatherHandler
 
         var coordinatesInfo = await GetLattitudeAndLongitudeByCityNameAsync(splittedUserMessage[1]);
 
-        if (coordinatesInfo.Count() <= 0)
+        if (!coordinatesInfo.Any())
         {
             return new WeatherResponseForUser { ErrorMessage = @"No data was found for your request\!" };
         }
