@@ -1,9 +1,11 @@
-﻿using Telegram.Bot;
+﻿using System.Text;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using WeatherAlertsBot.OpenWeatherAPI;
 using WeatherAlertsBot.Requesthandlers;
 using WeatherAlertsBot.RussianWarship;
+using WeatherAlertsBot.RussianWarship.AlarmsInfo;
 
 namespace WeatherAlertsBot.TelegramBotHandlers;
 
@@ -64,7 +66,8 @@ public sealed class UpdateHandler
             {
                 if (!await HandleStartMessageAsync(userMessageText) &&
                     !await HandleWeatherMessageAsync(userMessageText) &&
-                    !await HandleRussianInvasionInfo(userMessageText))
+                    !await HandleRussianInvasionInfo(userMessageText) &&
+                    !await HandleAlertsInfo(userMessageText))
                 {
                     await HandleErrorMessageAsync();
                 }
@@ -161,33 +164,63 @@ public sealed class UpdateHandler
     ///     Receiving info about liquidations in russian invasion
     /// </summary>
     /// <param name="userMessageText">Message sent by user</param>
-    /// <returns>RussianInvasion</returns>
+    /// <returns>True if user`s message equals with /alerts_lost and there were 
+    /// no troubles with request, false if there was troubleshooting</returns>
     private async Task<bool> HandleRussianInvasionInfo(string userMessageText)
     {
         if (userMessageText.ToLower().Equals("/alerts_lost"))
         {
-            string url = "https://russianwarship.rip/api/v1/statistics/latest";
+            const string url = "https://russianwarship.rip/api/v1/statistics/latest";
 
-            var RussianInvasion = (await APIsRequestsHandler.GetResponseFromAPI<RussianInvasion>(url)).RussianWarshipInfo;
-            var IncreaseLiquidatedStats = RussianInvasion.IncreaseLiquidatedStats;
-            var LiquidatedStats = RussianInvasion.LiquidatedStats;
+            var russianInvasion = (await APIsRequestsHandler.GetResponseFromAPI<RussianInvasion>(url)).RussianWarshipInfo;
+            var IncreaseLiquidatedStats = russianInvasion.IncreaseLiquidatedStats;
+            var liquidatedStats = russianInvasion.LiquidatedStats;
 
             await BotClient.SendTextMessageAsync(Update.Message.Chat.Id,
-                $"`Information about enemy losses on {RussianInvasion.Date}, day {RussianInvasion.Day}:\n" +
-                $"Personnel units: {LiquidatedStats.PersonnelUnits} (+{IncreaseLiquidatedStats.PersonnelUnits})\n" +
-                $"Tanks: {LiquidatedStats.Tanks} (+{IncreaseLiquidatedStats.Tanks})\n" +
-                $"Armoured fighting vehicles: {LiquidatedStats.ArmouredFightingVehicles} (+{IncreaseLiquidatedStats.ArmouredFightingVehicles})\n" +
-                $"Artillery systems: {LiquidatedStats.ArtillerySystems} (+{IncreaseLiquidatedStats.ArtillerySystems})\n" +
-                $"MLRS: {LiquidatedStats.MLRS} (+{IncreaseLiquidatedStats.MLRS})\n" +
-                $"AA warfare systems: {LiquidatedStats.AaWarfareSystems} (+{IncreaseLiquidatedStats.AaWarfareSystems})\n" +
-                $"Planes: {LiquidatedStats.Planes} (+{IncreaseLiquidatedStats.Planes})\n" +
-                $"Helicopters: {LiquidatedStats.Helicopters} (+{IncreaseLiquidatedStats.Helicopters})\n" +
-                $"Vehicles fuel tanks: {LiquidatedStats.VehiclesFuelTanks} (+{IncreaseLiquidatedStats.VehiclesFuelTanks})\n" +
-                $"Warships cutters: {LiquidatedStats.WarshipsCutters} (+{IncreaseLiquidatedStats.WarshipsCutters})\n" +
-                $"Cruise missiles: {LiquidatedStats.CruiseMissiles} (+{IncreaseLiquidatedStats.CruiseMissiles})\n" +
-                $"UAV systems: {LiquidatedStats.UavSystems} (+{IncreaseLiquidatedStats.UavSystems})\n" +
-                $"Special military equip: {LiquidatedStats.SpecialMilitaryEquip} (+{IncreaseLiquidatedStats.SpecialMilitaryEquip})\n" +
-                $"ATGM SRBM systems: {LiquidatedStats.AtgmSrbmSystems} (+{IncreaseLiquidatedStats.AtgmSrbmSystems})`",
+                $"`Information about enemy losses on {russianInvasion.Date}, day {russianInvasion.Day}:\n" +
+                $"Personnel units: {liquidatedStats.PersonnelUnits} (+{IncreaseLiquidatedStats.PersonnelUnits})\n" +
+                $"Tanks: {liquidatedStats.Tanks} (+{IncreaseLiquidatedStats.Tanks})\n" +
+                $"Armoured fighting vehicles: {liquidatedStats.ArmouredFightingVehicles} (+{IncreaseLiquidatedStats.ArmouredFightingVehicles})\n" +
+                $"Artillery systems: {liquidatedStats.ArtillerySystems} (+{IncreaseLiquidatedStats.ArtillerySystems})\n" +
+                $"MLRS: {liquidatedStats.MLRS} (+{IncreaseLiquidatedStats.MLRS})\n" +
+                $"AA warfare systems: {liquidatedStats.AaWarfareSystems} (+{IncreaseLiquidatedStats.AaWarfareSystems})\n" +
+                $"Planes: {liquidatedStats.Planes} (+{IncreaseLiquidatedStats.Planes})\n" +
+                $"Helicopters: {liquidatedStats.Helicopters} (+{IncreaseLiquidatedStats.Helicopters})\n" +
+                $"Vehicles fuel tanks: {liquidatedStats.VehiclesFuelTanks} (+{IncreaseLiquidatedStats.VehiclesFuelTanks})\n" +
+                $"Warships cutters: {liquidatedStats.WarshipsCutters} (+{IncreaseLiquidatedStats.WarshipsCutters})\n" +
+                $"Cruise missiles: {liquidatedStats.CruiseMissiles} (+{IncreaseLiquidatedStats.CruiseMissiles})\n" +
+                $"UAV systems: {liquidatedStats.UavSystems} (+{IncreaseLiquidatedStats.UavSystems})\n" +
+                $"Special military equip: {liquidatedStats.SpecialMilitaryEquip} (+{IncreaseLiquidatedStats.SpecialMilitaryEquip})\n" +
+                $"ATGM SRBM systems: {liquidatedStats.AtgmSrbmSystems} (+{IncreaseLiquidatedStats.AtgmSrbmSystems})`",
+                ParseMode.MarkdownV2, cancellationToken: CancellationToken);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    ///     Receiving info about alerts in Ukraine regions
+    /// </summary>
+    /// <param name="userMessageText">Message sent by user</param>
+    /// <returns>True if user`s message equals with /alerts_map and there were 
+    /// no troubles with request, false if there was troubleshooting</returns>
+    private async Task<bool> HandleAlertsInfo(string userMessageText)
+    {
+        if (userMessageText.ToLower().Equals("/alerts_map"))
+        {
+            StringBuilder messageForUser = new($"`Information about current alerts in Ukraine:\n");
+            const string url = "https://air-save.ops.ajax.systems/api/mobile/regions";
+
+            var regionsWithAlarm = (await APIsRequestsHandler.GetResponseFromAPI<AlarmsInUkraine>(url))
+                .Regions.Where(region => region.AlarmsInRegion.Count > 0 && region.State == true && !region.Name.Equals("Тестовий Регіон"))
+                .ToList();
+
+            regionsWithAlarm.ForEach(region => messageForUser.AppendLine($"🚨 {region.Name}"));
+
+            await BotClient.SendTextMessageAsync(Update.Message.Chat.Id,
+                messageForUser.Append("`").ToString(),
                 ParseMode.MarkdownV2, cancellationToken: CancellationToken);
 
             return true;
