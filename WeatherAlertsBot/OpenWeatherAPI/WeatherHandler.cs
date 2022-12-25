@@ -12,39 +12,39 @@ public sealed class WeatherHandler
     /// <summary>
     ///     Our Api Key
     /// </summary>
-    private string OpenWeatherApiKey { get; init; }
+    private string openWeatherApiKey { get; init; }
 
     /// <summary>
     ///     Class of logic for calling APIs
     /// </summary>
-    private readonly APIsRequestsHandler APIsRequestsHandler = new();
+    private readonly APIsRequestsHandler aPIsRequestsHandler = new();
 
     /// <summary>
     ///     String for weather command
     /// </summary>
-    private const string weatherCommand = "/weather";
+    private const string WeatherCommand = "/weather";
 
     /// <summary>
     ///     Open Weather API url
     /// </summary>
-    private const string openWeatherAPIUrl = "https://api.openweathermap.org";
+    private const string OpenWeatherAPIUrl = "https://api.openweathermap.org";
 
     /// <summary>
     ///     Open Weather API`s Current weather url
     /// </summary>
-    private const string currentWeatherUrl = "/data/2.5/weather";
+    private const string CurrentWeatherUrl = "/data/2.5/weather";
 
     /// <summary>
     ///     Open Weather API`s Geo API url
     /// </summary>
-    private const string geoAPIUrl = "/geo/1.0/direct";
+    private const string GeoAPIUrl = "/geo/1.0/direct";
 
     /// <summary>
     ///     Constructor for api key inicializing 
     /// </summary>
     public WeatherHandler()
     {
-        OpenWeatherApiKey = BotConfiguration.OpenWeatherApiKey;
+        openWeatherApiKey = BotConfiguration.OpenWeatherApiKey;
     }
 
     /// <summary>
@@ -55,9 +55,9 @@ public sealed class WeatherHandler
     /// <returns>WeatherForecastResult</returns>
     public async ValueTask<WeatherForecastResult?> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
     {
-        string url = openWeatherAPIUrl + currentWeatherUrl + $"?lat={lattitude}&lon={longitude}&appid={OpenWeatherApiKey}";
+        string url = OpenWeatherAPIUrl + CurrentWeatherUrl + $"?lat={lattitude}&lon={longitude}&appid={openWeatherApiKey}";
 
-        return await APIsRequestsHandler.GetResponseFromAPI<WeatherForecastResult>(url);
+        return await aPIsRequestsHandler.GetResponseFromAPI<WeatherForecastResult>(url);
     }
 
     /// <summary>
@@ -67,9 +67,9 @@ public sealed class WeatherHandler
     /// <returns>CoordinatesInfo</returns>
     public async ValueTask<IEnumerable<CoordinatesInfo>?> GetLattitudeAndLongitudeByCityNameAsync(string cityName)
     {
-        string url = openWeatherAPIUrl + geoAPIUrl + $"?q={cityName}&appid={OpenWeatherApiKey}";
+        string url = OpenWeatherAPIUrl + GeoAPIUrl + $"?q={cityName}&appid={openWeatherApiKey}";
 
-        return await APIsRequestsHandler.GetResponseFromAPI<IEnumerable<CoordinatesInfo>>(url);
+        return await aPIsRequestsHandler.GetResponseFromAPI<IEnumerable<CoordinatesInfo>>(url);
     }
 
     /// <summary>
@@ -79,14 +79,14 @@ public sealed class WeatherHandler
     /// <returns>WeatherResponseForUser</returns>
     public async ValueTask<WeatherResponseForUser> SendWeatherByUserMessageAsync(string userMessage)
     {
-        if (userMessage.Equals(weatherCommand))
+        if (userMessage.Equals(WeatherCommand))
         {
             return new WeatherResponseForUser { ErrorMessage = @"`Format of the input was wrong\!`" };
         }
 
         var splittedUserMessage = userMessage.Trim().Split(' ', 2);
 
-        if (!splittedUserMessage[0].ToLower().StartsWith(weatherCommand))
+        if (!splittedUserMessage[0].ToLower().StartsWith(WeatherCommand))
         {
             return new WeatherResponseForUser { ErrorMessage = @"`Format of the input was wrong\!`" };
         }
