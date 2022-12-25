@@ -43,6 +43,36 @@ public sealed class UpdateHandler
     private readonly APIsRequestsHandler APIsRequestsHandler = new();
 
     /// <summary>
+    ///     String for start command
+    /// </summary>
+    private const string startCommand = "/start";
+
+    /// <summary>
+    ///     String for weather command
+    /// </summary>
+    private const string weatherCommand = "/weather";
+
+    /// <summary>
+    ///     String for alerts_map command
+    /// </summary>
+    private const string alertsMapCommand = "/alerts_map";
+
+    /// <summary>
+    ///     String for alerts_lost command
+    /// </summary>
+    private const string alertsLostCommand = "/alerts_lost";
+
+    /// <summary>
+    ///     Url for receiving list of alarms in Ukraine
+    /// </summary>
+    private const string alarmsInUkraineInfoUrl = "https://air-save.ops.ajax.systems/api/mobile/regions";
+
+    /// <summary>
+    ///     Url for receiving list of enemy looses
+    /// </summary>
+    private const string russianWarshipUrl = "https://russianwarship.rip/api/v1/statistics/latest";
+
+    /// <summary>
     ///     Constructor
     /// </summary>
     /// <param name="telegramBotClient">A client interface to use Telegram Bot API</param>
@@ -87,7 +117,7 @@ public sealed class UpdateHandler
     /// <returns>True if user`s message equals /start, false if not</returns>
     private async Task<bool> HandleStartMessageAsync(string userMessageText)
     {
-        if (userMessageText.ToLower().Equals("/start"))
+        if (userMessageText.ToLower().Equals(startCommand))
         {
             await HandleErrorMessageAsync();
 
@@ -104,7 +134,7 @@ public sealed class UpdateHandler
     /// <returns>True if user`s message starts with /weather and there were no troubles with request, false if there was troubleshooting</returns>
     private async Task<bool> HandleWeatherMessageAsync(string userMessageText)
     {
-        if (userMessageText.ToLower().StartsWith("/weather"))
+        if (userMessageText.ToLower().StartsWith(weatherCommand))
         {
             var weatherResponseForUser = await weatherHandler.SendWeatherByUserMessageAsync(userMessageText);
             var errorMessage = weatherResponseForUser.ErrorMessage;
@@ -116,8 +146,8 @@ public sealed class UpdateHandler
                    cancellationToken: _cancellationToken);
                 await _botClient.SendTextMessageAsync(location.Chat.Id,
                    $"""
-                   `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature} °C.
-                   feels like {weatherResponseForUser.FeelsLike} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
+                   `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
+                   feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
                    """,
                    ParseMode.MarkdownV2, cancellationToken: _cancellationToken, replyToMessageId: location.MessageId);
 
@@ -145,8 +175,8 @@ public sealed class UpdateHandler
 
             await _botClient.SendTextMessageAsync(_update.Message.Chat.Id,
                 $"""
-                `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature} °C.
-                feels like {weatherResponseForUser.FeelsLike} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
+                `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
+                feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
                 """,
                 ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
         }
@@ -175,11 +205,9 @@ public sealed class UpdateHandler
     /// no troubles with request, false if there was troubleshooting</returns>
     private async Task<bool> HandleRussianInvasionInfo(string userMessageText)
     {
-        if (userMessageText.ToLower().Equals("/alerts_lost"))
+        if (userMessageText.ToLower().Equals(alertsLostCommand))
         {
-            const string url = "https://russianwarship.rip/api/v1/statistics/latest";
-
-            var russianInvasion = (await APIsRequestsHandler.GetResponseFromAPI<RussianInvasion>(url)).RussianWarshipInfo;
+            var russianInvasion = (await APIsRequestsHandler.GetResponseFromAPI<RussianInvasion>(russianWarshipUrl)).RussianWarshipInfo;
 
             await _botClient.SendTextMessageAsync(_update.Message.Chat.Id,
                 russianInvasion.ToString(),
@@ -199,12 +227,11 @@ public sealed class UpdateHandler
     /// no troubles with request, false if there was troubleshooting</returns>
     private async Task<bool> HandleAlertsInfo(string userMessageText)
     {
-        if (userMessageText.ToLower().Equals("/alerts_map"))
+        if (userMessageText.ToLower().Equals(alertsMapCommand))
         {
             string messageForUser = $"`Information about current alerts in Ukraine:\n";
-            const string url = "https://air-save.ops.ajax.systems/api/mobile/regions";
 
-            var regions = (await APIsRequestsHandler.GetResponseFromAPI<AlarmsInUkraine>(url))
+            var regions = (await APIsRequestsHandler.GetResponseFromAPI<AlarmsInUkraine>(alarmsInUkraineInfoUrl))
                 .Regions.Where(region => !region.Name.Equals("Тестовий Регіон"))
                 .ToList();
 
@@ -227,7 +254,7 @@ public sealed class UpdateHandler
     /// <param name="regions">List of regions in Ukraine</param>
     /// <param name="regionName">Name of the region</param>
     /// <returns>True if there is an alarm, false if not</returns>
-    private bool CheckRegionAlarm(List<Region> regions, string regionName)
+    private static bool CheckRegionAlarm(List<Region> regions, string regionName)
     {
         return regions.Any(region => region.Name.Equals(regionName) && region.AlarmsInRegion.Count > 0);
     }

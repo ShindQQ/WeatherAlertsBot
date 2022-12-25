@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
+using WeatherAlertsBot.Configuration;
 using WeatherAlertsBot.Requesthandlers;
+using static System.Net.WebRequestMethods;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WeatherAlertsBot.OpenWeatherAPI;
 
@@ -21,14 +23,31 @@ public sealed class WeatherHandler
     private readonly APIsRequestsHandler APIsRequestsHandler = new();
 
     /// <summary>
+    ///     String for weather command
+    /// </summary>
+    private const string weatherCommand = "/weather";
+
+    /// <summary>
+    ///     Open Weather API url
+    /// </summary>
+    private const string openWeatherAPIUrl = "https://api.openweathermap.org";
+
+    /// <summary>
+    ///     Open Weather API`s Current weather url
+    /// </summary>
+    private const string currentWeatherUrl = "/data/2.5/weather";
+
+    /// <summary>
+    ///     Open Weather API`s Geo API url
+    /// </summary>
+    private const string geoAPIUrl = "/geo/1.0/direct";
+
+    /// <summary>
     ///     Constructor for api key inicializing 
     /// </summary>
     public WeatherHandler()
     {
-        var configuration = new ConfigurationBuilder()
-                 .AddJsonFile($"appsettings.json", true, true).Build();
-
-        OpenWeatherApiKey = configuration["OpenWeatherApiKey"];
+        OpenWeatherApiKey = BotConfiguration.OpenWeatherApiKey;
     }
 
     /// <summary>
@@ -39,7 +58,7 @@ public sealed class WeatherHandler
     /// <returns>WeatherForecastResult</returns>
     public async ValueTask<WeatherForecastResult?> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
     {
-        string url = $"https://api.openweathermap.org/data/2.5/weather?lat={lattitude}&lon={longitude}&appid={OpenWeatherApiKey}";
+        string url = openWeatherAPIUrl + currentWeatherUrl + $"?lat={lattitude}&lon={longitude}&appid={OpenWeatherApiKey}";
 
         return await APIsRequestsHandler.GetResponseFromAPI<WeatherForecastResult>(url);
     }
@@ -51,7 +70,7 @@ public sealed class WeatherHandler
     /// <returns>CoordinatesInfo</returns>
     public async ValueTask<IEnumerable<CoordinatesInfo>?> GetLattitudeAndLongitudeByCityNameAsync(string cityName)
     {
-        string url = $"http://api.openweathermap.org/geo/1.0/direct?q={cityName}&appid={OpenWeatherApiKey}";
+        string url = openWeatherAPIUrl + geoAPIUrl + $"?q={cityName}&appid={OpenWeatherApiKey}";
 
         return await APIsRequestsHandler.GetResponseFromAPI<IEnumerable<CoordinatesInfo>>(url);
     }
@@ -63,14 +82,14 @@ public sealed class WeatherHandler
     /// <returns>WeatherResponseForUser</returns>
     public async ValueTask<WeatherResponseForUser> SendWeatherByUserMessageAsync(string userMessage)
     {
-        if (userMessage.Equals("/weather"))
+        if (userMessage.Equals(weatherCommand))
         {
             return new WeatherResponseForUser { ErrorMessage = @"`Format of the input was wrong\!`" };
         }
 
         var splittedUserMessage = userMessage.Trim().Split(' ', 2);
 
-        if (!splittedUserMessage[0].ToLower().StartsWith("/weather"))
+        if (!splittedUserMessage[0].ToLower().StartsWith(weatherCommand))
         {
             return new WeatherResponseForUser { ErrorMessage = @"`Format of the input was wrong\!`" };
         }
@@ -94,8 +113,8 @@ public sealed class WeatherHandler
         return new WeatherResponseForUser
         {
             CityName = coordinatesInfoFirst.CityName,
-            Temperature = temperatureInfo.TemperatureInfo.Temperature - 273.15f,
-            FeelsLike = temperatureInfo.TemperatureInfo.FeelsLike - 273.15f,
+            Temperature = temperatureInfo.TemperatureInfo.Temperature,
+            FeelsLike = temperatureInfo.TemperatureInfo.FeelsLike,
             Longitude = coordinatesInfoFirst.Longitude,
             Lattitude = coordinatesInfoFirst.Lattitude,
             WeatherInfo = temperatureInfo.WeatherInfo.First().TypeOfWeather
@@ -119,8 +138,8 @@ public sealed class WeatherHandler
         return new WeatherResponseForUser
         {
             CityName = temperatureInfo.Name,
-            Temperature = temperatureInfo.TemperatureInfo.Temperature - 273.15f,
-            FeelsLike = temperatureInfo.TemperatureInfo.FeelsLike - 273.15f,
+            Temperature = temperatureInfo.TemperatureInfo.Temperature,
+            FeelsLike = temperatureInfo.TemperatureInfo.FeelsLike,
             WeatherInfo = temperatureInfo.WeatherInfo.First().TypeOfWeather
         };
     }

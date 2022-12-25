@@ -1,15 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using WeatherAlertsBot.Configuration;
 using WeatherAlertsBot.TelegramBotHandlers;
 
-var configuration = new ConfigurationBuilder()
-                 .AddJsonFile($"appsettings.json", true, true).Build();
-
-var botClient = new TelegramBotClient(configuration["BotAccessToken"]);
+var botClient = new TelegramBotClient(BotConfiguration.BotAccessToken);
 
 using CancellationTokenSource cansellationTokenSource = new();
 
