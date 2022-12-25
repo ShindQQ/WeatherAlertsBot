@@ -1,9 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
-using Telegram.Bot.Types;
+﻿using Telegram.Bot.Types;
 using WeatherAlertsBot.Configuration;
 using WeatherAlertsBot.Requesthandlers;
-using static System.Net.WebRequestMethods;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WeatherAlertsBot.OpenWeatherAPI;
 
