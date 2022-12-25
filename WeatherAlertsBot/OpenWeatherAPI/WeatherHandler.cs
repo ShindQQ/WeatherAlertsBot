@@ -1,4 +1,5 @@
 ﻿using Telegram.Bot.Types;
+using WeatherAlertsBot.Commands;
 using WeatherAlertsBot.Configuration;
 using WeatherAlertsBot.Requesthandlers;
 
@@ -18,11 +19,6 @@ public sealed class WeatherHandler
     ///     Class of logic for calling APIs
     /// </summary>
     private readonly APIsRequestsHandler aPIsRequestsHandler = new();
-
-    /// <summary>
-    ///     String for weather command
-    /// </summary>
-    private const string WeatherCommand = "/weather";
 
     /// <summary>
     ///     Open Weather API url
@@ -79,14 +75,14 @@ public sealed class WeatherHandler
     /// <returns>WeatherResponseForUser</returns>
     public async ValueTask<WeatherResponseForUser> SendWeatherByUserMessageAsync(string userMessage)
     {
-        if (userMessage.Equals(WeatherCommand))
+        if (userMessage.Equals(BotCommands.WeatherCommand))
         {
             return new WeatherResponseForUser { ErrorMessage = @"`Format of the input was wrong\!`" };
         }
 
         var splittedUserMessage = userMessage.Trim().Split(' ', 2);
 
-        if (!splittedUserMessage[0].ToLower().StartsWith(WeatherCommand))
+        if (!splittedUserMessage[0].ToLower().StartsWith(BotCommands.WeatherCommand))
         {
             return new WeatherResponseForUser { ErrorMessage = @"`Format of the input was wrong\!`" };
         }
