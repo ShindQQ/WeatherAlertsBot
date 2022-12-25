@@ -19,13 +19,13 @@ public sealed class APIsRequestsHandler
     /// <param name="url">Url for request</param>
     /// <returns>T as deserialized response from request</returns>
     /// <exception cref="HttpRequestException">If response`s status code isn`t 200</exception>
-    public async ValueTask<T> GetResponseFromAPI<T>(string url)
+    public async ValueTask<T?> GetResponseFromAPI<T>(string url)
     {
         var response = await HttpClient.GetAsync(url);
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new HttpRequestException("Some troubles happened with your request!");
+            return default;
         }
 
         return await response.Content.ReadFromJsonAsync<T>();

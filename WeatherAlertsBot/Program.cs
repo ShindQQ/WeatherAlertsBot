@@ -4,7 +4,6 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using WeatherAlertsBot.OpenWeatherAPI;
 using WeatherAlertsBot.TelegramBotHandlers;
 
 var configuration = new ConfigurationBuilder()
@@ -32,8 +31,6 @@ cansellationTokenSource.Cancel();
 
 async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
 {
-    var weatherHandler = new WeatherHandler();
-
     UpdateHandler updateHandler = new(botClient, update, cancellationToken);
 
     await updateHandler.HandleMessageAsync();

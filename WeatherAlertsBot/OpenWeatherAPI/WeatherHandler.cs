@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using WeatherAlertsBot.Requesthandlers;
 
@@ -36,7 +37,7 @@ public sealed class WeatherHandler
     /// <param name="lattitude">Location lattitude</param>
     /// <param name="longitude">Location longitude</param>
     /// <returns>WeatherForecastResult</returns>
-    public async ValueTask<WeatherForecastResult> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
+    public async ValueTask<WeatherForecastResult?> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
     {
         string url = $"https://api.openweathermap.org/data/2.5/weather?lat={lattitude}&lon={longitude}&appid={OpenWeatherApiKey}";
 
@@ -48,13 +49,12 @@ public sealed class WeatherHandler
     /// </summary>
     /// <param name="cityName">Name of the city</param>
     /// <returns>CoordinatesInfo</returns>
-    public async ValueTask<IEnumerable<CoordinatesInfo>> GetLattitudeAndLongitudeByCityNameAsync(string cityName)
+    public async ValueTask<IEnumerable<CoordinatesInfo>?> GetLattitudeAndLongitudeByCityNameAsync(string cityName)
     {
         string url = $"http://api.openweathermap.org/geo/1.0/direct?q={cityName}&appid={OpenWeatherApiKey}";
 
         return await APIsRequestsHandler.GetResponseFromAPI<IEnumerable<CoordinatesInfo>>(url);
     }
-
 
     /// <summary>
     ///     Generating data for response for the user
@@ -63,23 +63,33 @@ public sealed class WeatherHandler
     /// <returns>WeatherResponseForUser</returns>
     public async ValueTask<WeatherResponseForUser> SendWeatherByUserMessageAsync(string userMessage)
     {
+        if (userMessage.Equals("/weather"))
+        {
+            return new WeatherResponseForUser { ErrorMessage = @"`Format of the input was wrong\!`" };
+        }
+
         var splittedUserMessage = userMessage.Trim().Split(' ', 2);
 
         if (!splittedUserMessage[0].ToLower().StartsWith("/weather"))
         {
-            return new WeatherResponseForUser { ErrorMessage = @"Format of the input was wrong\!" };
+            return new WeatherResponseForUser { ErrorMessage = @"`Format of the input was wrong\!`" };
         }
 
         var coordinatesInfo = await GetLattitudeAndLongitudeByCityNameAsync(splittedUserMessage[1]);
 
-        if (!coordinatesInfo.Any())
+        if (coordinatesInfo == null || !coordinatesInfo.Any())
         {
-            return new WeatherResponseForUser { ErrorMessage = @"No data was found for your request\!" };
+            return new WeatherResponseForUser { ErrorMessage = @"`No data was found for your request\!`" };
         }
 
         var coordinatesInfoFirst = coordinatesInfo.First();
 
         var temperatureInfo = await GetCurrentWeatherByCoordinatesAsync(coordinatesInfoFirst.Lattitude, coordinatesInfoFirst.Longitude);
+
+        if (temperatureInfo == null)
+        {
+            return new WeatherResponseForUser { ErrorMessage = @"`No data was found for your request\!`" };
+        }
 
         return new WeatherResponseForUser
         {
@@ -100,6 +110,11 @@ public sealed class WeatherHandler
     public async ValueTask<WeatherResponseForUser> SendWeatherByUserLocationAsync(Location userLocation)
     {
         var temperatureInfo = await GetCurrentWeatherByCoordinatesAsync((float)userLocation.Latitude, (float)userLocation.Longitude); ;
+
+        if (temperatureInfo == null)
+        {
+            return new WeatherResponseForUser { ErrorMessage = @"`No data was found for your request\!`" };
+        }
 
         return new WeatherResponseForUser
         {
