@@ -49,7 +49,7 @@ public sealed class WeatherHandler
     /// <param name="lattitude">Location lattitude</param>
     /// <param name="longitude">Location longitude</param>
     /// <returns>WeatherForecastResult</returns>
-    public async ValueTask<WeatherForecastResult?> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
+    public async Task<WeatherForecastResult?> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
     {
         string url = OpenWeatherAPIUrl + CurrentWeatherUrl + $"?lat={lattitude}&lon={longitude}&appid={openWeatherApiKey}";
 
@@ -61,7 +61,7 @@ public sealed class WeatherHandler
     /// </summary>
     /// <param name="cityName">Name of the city</param>
     /// <returns>CoordinatesInfo</returns>
-    public async ValueTask<IEnumerable<CoordinatesInfo>?> GetLattitudeAndLongitudeByCityNameAsync(string cityName)
+    public async Task<IEnumerable<CoordinatesInfo>?> GetLattitudeAndLongitudeByCityNameAsync(string cityName)
     {
         string url = OpenWeatherAPIUrl + GeoAPIUrl + $"?q={cityName}&appid={openWeatherApiKey}";
 
@@ -73,7 +73,7 @@ public sealed class WeatherHandler
     /// </summary>
     /// <param name="userMessage">Message sent by the user</param>
     /// <returns>WeatherResponseForUser</returns>
-    public async ValueTask<WeatherResponseForUser> SendWeatherByUserMessageAsync(string userMessage)
+    public async Task<WeatherResponseForUser> SendWeatherByUserMessageAsync(string userMessage)
     {
         if (userMessage.Equals(BotCommands.WeatherCommand))
         {
@@ -119,7 +119,7 @@ public sealed class WeatherHandler
     /// </summary>
     /// <param name="userLocation">Location sent by user</param>
     /// <returns>WeatherResponseForUser</returns>
-    public async ValueTask<WeatherResponseForUser> SendWeatherByUserLocationAsync(Location userLocation)
+    public async Task<WeatherResponseForUser> SendWeatherByUserLocationAsync(Location userLocation)
     {
         var temperatureInfo = await GetCurrentWeatherByCoordinatesAsync((float)userLocation.Latitude, (float)userLocation.Longitude); ;
 
