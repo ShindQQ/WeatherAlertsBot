@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WeatherAlertsBot": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

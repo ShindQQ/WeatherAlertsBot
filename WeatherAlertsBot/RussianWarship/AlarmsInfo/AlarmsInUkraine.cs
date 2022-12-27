@@ -12,5 +12,4 @@ public sealed class AlarmsInUkraine
     /// </summary>
     [JsonPropertyName("regions")]
     public List<Region> Regions { get; set; }
-
 }
