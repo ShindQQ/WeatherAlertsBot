@@ -2,7 +2,6 @@
 
 public static class BotCommands
 {
-
     /// <summary>
     ///     String for start command
     /// </summary>

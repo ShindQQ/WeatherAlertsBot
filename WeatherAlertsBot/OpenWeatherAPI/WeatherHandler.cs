@@ -13,34 +13,34 @@ public sealed class WeatherHandler
     /// <summary>
     ///     Our Api Key
     /// </summary>
-    private string openWeatherApiKey { get; init; }
+    private string _openWeatherApiKey { get; init; }
 
     /// <summary>
     ///     Class of logic for calling APIs
     /// </summary>
-    private readonly APIsRequestsHandler aPIsRequestsHandler = new();
+    private readonly APIsRequestsHandler _aPIsRequestsHandler = new();
 
     /// <summary>
     ///     Open Weather API url
     /// </summary>
-    private const string OpenWeatherAPIUrl = "https://api.openweathermap.org";
+    private const string _openWeatherAPIUrl = "https://api.openweathermap.org";
 
     /// <summary>
     ///     Open Weather API`s Current weather url
     /// </summary>
-    private const string CurrentWeatherUrl = "/data/2.5/weather";
+    private const string _currentWeatherUrl = "/data/2.5/weather";
 
     /// <summary>
     ///     Open Weather API`s Geo API url
     /// </summary>
-    private const string GeoAPIUrl = "/geo/1.0/direct";
+    private const string _geoAPIUrl = "/geo/1.0/direct";
 
     /// <summary>
     ///     Constructor for api key inicializing 
     /// </summary>
     public WeatherHandler()
     {
-        openWeatherApiKey = BotConfiguration.OpenWeatherApiKey;
+        _openWeatherApiKey = BotConfiguration.OpenWeatherApiKey;
     }
 
     /// <summary>
@@ -51,9 +51,9 @@ public sealed class WeatherHandler
     /// <returns>WeatherForecastResult</returns>
     public async Task<WeatherForecastResult?> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
     {
-        string url = OpenWeatherAPIUrl + CurrentWeatherUrl + $"?lat={lattitude}&lon={longitude}&appid={openWeatherApiKey}";
+        string url = _openWeatherAPIUrl + _currentWeatherUrl + $"?lat={lattitude}&lon={longitude}&appid={_openWeatherApiKey}";
 
-        return await aPIsRequestsHandler.GetResponseFromAPI<WeatherForecastResult>(url);
+        return await _aPIsRequestsHandler.GetResponseFromAPI<WeatherForecastResult>(url);
     }
 
     /// <summary>
@@ -63,9 +63,9 @@ public sealed class WeatherHandler
     /// <returns>CoordinatesInfo</returns>
     public async Task<IEnumerable<CoordinatesInfo>?> GetLattitudeAndLongitudeByCityNameAsync(string cityName)
     {
-        string url = OpenWeatherAPIUrl + GeoAPIUrl + $"?q={cityName}&appid={openWeatherApiKey}";
+        string url = _openWeatherAPIUrl + _geoAPIUrl + $"?q={cityName}&appid={_openWeatherApiKey}";
 
-        return await aPIsRequestsHandler.GetResponseFromAPI<IEnumerable<CoordinatesInfo>>(url);
+        return await _aPIsRequestsHandler.GetResponseFromAPI<IEnumerable<CoordinatesInfo>>(url);
     }
 
     /// <summary>

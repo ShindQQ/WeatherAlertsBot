@@ -36,22 +36,22 @@ public sealed class UpdateHandler
     /// <summary>
     ///     Weather Hanlder
     /// </summary>
-    private readonly WeatherHandler weatherHandler = new();
+    private readonly WeatherHandler _weatherHandler = new();
 
     /// <summary>
     ///     Class of logic for calling APIs
     /// </summary>
-    private readonly APIsRequestsHandler aPIsRequestsHandler = new();
+    private readonly APIsRequestsHandler _aPIsRequestsHandler = new();
 
     /// <summary>
     ///     Url for receiving list of alarms in Ukraine
     /// </summary>
-    private const string AlarmsInUkraineInfoUrl = "https://air-save.ops.ajax.systems/api/mobile/regions";
+    private const string _alarmsInUkraineInfoUrl = "https://air-save.ops.ajax.systems/api/mobile/regions";
 
     /// <summary>
     ///     Url for receiving list of enemy looses
     /// </summary>
-    private const string RussianWarshipUrl = "https://russianwarship.rip/api/v1/statistics/latest";
+    private const string _russianWarshipUrl = "https://russianwarship.rip/api/v1/statistics/latest";
 
     /// <summary>
     ///     Constructor
@@ -117,7 +117,7 @@ public sealed class UpdateHandler
     {
         if (userMessageText.ToLower().StartsWith(BotCommands.WeatherCommand))
         {
-            var weatherResponseForUser = await weatherHandler.SendWeatherByUserMessageAsync(userMessageText);
+            var weatherResponseForUser = await _weatherHandler.SendWeatherByUserMessageAsync(userMessageText);
             var errorMessage = weatherResponseForUser.ErrorMessage;
 
             if (string.IsNullOrEmpty(errorMessage))
@@ -149,7 +149,7 @@ public sealed class UpdateHandler
 
         if (userLocation != null)
         {
-            var weatherResponseForUser = await weatherHandler.SendWeatherByUserLocationAsync(userLocation);
+            var weatherResponseForUser = await _weatherHandler.SendWeatherByUserLocationAsync(userLocation);
 
             await _botClient.SendTextMessageAsync(_update.Message.Chat.Id,
                 $"""
@@ -187,7 +187,7 @@ public sealed class UpdateHandler
     {
         if (userMessageText.ToLower().Equals(BotCommands.AlertsLostCommand))
         {
-            var russianInvasion = (await aPIsRequestsHandler.GetResponseFromAPI<RussianInvasion>(RussianWarshipUrl)).RussianWarshipInfo;
+            var russianInvasion = (await _aPIsRequestsHandler.GetResponseFromAPI<RussianInvasion>(_russianWarshipUrl)).RussianWarshipInfo;
 
             await _botClient.SendTextMessageAsync(_update.Message.Chat.Id,
                 russianInvasion.ToString(),
@@ -211,7 +211,7 @@ public sealed class UpdateHandler
         {
             string messageForUser = $"`Information about current alerts in Ukraine:\n";
 
-            var regions = (await aPIsRequestsHandler.GetResponseFromAPI<AlarmsInUkraine>(AlarmsInUkraineInfoUrl))
+            var regions = (await _aPIsRequestsHandler.GetResponseFromAPI<AlarmsInUkraine>(_alarmsInUkraineInfoUrl))
                 .Regions.Where(region => !region.Name.Equals("Тестовий Регіон"))
                 .ToList();
 

@@ -5,9 +5,15 @@
 /// </summary>
 public sealed class WeatherResponseForUser
 {
-    private float temperature;
-    private float feelsLike;
+    /// <summary>
+    ///     Temperature in Celcius
+    /// </summary>
+    private float _temperature;
 
+    /// <summary>
+    ///     How temperature feels like in Celcius
+    /// </summary>
+    private float _feelsLike;
 
     /// <summary>
     ///     Name of the city in which user was searching for weather
@@ -27,12 +33,12 @@ public sealed class WeatherResponseForUser
     /// <summary>
     ///     Result of temperature by given city name/location converting it from Kelvins to Celcius
     /// </summary>
-    public float Temperature { get => temperature; set => temperature = value - 273.15f; }
+    public float Temperature { get => _temperature; set => _temperature = value - 273.15f; }
 
     /// <summary>
     ///     Result of how temperature feels like by given city name/location converting it from Kelvins to Celcius
     /// </summary>
-    public float FeelsLike { get => feelsLike; set => feelsLike = value - 273.15f; }
+    public float FeelsLike { get => _feelsLike; set => _feelsLike = value - 273.15f; }
 
     /// <summary>
     ///     Which weather it`s now (snowing, sunny, etc.)
