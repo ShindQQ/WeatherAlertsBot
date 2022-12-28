@@ -3,10 +3,10 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["./WeatherAlertsBot/WeatherAlertsBot/WeatherAlertsBot.csproj", "WeatherAlertsBot/"]
+COPY ["WeatherAlertsBot/WeatherAlertsBot.csproj", "WeatherAlertsBot/"]
 RUN dotnet restore "WeatherAlertsBot/WeatherAlertsBot.csproj"
 COPY . .
-WORKDIR "/src/WeatherAlertsBot"
+WORKDIR "/src/WeatherAlertsBot/WeatherAlertsBot"
 RUN dotnet build "WeatherAlertsBot.csproj" -c Release -o /app/build
 
 FROM build AS publish
