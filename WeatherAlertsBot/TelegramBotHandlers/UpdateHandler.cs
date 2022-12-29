@@ -1,6 +1,8 @@
 ﻿using GrapeCity.Documents.Html;
+using SelectPdf;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -245,8 +247,8 @@ public sealed class UpdateHandler
     /// <returns>Task, sendind user a message with map</returns>
     private async Task DrawAlertsMap(Dictionary<string, StateObject> regions)
     {
-        var browserPath = BrowserFetcher.GetSystemEdgePath();
-        using var browser = new GcHtmlBrowser(browserPath);
+        //var browserPath = BrowserFetcher.GetSystemEdgePath();
+        //using var browser = new GcHtmlBrowser(browserPath);
 
         var htmlString = $"""
         <svg version="1.2" viewBox="0 0 5000 3600" xmlns="http://www.w3.org/2000/svg" style="background-color:#262626;position:absolute;top:0px;left:0px;height:100%;width:100%">
@@ -311,13 +313,19 @@ public sealed class UpdateHandler
         </svg>
         """;
 
-        using var page = browser.NewPage(htmlString, new PageOptions
-        {
-            DefaultBackgroundColor = Color.White,
-            WindowSize = new Size(2000, 2000)
-        });
+        //using var page = browser.NewPage(htmlString, new PageOptions
+        //{
+        //    DefaultBackgroundColor = Color.White,
+        //    WindowSize = new Size(2000, 2000)
+        //});
 
-        page.SaveAsJpeg("AlertsMap.jpg");
+        //page.SaveAsJpeg("AlertsMap.jpg");
+
+        var imgConverter = new HtmlToImage(2000,2000);
+
+        var image = imgConverter.ConvertHtmlString(htmlString);
+
+        image.Save("AlertsMap.jpg", ImageFormat.Jpeg);
 
         await using Stream stream = System.IO.File.OpenRead("../net7.0/AlertsMap.jpg");
         await _botClient.SendPhotoAsync(_update.Message.Chat.Id, new InputOnlineFile(stream, "AlertsMap.jpg"));
