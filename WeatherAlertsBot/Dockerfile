@@ -3,7 +3,7 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["WeatherAlertsBot/WeatherAlertsBot.csproj", "WeatherAlertsBot/"]
+COPY ["./WeatherAlertsBot/WeatherAlertsBot/WeatherAlertsBot.csproj", "WeatherAlertsBot/"]
 RUN dotnet restore "WeatherAlertsBot/WeatherAlertsBot.csproj"
 COPY . .
 WORKDIR "/src/WeatherAlertsBot/WeatherAlertsBot"
@@ -16,3 +16,5 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "WeatherAlertsBot.dll"]
+
+
