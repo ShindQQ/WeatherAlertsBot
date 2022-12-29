@@ -22,7 +22,8 @@ botClient.StartReceiving(
     cansellationTokenSource.Token
     );
 
-Console.ReadLine();
+// Wait for eternity
+await Task.Delay(-1);
 
 cansellationTokenSource.Cancel();
 
