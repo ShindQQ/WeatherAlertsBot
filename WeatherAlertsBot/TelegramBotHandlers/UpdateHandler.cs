@@ -1,7 +1,5 @@
 ﻿using CoreHtmlToImage;
 using System.Data;
-using System.Drawing;
-using System.Drawing.Imaging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -240,19 +238,6 @@ public sealed class UpdateHandler
     }
 
     /// <summary>
-    ///     Generating stream form the image
-    /// </summary>
-    /// <param name="image">Image for stream</param>
-    /// <param name="format">Format of the image</param>
-    /// <returns>Stream from the image</returns>
-    private static Stream ToStream(Image image, System.Drawing.Imaging.ImageFormat format)
-    {
-        var stream = new MemoryStream();
-        image.Save(stream, format);
-        stream.Position = 0;
-        return stream;
-    }
-    /// <summary>
     ///     Drawing map of alerts in Ukraine
     /// </summary>
     /// <param name="regions">Regions of Ukraine</param>
@@ -330,9 +315,7 @@ public sealed class UpdateHandler
         var converter = new HtmlConverter();
         var bytes = converter.FromHtmlString(htmlString);
 
-        await using Stream stream = ToStream(Image.FromStream(new MemoryStream(bytes)), System.Drawing.Imaging.ImageFormat.Jpeg);
-        await _botClient.SendPhotoAsync(_update.Message.Chat.Id, new InputOnlineFile(stream));
+        await _botClient.SendPhotoAsync(_update.Message.Chat.Id, new InputOnlineFile(new MemoryStream(bytes)));
     }
 
 }
-    
