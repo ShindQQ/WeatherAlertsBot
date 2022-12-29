@@ -77,13 +77,16 @@ public sealed class UpdateHandler
 
             if (userMessageText != null)
             {
-                if (!await HandleStartMessageAsync(userMessageText) &&
-                    !await HandleWeatherMessageAsync(userMessageText) &&
-                    !await HandleRussianInvasionInfo(userMessageText) &&
-                    !await HandleAlertsInfo(userMessageText))
+                Task command = _update.Message.Text! switch
                 {
-                    await HandleErrorMessageAsync();
-                }
+                    BotCommands.StartCommand => HandleStartMessageAsync(userMessageText),
+                    BotCommands.WeatherCommand => HandleWeatherMessageAsync(userMessageText),
+                    BotCommands.AlertsMapCommand => HandleAlertsInfo(userMessageText),
+                    BotCommands.AlertsLostCommand => HandleRussianInvasionInfo(userMessageText),
+                    _ => HandleErrorMessageAsync()
+                };
+
+                await command;
             }
 
             await HandleLocationMessageAsync();
