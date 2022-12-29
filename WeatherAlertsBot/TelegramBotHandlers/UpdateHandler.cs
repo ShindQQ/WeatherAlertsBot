@@ -1,7 +1,5 @@
-﻿using GrapeCity.Documents.Html;
-using SelectPdf;
+﻿using SelectPdf;
 using System.Data;
-using System.Drawing;
 using System.Drawing.Imaging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
