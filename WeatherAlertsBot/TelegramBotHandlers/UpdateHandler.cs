@@ -204,19 +204,7 @@ public sealed class UpdateHandler
                 $"{DateTime.Parse(region.Value.EnabledAt).ToUniversalTime().AddHours(2)}")) + "`",
             ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
 
-        await DrawAlertsMapAsync(regions);
-    }
-
-    /// <summary>
-    ///     Drawing map of alerts in Ukraine
-    /// </summary>
-    /// <param name="regions">Regions of Ukraine</param>
-    /// <returns>Task, sendind user a message with map</returns>
-    private async Task DrawAlertsMapAsync(Dictionary<string, StateObject> regions)
-    {
-        var htmlString = AlarmsMapGenerator.GenerateAlertsMap(regions);
-
-        var bytes = new HtmlConverter().FromHtmlString(htmlString);
+        var bytes = AlarmsMapGenerator.DrawAlertsMap(regions);
 
         await _botClient.SendPhotoAsync(_update.Message!.Chat.Id, new InputOnlineFile(new MemoryStream(bytes)));
     }
