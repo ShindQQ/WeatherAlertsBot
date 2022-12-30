@@ -1,4 +1,5 @@
 ﻿using CoreHtmlToImage;
+using Microsoft.VisualBasic;
 using System.Data;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -77,13 +78,16 @@ public sealed class UpdateHandler
 
             if (userMessageText != null)
             {
-                if (!await HandleStartMessageAsync(userMessageText) &&
-                    !await HandleWeatherMessageAsync(userMessageText) &&
-                    !await HandleRussianInvasionInfo(userMessageText) &&
-                    !await HandleAlertsInfo(userMessageText))
+                Task command = userMessageText switch
                 {
-                    await HandleErrorMessageAsync();
-                }
+                    BotCommands.StartCommand => HandleStartMessage(),
+                    { } when userMessageText.StartsWith(BotCommands.WeatherCommand) => HandleWeatherMessageAsync(userMessageText),
+                    BotCommands.AlertsMapCommand => HandleAlertsInfo(),
+                    BotCommands.AlertsLostCommand => HandleRussianInvasionInfo(),
+                    _ => HandleErrorMessage()
+                };
+
+                await command;
             }
 
             await HandleLocationMessageAsync();
@@ -93,18 +97,10 @@ public sealed class UpdateHandler
     /// <summary>
     ///     Handling /start message
     /// </summary>
-    /// <param name="userMessageText">Message sent by user</param>
     /// <returns>True if user`s message equals /start, false if not</returns>
-    private async Task<bool> HandleStartMessageAsync(string userMessageText)
+    private Task HandleStartMessage()
     {
-        if (userMessageText.ToLower().Equals(BotCommands.StartCommand))
-        {
-            await HandleErrorMessageAsync();
-
-            return true;
-        }
-
-        return false;
+        return HandleErrorMessage();
     }
 
     /// <summary>
@@ -112,30 +108,19 @@ public sealed class UpdateHandler
     /// </summary>
     /// <param name="userMessageText">Message sent by user</param>
     /// <returns>True if user`s message starts with /weather and there were no troubles with request, false if there was troubleshooting</returns>
-    private async Task<bool> HandleWeatherMessageAsync(string userMessageText)
+    private async Task HandleWeatherMessageAsync(string userMessageText)
     {
-        if (userMessageText.ToLower().StartsWith(BotCommands.WeatherCommand))
-        {
-            var weatherResponseForUser = await _weatherHandler.SendWeatherByUserMessageAsync(userMessageText);
-            var errorMessage = weatherResponseForUser.ErrorMessage;
+        var weatherResponseForUser = await _weatherHandler.SendWeatherByUserMessageAsync(userMessageText);
 
-            if (string.IsNullOrEmpty(errorMessage))
-            {
-                var location = await _botClient.SendLocationAsync(_update.Message.Chat.Id,
-                   weatherResponseForUser.Lattitude, weatherResponseForUser.Longitude,
-                   cancellationToken: _cancellationToken);
-                await _botClient.SendTextMessageAsync(location.Chat.Id,
-                   $"""
-                   `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
-                   feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
-                   """,
-                   ParseMode.MarkdownV2, cancellationToken: _cancellationToken, replyToMessageId: location.MessageId);
-
-                return true;
-            }
-        }
-
-        return false;
+        var location = await _botClient.SendLocationAsync(_update.Message!.Chat.Id,
+               weatherResponseForUser.Lattitude, weatherResponseForUser.Longitude,
+               cancellationToken: _cancellationToken);
+        await _botClient.SendTextMessageAsync(location.Chat.Id,
+              $"""
+              `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
+              feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
+              """, 
+              ParseMode.MarkdownV2, cancellationToken: _cancellationToken, replyToMessageId: location.MessageId);
     }
 
     /// <summary>
@@ -144,7 +129,7 @@ public sealed class UpdateHandler
     /// <returns>Task</returns>
     private async Task HandleLocationMessageAsync()
     {
-        var userLocation = _update.Message.Location;
+        var userLocation = _update.Message!.Location;
 
         if (userLocation != null)
         {
@@ -163,9 +148,9 @@ public sealed class UpdateHandler
     ///     Handling error message type
     /// </summary>
     /// <returns>Task</returns>
-    private async Task HandleErrorMessageAsync()
+    private Task HandleErrorMessage()
     {
-        await _botClient.SendTextMessageAsync(_update.Message.Chat.Id,
+        return _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
             """
             `Hello!
             To receive weather by city name send me the message in format: /weather [city_name]!
@@ -180,50 +165,34 @@ public sealed class UpdateHandler
     ///     Receiving info about liquidations in russian invasion
     /// </summary>
     /// <param name="userMessageText">Message sent by user</param>
-    /// <returns>True if user`s message equals with /alerts_lost and there were 
     /// no troubles with request, false if there was troubleshooting</returns>
-    private async Task<bool> HandleRussianInvasionInfo(string userMessageText)
+    private async Task HandleRussianInvasionInfo()
     {
-        if (userMessageText.ToLower().Equals(BotCommands.AlertsLostCommand))
-        {
-            var russianInvasion = (await _aPIsRequestsHandler.GetResponseFromAPI<RussianInvasion>(_russianWarshipUrl)).RussianWarshipInfo;
+        var russianInvasion = (await _aPIsRequestsHandler.GetResponseFromAPI<RussianInvasion>(_russianWarshipUrl))!.RussianWarshipInfo;
 
-            await _botClient.SendTextMessageAsync(_update.Message.Chat.Id,
-                russianInvasion.ToString(),
-                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
-
-            return true;
-        }
-
-        return false;
+        await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
+        russianInvasion.ToString(),
+        ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
     }
 
     /// <summary>
     ///     Receiving info about alerts in Ukraine regions
     /// </summary>
-    /// <param name="userMessageText">Message sent by user</param>
     /// <returns>True if user`s message equals with /alerts_map and there were 
     /// no troubles with request, false if there was troubleshooting</returns>
-    private async Task<bool> HandleAlertsInfo(string userMessageText)
+    private async Task HandleAlertsInfo()
     {
-        if (userMessageText.ToLower().Equals(BotCommands.AlertsMapCommand))
-        {
-            string messageForUser = $"`Information about current alerts in Ukraine:\n";
+        string messageForUser = $"`Information about current alerts in Ukraine:\n";
 
-            var regions = (await _aPIsRequestsHandler.GetResponseFromAPI<AlarmsStateInfo>(_alarmsInUkraineInfoUrl)).States;
+        var regions = (await _aPIsRequestsHandler.GetResponseFromAPI<AlarmsStateInfo>(_alarmsInUkraineInfoUrl))!.States;
 
-            await _botClient.SendTextMessageAsync(_update.Message.Chat.Id,
-                messageForUser + string.Join("\n", regions.Where(region => region.Value.Enabled)
-                    .Select(region => $"🚨 {region.Key}; Enabled at: " +
-                    $"{DateTime.Parse(region.Value.EnabledAt).ToUniversalTime().AddHours(2)}")) + "`",
-                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+        await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
+            messageForUser + string.Join("\n", regions.Where(region => region.Value.Enabled)
+                .Select(region => $"🚨 {region.Key}; Enabled at: " +
+                $"{DateTime.Parse(region.Value.EnabledAt).ToUniversalTime().AddHours(2)}")) + "`",
+            ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
 
-            await DrawAlertsMap(regions);
-
-            return true;
-        }
-
-        return false;
+        await DrawAlertsMapAsync(regions);
     }
 
     /// <summary>
@@ -242,7 +211,7 @@ public sealed class UpdateHandler
     /// </summary>
     /// <param name="regions">Regions of Ukraine</param>
     /// <returns>Task, sendind user a message with map</returns>
-    private async Task DrawAlertsMap(Dictionary<string, StateObject> regions)
+    private async Task DrawAlertsMapAsync(Dictionary<string, StateObject> regions)
     {
         var htmlString = $"""
         <html lang="ua">
@@ -315,7 +284,7 @@ public sealed class UpdateHandler
         var converter = new HtmlConverter();
         var bytes = converter.FromHtmlString(htmlString);
 
-        await _botClient.SendPhotoAsync(_update.Message.Chat.Id, new InputOnlineFile(new MemoryStream(bytes)));
+        await _botClient.SendPhotoAsync(_update.Message!.Chat.Id, new InputOnlineFile(new MemoryStream(bytes)));
     }
 
 }
