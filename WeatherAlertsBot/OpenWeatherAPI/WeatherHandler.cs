@@ -75,23 +75,13 @@ public sealed class WeatherHandler
     /// <returns>WeatherResponseForUser</returns>
     public async Task<WeatherResponseForUser> SendWeatherByUserMessageAsync(string userMessage)
     {
-        if (userMessage.Equals(BotCommands.WeatherCommand))
-        {
-            return new WeatherResponseForUser { ErrorMessage = @"`Format of the input was wrong\!`" };
-        }
-
         var splittedUserMessage = userMessage.Trim().Split(' ', 2);
-
-        if (!splittedUserMessage[0].ToLower().StartsWith(BotCommands.WeatherCommand))
-        {
-            return new WeatherResponseForUser { ErrorMessage = @"`Format of the input was wrong\!`" };
-        }
 
         var coordinatesInfo = await GetLattitudeAndLongitudeByCityNameAsync(splittedUserMessage[1]);
 
         if (coordinatesInfo == null || !coordinatesInfo.Any())
         {
-            return new WeatherResponseForUser { ErrorMessage = @"`No data was found for your request\!`" };
+            return new WeatherResponseForUser { ErrorMessage = "No data was found for your request!" };
         }
 
         var coordinatesInfoFirst = coordinatesInfo.First();
@@ -100,7 +90,7 @@ public sealed class WeatherHandler
 
         if (temperatureInfo == null)
         {
-            return new WeatherResponseForUser { ErrorMessage = @"`No data was found for your request\!`" };
+            return new WeatherResponseForUser { ErrorMessage = "No data was found for your request!" };
         }
 
         return new WeatherResponseForUser
@@ -125,7 +115,7 @@ public sealed class WeatherHandler
 
         if (temperatureInfo == null)
         {
-            return new WeatherResponseForUser { ErrorMessage = @"`No data was found for your request\!`" };
+            return new WeatherResponseForUser { ErrorMessage = "No data was found for your request!" };
         }
 
         return new WeatherResponseForUser

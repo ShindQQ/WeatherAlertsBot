@@ -111,6 +111,18 @@ public sealed class UpdateHandler
     private async Task HandleWeatherMessageAsync(string userMessageText)
     {
         var weatherResponseForUser = await _weatherHandler.SendWeatherByUserMessageAsync(userMessageText);
+        var errorMessage = weatherResponseForUser.ErrorMessage;
+
+        if (!string.IsNullOrEmpty(errorMessage))
+        {
+            await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
+              $"""
+              `{errorMessage}`
+              """,
+              ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+
+            return;
+        }
 
         var location = await _botClient.SendLocationAsync(_update.Message!.Chat.Id,
                weatherResponseForUser.Lattitude, weatherResponseForUser.Longitude,
