@@ -1,6 +1,4 @@
-﻿using CoreHtmlToImage;
-using Microsoft.VisualBasic;
-using System.Data;
+﻿using System.Data;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -37,11 +35,6 @@ public sealed class UpdateHandler
     ///     Weather Hanlder
     /// </summary>
     private readonly WeatherHandler _weatherHandler = new();
-
-    /// <summary>
-    ///     Class of logic for calling APIs
-    /// </summary>
-    private readonly APIsRequestsHandler _aPIsRequestsHandler = new();
 
     /// <summary>
     ///     Url for receiving list of alarms in Ukraine
@@ -131,7 +124,7 @@ public sealed class UpdateHandler
               $"""
               `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
               feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
-              """, 
+              """,
               ParseMode.MarkdownV2, cancellationToken: _cancellationToken, replyToMessageId: location.MessageId);
     }
 
@@ -180,7 +173,7 @@ public sealed class UpdateHandler
     /// no troubles with request, false if there was troubleshooting</returns>
     private async Task HandleRussianInvasionInfo()
     {
-        var russianInvasion = (await _aPIsRequestsHandler.GetResponseFromAPI<RussianInvasion>(_russianWarshipUrl))!.RussianWarshipInfo;
+        var russianInvasion = (await APIsRequestsHandler.GetResponseFromAPI<RussianInvasion>(_russianWarshipUrl))!.RussianWarshipInfo;
 
         await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
         russianInvasion.ToString(),
@@ -196,7 +189,7 @@ public sealed class UpdateHandler
     {
         string messageForUser = $"`Information about current alerts in Ukraine:\n";
 
-        var regions = (await _aPIsRequestsHandler.GetResponseFromAPI<AlarmsStateInfo>(_alarmsInUkraineInfoUrl))!.States;
+        var regions = (await APIsRequestsHandler.GetResponseFromAPI<AlarmsStateInfo>(_alarmsInUkraineInfoUrl))!.States;
 
         await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
             messageForUser + string.Join("\n", regions.Where(region => region.Value.Enabled)

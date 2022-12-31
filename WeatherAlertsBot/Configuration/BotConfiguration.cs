@@ -25,7 +25,7 @@ public static class BotConfiguration
         var configuration = new ConfigurationBuilder()
                  .AddJsonFile($"appsettings.json", true, true).Build();
 
-        OpenWeatherApiKey = configuration["OpenWeatherApiKey"];
-        BotAccessToken = configuration["BotAccessToken"];
+        OpenWeatherApiKey = configuration["OpenWeatherApiKey"]!;
+        BotAccessToken = configuration["BotAccessToken"]!;
     }
 }

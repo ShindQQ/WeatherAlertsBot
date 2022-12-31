@@ -1,8 +1,4 @@
 ﻿using CoreHtmlToImage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Telegram.Bot.Types.InputFiles;
 using WeatherAlertsBot.RussianWarship.AlarmsInfo;
 
 namespace WeatherAlertsBot.RussianWarship;
@@ -28,7 +24,7 @@ public static class AlarmsMapGenerator
     /// </summary>
     /// <param name="regions">List of regions in Ukraine</param>
     /// <returns>String with generated html for convertation</returns>
-    public static string GenerateAlertsMap(Dictionary<string, StateObject> regions)
+    private static string GenerateAlertsMap(Dictionary<string, StateObject> regions)
     {
         return $"""
         <html lang="ua">
@@ -67,7 +63,7 @@ public static class AlarmsMapGenerator
                 <g>
                   <text font-size="72" font-weight="900" y="1337" x="1210" fill="#bfbfbf" aria-label="Хмельницька">Хмельницька</text>
                   <text font-size="72" font-weight="900" y="686" x="668" fill="#bfbfbf" aria-label="Волинська">Волинська</text>
-                  <text font-size="72" font-weight="900" y="723" x="1158" fill="#bfbfbf" aria-label="Рівненська">Рівненська</text>
+                  <text font-size="72" font-weight="900" y="800" x="1158" fill="#bfbfbf" aria-label="Рівненська">Рівненська</text>
                   <text font-size="72" font-weight="900" y="926" x="1575" fill="#bfbfbf" aria-label="Житомирська">Житомирська</text>
                   <text font-size="72" font-weight="900" y="1128" x="2233" fill="#bfbfbf" aria-label="Київська">Київська</text>
                   <text font-size="72" font-weight="900" y="994" x="2257" fill="#bfbfbf" aria-label="м. Київ">м. Київ</text>
@@ -85,11 +81,11 @@ public static class AlarmsMapGenerator
                   <text font-size="72" font-weight="900" y="1301" x="3040" fill="#bfbfbf" aria-label="Полтавська">Полтавська</text>
                   <text font-size="72" font-weight="900" y="1555" x="2320" fill="#bfbfbf" aria-label="Черкаська">Черкаська</text>
                   <text font-size="72" font-weight="900" y="1618" x="1676" fill="#bfbfbf" aria-label="Вінницька">Вінницька</text>
-                  <text font-size="72" font-weight="900" y="1421" x="830" fill="#bfbfbf" aria-label="Тернопільська">Тернопільська</text>
+                  <text font-size="72" font-weight="900" y="1500" x="830" fill="#bfbfbf" aria-label="Тернопільська">Тернопільська</text>
                   <text font-size="72" font-weight="900" y="1906" x="937" fill="#bfbfbf" aria-label="Чернівецька">Чернівецька</text>
                   <text font-size="72" font-weight="900" y="1694" x="639" fill="#bfbfbf" aria-label="Івано-Франківська">Івано-</text>
                   <text font-size="72" font-weight="900" y="1762" x="639" fill="#bfbfbf" aria-label="Івано-Франківська">Франківська</text>
-                  <text font-size="72" font-weight="900" y="1882" x="219" fill="#bfbfbf" aria-label="Закарпатська">Закарпатська</text>
+                  <text font-size="72" font-weight="900" y="1850" x="200" fill="#bfbfbf" aria-label="Закарпатська">Закарпатська</text>
                   <text font-size="72" font-weight="900" y="1250" x="440" fill="#bfbfbf" aria-label="Львівська">Львівська</text>
                   <text font-size="72" font-weight="900" y="3069" x="3120" fill="#bfbfbf" aria-label="Автономна Республіка Крим">Автономна Республіка Крим  </text>
                   </text>

@@ -1,5 +1,4 @@
 ﻿using Telegram.Bot.Types;
-using WeatherAlertsBot.Commands;
 using WeatherAlertsBot.Configuration;
 using WeatherAlertsBot.Requesthandlers;
 
@@ -14,11 +13,6 @@ public sealed class WeatherHandler
     ///     Our Api Key
     /// </summary>
     private string OpenWeatherApiKey { get; init; }
-
-    /// <summary>
-    ///     Class of logic for calling APIs
-    /// </summary>
-    private readonly APIsRequestsHandler _aPIsRequestsHandler = new();
 
     /// <summary>
     ///     Open Weather API url
@@ -53,7 +47,7 @@ public sealed class WeatherHandler
     {
         string url = _openWeatherAPIUrl + _currentWeatherUrl + $"?lat={lattitude}&lon={longitude}&appid={OpenWeatherApiKey}";
 
-        return await _aPIsRequestsHandler.GetResponseFromAPI<WeatherForecastResult>(url);
+        return await APIsRequestsHandler.GetResponseFromAPI<WeatherForecastResult>(url);
     }
 
     /// <summary>
@@ -65,7 +59,7 @@ public sealed class WeatherHandler
     {
         string url = _openWeatherAPIUrl + _geoAPIUrl + $"?q={cityName}&appid={OpenWeatherApiKey}";
 
-        return await _aPIsRequestsHandler.GetResponseFromAPI<IEnumerable<CoordinatesInfo>>(url);
+        return await APIsRequestsHandler.GetResponseFromAPI<IEnumerable<CoordinatesInfo>>(url);
     }
 
     /// <summary>

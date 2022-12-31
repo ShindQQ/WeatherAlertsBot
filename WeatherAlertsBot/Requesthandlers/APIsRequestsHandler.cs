@@ -19,7 +19,7 @@ public sealed class APIsRequestsHandler
     /// <param name="url">Url for request</param>
     /// <returns>T as deserialized response from request</returns>
     /// <exception cref="HttpRequestException">If response`s status code isn`t 200</exception>
-    public async ValueTask<T?> GetResponseFromAPI<T>(string url)
+    public static async ValueTask<T?> GetResponseFromAPI<T>(string url)
     {
         var response = await HttpClient.GetAsync(url);
 
