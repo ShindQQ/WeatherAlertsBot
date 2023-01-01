@@ -1,5 +1,6 @@
 ﻿using Telegram.Bot.Types;
 using WeatherAlertsBot.Configuration;
+using WeatherAlertsBot.Helpers;
 using WeatherAlertsBot.Requesthandlers;
 
 namespace WeatherAlertsBot.OpenWeatherAPI;
@@ -7,32 +8,17 @@ namespace WeatherAlertsBot.OpenWeatherAPI;
 /// <summary>
 ///     Class which represents work with OpenWeatherAPI
 /// </summary>
-public sealed class WeatherHandler
+public static class WeatherHandler
 {
     /// <summary>
     ///     Our Api Key
     /// </summary>
-    private string OpenWeatherApiKey { get; init; }
-
-    /// <summary>
-    ///     Open Weather API url
-    /// </summary>
-    private const string _openWeatherAPIUrl = "https://api.openweathermap.org";
-
-    /// <summary>
-    ///     Open Weather API`s Current weather url
-    /// </summary>
-    private const string _currentWeatherUrl = "/data/2.5/weather";
-
-    /// <summary>
-    ///     Open Weather API`s Geo API url
-    /// </summary>
-    private const string _geoAPIUrl = "/geo/1.0/direct";
+    private static string OpenWeatherApiKey { get; set; }
 
     /// <summary>
     ///     Constructor for api key inicializing 
     /// </summary>
-    public WeatherHandler()
+    static WeatherHandler()
     {
         OpenWeatherApiKey = BotConfiguration.OpenWeatherApiKey;
     }
@@ -43,9 +29,9 @@ public sealed class WeatherHandler
     /// <param name="lattitude">Location lattitude</param>
     /// <param name="longitude">Location longitude</param>
     /// <returns>WeatherForecastResult</returns>
-    public async Task<WeatherForecastResult?> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
+    public static async Task<WeatherForecastResult?> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
     {
-        string url = _openWeatherAPIUrl + _currentWeatherUrl + $"?lat={lattitude}&lon={longitude}&appid={OpenWeatherApiKey}";
+        string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.CurrentWeatherUrl + $"?lat={lattitude}&lon={longitude}&appid={OpenWeatherApiKey}";
 
         return await APIsRequestsHandler.GetResponseFromAPI<WeatherForecastResult>(url);
     }
@@ -55,9 +41,9 @@ public sealed class WeatherHandler
     /// </summary>
     /// <param name="cityName">Name of the city</param>
     /// <returns>CoordinatesInfo</returns>
-    public async Task<IEnumerable<CoordinatesInfo>?> GetLattitudeAndLongitudeByCityNameAsync(string cityName)
+    private static async Task<IEnumerable<CoordinatesInfo>?> GetLattitudeAndLongitudeByCityNameAsync(string cityName)
     {
-        string url = _openWeatherAPIUrl + _geoAPIUrl + $"?q={cityName}&appid={OpenWeatherApiKey}";
+        string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.GeoAPIUrl + $"?q={cityName}&appid={OpenWeatherApiKey}";
 
         return await APIsRequestsHandler.GetResponseFromAPI<IEnumerable<CoordinatesInfo>>(url);
     }
@@ -67,7 +53,7 @@ public sealed class WeatherHandler
     /// </summary>
     /// <param name="userMessage">Message sent by the user</param>
     /// <returns>WeatherResponseForUser</returns>
-    public async Task<WeatherResponseForUser> SendWeatherByUserMessageAsync(string userMessage)
+    public static async Task<WeatherResponseForUser> SendWeatherByUserMessageAsync(string userMessage)
     {
         var splittedUserMessage = userMessage.Trim().Split(' ', 2);
 
@@ -103,7 +89,7 @@ public sealed class WeatherHandler
     /// </summary>
     /// <param name="userLocation">Location sent by user</param>
     /// <returns>WeatherResponseForUser</returns>
-    public async Task<WeatherResponseForUser> SendWeatherByUserLocationAsync(Location userLocation)
+    public static async Task<WeatherResponseForUser> SendWeatherByUserLocationAsync(Location userLocation)
     {
         var temperatureInfo = await GetCurrentWeatherByCoordinatesAsync((float)userLocation.Latitude, (float)userLocation.Longitude); ;
 

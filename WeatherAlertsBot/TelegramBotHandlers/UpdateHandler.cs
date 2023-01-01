@@ -7,7 +7,6 @@ using WeatherAlertsBot.Commands;
 using WeatherAlertsBot.OpenWeatherAPI;
 using WeatherAlertsBot.Requesthandlers;
 using WeatherAlertsBot.RussianWarship;
-using WeatherAlertsBot.RussianWarship.AlarmsInfo;
 
 namespace WeatherAlertsBot.TelegramBotHandlers;
 
@@ -30,21 +29,6 @@ public sealed class UpdateHandler
     ///     Cancellation Token
     /// </summary>
     private readonly CancellationToken _cancellationToken;
-
-    /// <summary>
-    ///     Weather Hanlder
-    /// </summary>
-    private readonly WeatherHandler _weatherHandler = new();
-
-    /// <summary>
-    ///     Url for receiving list of alarms in Ukraine
-    /// </summary>
-    private const string _alarmsInUkraineInfoUrl = "https://emapa.fra1.cdn.digitaloceanspaces.com/statuses.json";
-
-    /// <summary>
-    ///     Url for receiving list of enemy looses
-    /// </summary>
-    private const string _russianWarshipUrl = "https://russianwarship.rip/api/v1/statistics/latest";
 
     /// <summary>
     ///     Constructor
@@ -103,7 +87,7 @@ public sealed class UpdateHandler
     /// <returns>True if user`s message starts with /weather and there were no troubles with request, false if there was troubleshooting</returns>
     private async Task HandleWeatherMessageAsync(string userMessageText)
     {
-        var weatherResponseForUser = await _weatherHandler.SendWeatherByUserMessageAsync(userMessageText);
+        var weatherResponseForUser = await WeatherHandler.SendWeatherByUserMessageAsync(userMessageText);
         var errorMessage = weatherResponseForUser.ErrorMessage;
 
         if (!string.IsNullOrEmpty(errorMessage))
@@ -123,7 +107,7 @@ public sealed class UpdateHandler
         await _botClient.SendTextMessageAsync(location.Chat.Id,
               $"""
               `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
-              feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
+              Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
               """,
               ParseMode.MarkdownV2, cancellationToken: _cancellationToken, replyToMessageId: location.MessageId);
     }
@@ -138,12 +122,12 @@ public sealed class UpdateHandler
 
         if (userLocation != null)
         {
-            var weatherResponseForUser = await _weatherHandler.SendWeatherByUserLocationAsync(userLocation);
+            var weatherResponseForUser = await WeatherHandler.SendWeatherByUserLocationAsync(userLocation);
 
             await _botClient.SendTextMessageAsync(_update.Message.Chat.Id,
                 $"""
                 `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
-                feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
+                Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
                 """,
                 ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
         }
@@ -173,7 +157,7 @@ public sealed class UpdateHandler
     /// no troubles with request, false if there was troubleshooting</returns>
     private async Task HandleRussianInvasionInfo()
     {
-        var russianInvasion = (await APIsRequestsHandler.GetResponseFromAPI<RussianInvasion>(_russianWarshipUrl))!.RussianWarshipInfo;
+        var russianInvasion = await APIsRequestsHandler.GetResponseForRussianWarshipInfoCachedAsync();
 
         await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
         russianInvasion.ToString(),
@@ -189,12 +173,13 @@ public sealed class UpdateHandler
     {
         string messageForUser = $"`Information about current alerts in Ukraine:\n";
 
-        var regions = (await APIsRequestsHandler.GetResponseFromAPI<AlarmsStateInfo>(_alarmsInUkraineInfoUrl))!.States;
+        var regions = await APIsRequestsHandler.GetResponseForAlertsCachedAsync();
 
         await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
-            messageForUser + string.Join("\n", regions.Where(region => region.Value.Enabled)
-                .Select(region => $"🚨 {region.Key}; Enabled at: " +
-                $"{DateTime.Parse(region.Value.EnabledAt).ToUniversalTime().AddHours(2)}")) + "`",
+            messageForUser + string.Join("\n",
+            regions.Where(region => region.Value.Enabled)
+            .Select(region => $"🚨 {region.Key}; Enabled at: " +
+            $"{DateTime.Parse(region.Value.EnabledAt).ToUniversalTime().AddHours(2)}")) + "`",
             ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
 
         var bytes = AlarmsMapGenerator.DrawAlertsMap(regions);
