@@ -4,6 +4,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using WeatherAlertsBot.Commands;
+using WeatherAlertsBot.Helpers;
 using WeatherAlertsBot.OpenWeatherAPI;
 using WeatherAlertsBot.Requesthandlers;
 using WeatherAlertsBot.RussianWarship;
@@ -157,7 +158,7 @@ public sealed class UpdateHandler
     /// no troubles with request, false if there was troubleshooting</returns>
     private async Task HandleRussianInvasionInfo()
     {
-        var russianInvasion = await APIsRequestsHandler.GetResponseForRussianWarshipInfoCachedAsync();
+        var russianInvasion = (await APIsRequestsHandler.GetResponseFromAPI<RussianInvasion>(APIsLinks.RussianWarshipUrl))!.RussianWarshipInfo;
 
         await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
         russianInvasion.ToString(),

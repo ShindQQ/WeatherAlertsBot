@@ -51,21 +51,6 @@ public sealed class APIsRequestsHandler
     }
 
     /// <summary>
-    ///     Cached response for liquidations data
-    /// </summary>
-    /// <returns>Data about enemies looses</returns>
-    public static async Task<RussianWarshipInfo> GetResponseForRussianWarshipInfoCachedAsync()
-    {
-        if ((DateTime.UtcNow - LastLiquidationsRequest).TotalDays >= 1)
-        {
-            LastLiquidationsRequest = DateTime.UtcNow;
-            LastLiquidationsValue = (await GetResponseFromAPI<RussianInvasion>(APIsLinks.RussianWarshipUrl))!.RussianWarshipInfo;
-        }
-
-        return LastLiquidationsValue;
-    }
-
-    /// <summary>
     ///     Receiving response from OpenWeatherAPI and from Russian Warship APIs
     /// </summary>
     /// <typeparam name="T">Describing type for deserializing</typeparam>
