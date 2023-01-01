@@ -64,29 +64,29 @@ public static class AlarmsMapGenerator
                   <text font-size="72" font-weight="900" y="1340" x="1210" fill="#bfbfbf" aria-label="Хмельницька">Хмельницька</text>
                   <text font-size="72" font-weight="900" y="690" x="670" fill="#bfbfbf" aria-label="Волинська">Волинська</text>
                   <text font-size="72" font-weight="900" y="800" x="1160" fill="#bfbfbf" aria-label="Рівненська">Рівненська</text>
-                  <text font-size="72" font-weight="900" y="930" x="1575" fill="#bfbfbf" aria-label="Житомирська">Житомирська</text>
+                  <text font-size="72" font-weight="900" y="930" x="1550" fill="#bfbfbf" aria-label="Житомирська">Житомирська</text>
                   <text font-size="72" font-weight="900" y="1150" x="2200" fill="#bfbfbf" aria-label="Київська">Київська</text>
                   <text font-size="72" font-weight="900" y="995" x="2150" fill="#bfbfbf" aria-label="м. Київ">м. Київ</text>
                   <text font-size="72" font-weight="900" y="615" x="2450" fill="#bfbfbf" aria-label="Чернігівська">Чернігівська</text>
                   <text font-size="72" font-weight="900" y="765" x="3100" fill="#bfbfbf" aria-label="Сумська">Сумська</text>
-                  <text font-size="72" font-weight="900" y="1340" x="3780" fill="#bfbfbf" aria-label="Харківська">Харківська</text>
+                  <text font-size="72" font-weight="900" y="1340" x="3700" fill="#bfbfbf" aria-label="Харківська">Харківська</text>
                   <text font-size="72" font-weight="900" y="1610" x="4400" fill="#bfbfbf" aria-label="Луганська">Луганська</text>
-                  <text font-size="72" font-weight="900" y="1980" x="4070" fill="#bfbfbf" aria-label="Донецька">Донецька</text>
+                  <text font-size="72" font-weight="900" y="1980" x="4050" fill="#bfbfbf" aria-label="Донецька">Донецька</text>
                   <text font-size="72" font-weight="900" y="2295" x="3480" fill="#bfbfbf" aria-label="Запорізька">Запорізька</text>
-                  <text font-size="72" font-weight="900" y="1875" x="3200" fill="#bfbfbf" aria-label="Дніпропетровська">Дніпропетровська</text>
+                  <text font-size="72" font-weight="900" y="1875" x="3150" fill="#bfbfbf" aria-label="Дніпропетровська">Дніпропетровська</text>
                   <text font-size="72" font-weight="900" y="2260" x="2500" fill="#bfbfbf" aria-label="Миколаївська">Миколаївська</text>
-                  <text font-size="72" font-weight="900" y="2550" x="2977" fill="#bfbfbf" aria-label="Херсонська">Херсонська</text>
+                  <text font-size="72" font-weight="900" y="2550" x="2900" fill="#bfbfbf" aria-label="Херсонська">Херсонська</text>
                   <text font-size="72" font-weight="900" y="2740" x="1950" fill="#bfbfbf" aria-label="Одеська">Одеська</text>
-                  <text font-size="72" font-weight="900" y="1800" x="2480" fill="#bfbfbf" aria-label="Кіровоградська">Кіровоградська</text>
+                  <text font-size="72" font-weight="900" y="1800" x="2400" fill="#bfbfbf" aria-label="Кіровоградська">Кіровоградська</text>
                   <text font-size="72" font-weight="900" y="1300" x="3000" fill="#bfbfbf" aria-label="Полтавська">Полтавська</text>
-                  <text font-size="72" font-weight="900" y="1555" x="2320" fill="#bfbfbf" aria-label="Черкаська">Черкаська</text>
-                  <text font-size="72" font-weight="900" y="1620" x="1670" fill="#bfbfbf" aria-label="Вінницька">Вінницька</text>
+                  <text font-size="72" font-weight="900" y="1555" x="2300" fill="#bfbfbf" aria-label="Черкаська">Черкаська</text>
+                  <text font-size="72" font-weight="900" y="1620" x="1600" fill="#bfbfbf" aria-label="Вінницька">Вінницька</text>
                   <text font-size="72" font-weight="900" y="1500" x="830" fill="#bfbfbf" aria-label="Тернопільська">Тернопільська</text>
                   <text font-size="72" font-weight="900" y="1900" x="930" fill="#bfbfbf" aria-label="Чернівецька">Чернівецька</text>
                   <text font-size="72" font-weight="900" y="1690" x="640" fill="#bfbfbf" aria-label="Івано-Франківська">Івано-</text>
                   <text font-size="72" font-weight="900" y="1760" x="640" fill="#bfbfbf" aria-label="Івано-Франківська">Франківська</text>
                   <text font-size="72" font-weight="900" y="1850" x="200" fill="#bfbfbf" aria-label="Закарпатська">Закарпатська</text>
-                  <text font-size="72" font-weight="900" y="1250" x="440" fill="#bfbfbf" aria-label="Львівська">Львівська</text>
+                  <text font-size="72" font-weight="900" y="1250" x="420" fill="#bfbfbf" aria-label="Львівська">Львівська</text>
                   <text font-size="72" font-weight="900" y="3070" x="3120" fill="#bfbfbf" aria-label="Автономна Республіка Крим">Автономна Республіка Крим  </text>
                   </text>
                 </g>
