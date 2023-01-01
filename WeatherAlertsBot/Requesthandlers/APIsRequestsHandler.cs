@@ -26,16 +26,6 @@ public sealed class APIsRequestsHandler
     private static Dictionary<string, StateObject> LastAlertsValue { get; set; } = new();
 
     /// <summary>
-    ///     Time of the last request for liquidations
-    /// </summary>
-    private static DateTime LastLiquidationsRequest { get; set; } = DateTime.MinValue;
-
-    /// <summary>
-    ///     Data of the last request for liquidations
-    /// </summary>
-    private static RussianWarshipInfo LastLiquidationsValue { get; set; } = new();
-
-    /// <summary>
     ///     Cached response for alerts data
     /// </summary>
     /// <returns>Dictionary where key represents name of the region and value which is data about alerts</returns>
