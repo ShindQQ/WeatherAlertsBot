@@ -102,14 +102,12 @@ public sealed class UpdateHandler
             return;
         }
 
-        await _botClient.SendVenueAsync(_update.Message!.Chat.Id,
-            weatherResponseForUser.Lattitude, weatherResponseForUser.Longitude,
-            string.Empty,
-            $"""
-            Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
-            Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.
-            """,
-            cancellationToken: _cancellationToken);
+        await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
+                $"""
+                `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
+                Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
+                """,
+                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
     }
 
     /// <summary>
@@ -124,7 +122,7 @@ public sealed class UpdateHandler
         {
             var weatherResponseForUser = await WeatherHandler.SendWeatherByUserLocationAsync(userLocation);
 
-            await _botClient.SendTextMessageAsync(_update.Message.Chat.Id,
+            await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
                 $"""
                 `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
                 Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
