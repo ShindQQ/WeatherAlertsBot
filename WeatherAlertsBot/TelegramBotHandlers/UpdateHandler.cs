@@ -60,8 +60,8 @@ public sealed class UpdateHandler
                 {
                     BotCommands.StartCommand => HandleStartMessage(),
                     { } when userMessageText.StartsWith(BotCommands.WeatherCommand) => HandleWeatherMessageAsync(userMessageText),
-                    BotCommands.AlertsMapCommand => HandleAlertsInfo(),
-                    BotCommands.AlertsLostCommand => HandleRussianInvasionInfo(),
+                    { } when userMessageText.StartsWith(BotCommands.AlertsMapCommand) => HandleAlertsInfo(),
+                    { } when userMessageText.StartsWith(BotCommands.AlertsMapCommand) => HandleRussianInvasionInfo(),
                     _ => HandleErrorMessage()
                 };
 
