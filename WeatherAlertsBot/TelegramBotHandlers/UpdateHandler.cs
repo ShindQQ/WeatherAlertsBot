@@ -59,9 +59,9 @@ public sealed class UpdateHandler
                 Task command = userMessageText switch
                 {
                     BotCommands.StartCommand => HandleStartMessage(),
-                    { } when userMessageText.StartsWith(BotCommands.WeatherCommand) => HandleWeatherMessageAsync(userMessageText),
-                    { } when userMessageText.StartsWith(BotCommands.AlertsMapCommand) => HandleAlertsInfo(),
-                    { } when userMessageText.StartsWith(BotCommands.AlertsMapCommand) => HandleRussianInvasionInfo(),
+                    _ when userMessageText.StartsWith(BotCommands.WeatherCommand) => HandleWeatherMessageAsync(userMessageText),
+                    _ when userMessageText.StartsWith(BotCommands.AlertsMapCommand) => HandleAlertsInfo(),
+                    _ when userMessageText.StartsWith(BotCommands.AlertsLostCommand) => HandleRussianInvasionInfo(),
                     _ => HandleErrorMessage()
                 };
 
@@ -102,15 +102,14 @@ public sealed class UpdateHandler
             return;
         }
 
-        var location = await _botClient.SendLocationAsync(_update.Message!.Chat.Id,
-               weatherResponseForUser.Lattitude, weatherResponseForUser.Longitude,
-               cancellationToken: _cancellationToken);
-        await _botClient.SendTextMessageAsync(location.Chat.Id,
-              $"""
-              `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
-              Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
-              """,
-              ParseMode.MarkdownV2, cancellationToken: _cancellationToken, replyToMessageId: location.MessageId);
+        await _botClient.SendVenueAsync(_update.Message!.Chat.Id,
+            weatherResponseForUser.Lattitude, weatherResponseForUser.Longitude,
+            string.Empty,
+            $"""
+            Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
+            Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.
+            """,
+            cancellationToken: _cancellationToken);
     }
 
     /// <summary>
@@ -176,15 +175,13 @@ public sealed class UpdateHandler
 
         var regions = await APIsRequestsHandler.GetResponseForAlertsCachedAsync();
 
-        await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
-            messageForUser + string.Join("\n",
-            regions.Where(region => region.Value.Enabled)
-            .Select(region => $"🚨 {region.Key}; Enabled at: " +
-            $"{DateTime.Parse(region.Value.EnabledAt).ToUniversalTime().AddHours(2)}")) + "`",
-            ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
-
         var bytes = AlarmsMapGenerator.DrawAlertsMap(regions);
 
-        await _botClient.SendPhotoAsync(_update.Message!.Chat.Id, new InputOnlineFile(new MemoryStream(bytes)));
+        await _botClient.SendPhotoAsync(_update.Message!.Chat.Id, new InputOnlineFile(new MemoryStream(bytes)),
+            messageForUser + string.Join("\n",
+            regions.Where(region => region.Value.Enabled)
+            .Select(region => $"🚨 {region.Key.Trim('\'')}; Enabled at: " +
+            $"{DateTime.Parse(region.Value.EnabledAt):MM/dd/yyyy HH:mm}")) + "`",
+            ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Telegram.Bot.Types;
+using WeatherAlertsBot.Commands;
 using WeatherAlertsBot.Configuration;
 using WeatherAlertsBot.Helpers;
 using WeatherAlertsBot.Requesthandlers;
@@ -55,6 +56,11 @@ public static class WeatherHandler
     /// <returns>WeatherResponseForUser</returns>
     public static async Task<WeatherResponseForUser> SendWeatherByUserMessageAsync(string userMessage)
     {
+        if (userMessage.Equals(BotCommands.WeatherCommand))
+        {
+            return new WeatherResponseForUser { ErrorMessage = "Format of the input is wrong!" };
+        }
+
         var splittedUserMessage = userMessage.Trim().Split(' ', 2);
 
         var coordinatesInfo = await GetLattitudeAndLongitudeByCityNameAsync(splittedUserMessage[1]);
