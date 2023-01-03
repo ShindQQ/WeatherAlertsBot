@@ -93,11 +93,7 @@ public sealed class UpdateHandler
 
         if (!string.IsNullOrEmpty(errorMessage))
         {
-            await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
-              $"""
-              `{errorMessage}`
-              """,
-              ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+            await HandleErrorMessage();
 
             return;
         }
