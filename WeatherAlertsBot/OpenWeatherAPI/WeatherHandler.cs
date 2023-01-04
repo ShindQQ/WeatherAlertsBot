@@ -34,7 +34,7 @@ public static class WeatherHandler
     {
         string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.CurrentWeatherUrl + $"?lat={lattitude}&lon={longitude}&appid={OpenWeatherApiKey}";
 
-        return await APIsRequestsHandler.GetResponseFromAPI<WeatherForecastResult>(url);
+        return await APIsRequestsHandler.GetResponseFromAPIAsync<WeatherForecastResult>(url);
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ public static class WeatherHandler
     {
         string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.GeoAPIUrl + $"?q={cityName}&appid={OpenWeatherApiKey}";
 
-        return await APIsRequestsHandler.GetResponseFromAPI<IEnumerable<CoordinatesInfo>>(url);
+        return await APIsRequestsHandler.GetResponseFromAPIAsync<IEnumerable<CoordinatesInfo>>(url);
     }
 
     /// <summary>

@@ -33,7 +33,7 @@ public sealed class APIsRequestsHandler
         if ((DateTime.UtcNow - LastAlertsRequest).TotalMinutes >= 1)
         {
             LastAlertsRequest = DateTime.UtcNow;
-            LastAlertsValue = (await GetResponseFromAPI<AlarmsStateInfo>(APIsLinks.AlarmsInUkraineInfoUrl))!.States;
+            LastAlertsValue = (await GetResponseFromAPIAsync<AlarmsStateInfo>(APIsLinks.AlarmsInUkraineInfoUrl))!.States;
         }
 
         return LastAlertsValue;
@@ -46,7 +46,7 @@ public sealed class APIsRequestsHandler
     /// <param name="url">Url for request</param>
     /// <returns>T as deserialized response from request</returns>
     /// <exception cref="HttpRequestException">If response`s status code isn`t 200</exception>
-    public static async Task<T?> GetResponseFromAPI<T>(string url)
+    public static async Task<T?> GetResponseFromAPIAsync<T>(string url)
     {
         var response = await HttpClient.GetAsync(url);
 

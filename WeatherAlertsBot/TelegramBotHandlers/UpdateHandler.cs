@@ -52,7 +52,8 @@ public sealed class UpdateHandler
     {
         if (_update.Message != null)
         {
-            var userMessageText = _update.Message.Text;
+            var userMessage = _update.Message;
+            var userMessageText = userMessage.Text;
 
             if (userMessageText != null)
             {
@@ -68,7 +69,17 @@ public sealed class UpdateHandler
                 await command;
             }
 
-            await HandleLocationMessageAsync();
+            var userMessageLocation = userMessage.Location;
+
+            if (userMessageLocation != null)
+            {
+                await HandleLocationMessageAsync(userMessageLocation);
+            }
+
+            if (userMessageText == null && userMessageLocation == null)
+            {
+                await HandleErrorMessage();
+            }
         }
     }
 
@@ -93,7 +104,11 @@ public sealed class UpdateHandler
 
         if (!string.IsNullOrEmpty(errorMessage))
         {
-            await HandleErrorMessage();
+            await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
+                $"""
+                `{errorMessage}`
+                """,
+                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
 
             return;
         }
@@ -110,21 +125,16 @@ public sealed class UpdateHandler
     ///     Handling user location message
     /// </summary>
     /// <returns>Task</returns>
-    private async Task HandleLocationMessageAsync()
+    private async Task HandleLocationMessageAsync(Location userLocation)
     {
-        var userLocation = _update.Message!.Location;
+        var weatherResponseForUser = await WeatherHandler.SendWeatherByUserLocationAsync(userLocation);
 
-        if (userLocation != null)
-        {
-            var weatherResponseForUser = await WeatherHandler.SendWeatherByUserLocationAsync(userLocation);
-
-            await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
-                $"""
+        await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
+            $"""
                 `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
                 Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
                 """,
-                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
-        }
+            ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
     }
 
     /// <summary>
@@ -151,7 +161,7 @@ public sealed class UpdateHandler
     /// no troubles with request, false if there was troubleshooting</returns>
     private async Task HandleRussianInvasionInfo()
     {
-        var russianInvasion = (await APIsRequestsHandler.GetResponseFromAPI<RussianInvasion>(APIsLinks.RussianWarshipUrl))!.RussianWarshipInfo;
+        var russianInvasion = (await APIsRequestsHandler.GetResponseFromAPIAsync<RussianInvasion>(APIsLinks.RussianWarshipUrl))!.RussianWarshipInfo;
 
         await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
         russianInvasion.ToString(),
