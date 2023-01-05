@@ -21,4 +21,9 @@ public static class BotCommands
     ///     String for alerts_lost command
     /// </summary>
     public const string AlertsLostCommand = "/alerts_lost";
+
+    /// <summary>
+    ///     Subscription on alerts_lost command
+    /// </summary>
+    public const string SubscribeOnAlertsCommand = "/subscribe_on_alerts_lost";
 }

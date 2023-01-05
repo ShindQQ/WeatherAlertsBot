@@ -1,9 +1,12 @@
-﻿using System.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Data;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using WeatherAlertsBot.Commands;
+using WeatherAlertsBot.Configuration;
+using WeatherAlertsBot.DAL.Context;
 using WeatherAlertsBot.Helpers;
 using WeatherAlertsBot.OpenWeatherAPI;
 using WeatherAlertsBot.Requesthandlers;
@@ -32,6 +35,11 @@ public sealed class UpdateHandler
     private readonly CancellationToken _cancellationToken;
 
     /// <summary>
+    ///     EF Core DB context
+    /// </summary>
+    private readonly BotContext _botContext;
+
+    /// <summary>
     ///     Constructor
     /// </summary>
     /// <param name="telegramBotClient">A client interface to use Telegram Bot API</param>
@@ -42,6 +50,7 @@ public sealed class UpdateHandler
         _botClient = telegramBotClient;
         _update = update;
         _cancellationToken = cancellationToken;
+        _botContext = new(BotConfiguration.ConnectionString);
     }
 
     /// <summary>
@@ -57,16 +66,7 @@ public sealed class UpdateHandler
 
             if (userMessageText != null)
             {
-                Task command = userMessageText switch
-                {
-                    BotCommands.StartCommand => HandleStartMessage(),
-                    _ when userMessageText.StartsWith(BotCommands.WeatherCommand) => HandleWeatherMessageAsync(userMessageText),
-                    _ when userMessageText.StartsWith(BotCommands.AlertsMapCommand) => HandleAlertsInfo(),
-                    _ when userMessageText.StartsWith(BotCommands.AlertsLostCommand) => HandleRussianInvasionInfo(),
-                    _ => HandleErrorMessage()
-                };
-
-                await command;
+                await HandleCommandMessage(userMessageText);
             }
 
             var userMessageLocation = userMessage.Location;
@@ -81,6 +81,25 @@ public sealed class UpdateHandler
                 await HandleErrorMessage();
             }
         }
+    }
+    
+    /// <summary>
+    ///     Handling user`s commands
+    /// </summary>
+    /// <param name="userCommand">Command sent by user</param>
+    /// <returns>Command for user`s request</returns>
+    public Task HandleCommandMessage(string userCommand)
+    {
+        Task command = userCommand switch
+        {
+            BotCommands.StartCommand => HandleStartMessage(),
+            _ when userCommand.StartsWith(BotCommands.WeatherCommand) => HandleWeatherMessageAsync(userCommand),
+            _ when userCommand.StartsWith(BotCommands.AlertsMapCommand) => HandleAlertsInfo(),
+            _ when userCommand.StartsWith(BotCommands.AlertsLostCommand) => HandleRussianInvasionInfo(),
+            _ => HandleErrorMessage()
+        };
+
+        return command;
     }
 
     /// <summary>
