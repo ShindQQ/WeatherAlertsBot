@@ -50,7 +50,7 @@ public sealed class UpdateHandler
         _botClient = telegramBotClient;
         _update = update;
         _cancellationToken = cancellationToken;
-        _botContext = new(BotConfiguration.ConnectionString);
+        _botContext = new();
     }
 
     /// <summary>

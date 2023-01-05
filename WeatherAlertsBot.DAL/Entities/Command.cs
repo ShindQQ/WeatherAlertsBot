@@ -8,4 +8,6 @@ public sealed class Command
     public int Id { get; set; }
 
     public string CommandName { get; set; }
+
+    public Subsrciber Subsrciber { get; set; }
 }

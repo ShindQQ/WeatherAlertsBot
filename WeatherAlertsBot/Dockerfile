@@ -1,12 +1,14 @@
+  GNU nano 6.2                                                                               WeatherAlertsBot/Dockerfile
 FROM mcr.microsoft.com/dotnet/runtime:7.0 AS base
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["./WeatherAlertsBot/WeatherAlertsBot/WeatherAlertsBot.csproj", "WeatherAlertsBot/"]
+COPY ["./WeatherAlertsBot/WeatherAlertsBot.csproj", "WeatherAlertsBot/"]
+COPY ["./WeatherAlertsBot.DAL/WeatherAlertsBot.DAL.csproj", "WeatherAlertsBot.DAL/"]
 RUN dotnet restore "WeatherAlertsBot/WeatherAlertsBot.csproj"
 COPY . .
-WORKDIR "/src/WeatherAlertsBot/WeatherAlertsBot"
+WORKDIR "/src/WeatherAlertsBot"
 RUN dotnet build "WeatherAlertsBot.csproj" -c Release -o /app/build
 
 FROM build AS publish
@@ -24,3 +26,4 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 
 ENTRYPOINT ["dotnet", "WeatherAlertsBot.dll"]
+

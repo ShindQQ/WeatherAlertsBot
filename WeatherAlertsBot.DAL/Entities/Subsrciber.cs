@@ -7,5 +7,5 @@ public sealed class Subsrciber
     [Key]
     public long ChatId { get; set; }
 
-    public List<Command> Commands { get; set; }
+    public List<Command> Commands { get; set; } = new();
 }

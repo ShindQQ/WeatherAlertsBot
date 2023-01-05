@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
- shoshoppers:
+ weatheralertsbot:
   image: shindqq/weatheralertsbot_image
   restart: unless-stopped
   container_name: weatheralertsbot_compose_container
@@ -21,7 +21,7 @@ services:
    MYSQL_PASSWORD: 'VaUMdqnW2TwkZJ34ZxkXNHepWIq3kAHKxvYCxNygPZRVHcIrBy2bMxIzth'
    MYSQL_ROOT_PASSWORD: 'VaUMdqnW2TwkZJ34ZxkXNHepWIq3kAHKxvYCxNygPZRVHcIrBy2bMxIzth'
   ports:
-   - '3306:3306'
+   - '3307:3306'
   expose:
    - '3306'
   volumes:
