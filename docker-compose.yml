@@ -14,7 +14,7 @@ services:
  mysql:
   image: mysql
   restart: unless-stopped
-  container_name: mysql_compose-server
+  container_name: mysql_bot_compose-server
   environment:
    MYSQL_DATABASE: 'WeatherAlertsBotDb'
    MYSQL_USER: 'Shind'

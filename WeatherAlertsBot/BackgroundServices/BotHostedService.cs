@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Hosting;
-using System.Threading;
 using Telegram.Bot;
 using WeatherAlertsBot.Configuration;
 
@@ -15,7 +14,6 @@ public sealed class BotHostedService : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            await _botClient.SendTextMessageAsync(405504138, "/alerts_map");
             await Task.Delay(2000);
         }
     }

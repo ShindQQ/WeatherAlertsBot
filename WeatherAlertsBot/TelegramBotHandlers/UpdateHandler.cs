@@ -1,11 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Data;
+﻿using System.Data;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using WeatherAlertsBot.Commands;
-using WeatherAlertsBot.Configuration;
 using WeatherAlertsBot.DAL.Context;
 using WeatherAlertsBot.Helpers;
 using WeatherAlertsBot.OpenWeatherAPI;
@@ -82,7 +80,7 @@ public sealed class UpdateHandler
             }
         }
     }
-    
+
     /// <summary>
     ///     Handling user`s commands
     /// </summary>
