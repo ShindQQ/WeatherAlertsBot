@@ -7,12 +7,11 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using WeatherAlertsBot.BackgroundServices;
 using WeatherAlertsBot.Configuration;
-using WeatherAlertsBot.DAL.Context;
 using WeatherAlertsBot.TelegramBotHandlers;
 
 var botClient = new TelegramBotClient(BotConfiguration.BotAccessToken);
 
-using CancellationTokenSource cansellationTokenSource = new();
+using CancellationTokenSource cancellationTokenSource = new();
 
 ReceiverOptions receiverOptions = new()
 {
@@ -23,7 +22,7 @@ botClient.StartReceiving(
     HandleUpdateAsync,
     HandlePollingErrorAsync,
     receiverOptions,
-    cansellationTokenSource.Token
+    cancellationTokenSource.Token
     );
 
 await Host.CreateDefaultBuilder(args)
@@ -35,7 +34,7 @@ await Host.CreateDefaultBuilder(args)
 // Wait for eternity
 await Task.Delay(-1);
 
-cansellationTokenSource.Cancel();
+cancellationTokenSource.Cancel();
 
 async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
 {

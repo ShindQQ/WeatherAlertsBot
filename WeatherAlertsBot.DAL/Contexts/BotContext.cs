@@ -12,12 +12,12 @@ public class BotContext : DbContext
     /// <summary>
     ///     Table for commands of subscribers
     /// </summary>
-    public DbSet<Command> Commands { get; set; } = null!;
+    public DbSet<SubscriberCommands> SubscriberCommands { get; set; } = null!;
 
     /// <summary>
     ///     Table for subscribers, their commands and chat id
     /// </summary>
-    public DbSet<Subsrciber> Subsrcibers { get; set; } = null!;
+    public DbSet<Subscriber> Subscribers  { get; set; } = null!;
 
     /// <summary>
     ///     Empty db context constructor
