@@ -16,32 +16,37 @@ public sealed class SubscriberService
         _botContext = new();
     }
 
-    public async Task<Subsrciber?> AddSubscriberAsync(Subsrciber subsrciber)
+    public async Task<Subscriber?> AddSubscriberAsync(Subscriber subscriber)
     {
-        if (!await IsSubscriberExistAsync(subsrciber.ChatId))
+        if (!await IsSubscriberExistAsync(subscriber.ChatId))
         {
             return null;
         }
 
-        await _botContext.Subsrcibers.AddAsync(subsrciber);
+        await _botContext.Subscribers.AddAsync(subscriber);
         await _botContext.SaveChangesAsync();
 
-        return subsrciber;
+        return subscriber;
     }
 
-    public async Task<Subsrciber?> AddCommandToSubscriberAsync(long subscrberId, string commandName)
+    public async Task<Subscriber?> AddCommandToSubscriberAsync(long subscriberId, string commandName)
     {
-        var foundSubscriber = await FindSubscriberAsync(subscrberId);
+        var foundSubscriber = await FindSubscriberAsync(subscriberId);
 
-        if (foundSubscriber != null)
+        if (foundSubscriber is null)
+            return foundSubscriber;
+
+        var foundCommand = await FindCommandAsync(null, commandName);
+        if (foundCommand is not null) 
         {
-            var foundCommand = await FindCommandAsync(null, commandName);
-            if (foundSubscriber != null && foundCommand != null) 
+            foundSubscriber.Commands.Add(new SubscriberCommands
             {
-                foundSubscriber.Commands.Add(foundCommand);
-            }
+                SubscriberId = foundSubscriber.ChatId,
+                CommandId = foundCommand.Id,
+                Subscriber = foundSubscriber,
+                Command = foundCommand
+            });                
         }
-
         return foundSubscriber;
     }
 
@@ -60,12 +65,12 @@ public sealed class SubscriberService
 
     public async Task<bool> IsSubscriberExistAsync(long subscriberChatId)
     {
-        return await _botContext.Subsrcibers.AnyAsync(subscriber => subscriber.ChatId == subscriberChatId);
+        return await _botContext.Subscribers.AnyAsync(subscriber => subscriber.ChatId == subscriberChatId);
     }
     
-    public async Task<Subsrciber?> FindSubscriberAsync(long subscriberChatId)
+    public async Task<Subscriber?> FindSubscriberAsync(long subscriberChatId)
     {
-        return await _botContext.Subsrcibers
+        return await _botContext.Subscribers
             .Where(subscriber => subscriber.ChatId == subscriberChatId).FirstOrDefaultAsync();
     }
     public async Task<bool> IsCommandExistAsync(int commandId)

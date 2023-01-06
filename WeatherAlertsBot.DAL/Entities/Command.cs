@@ -23,5 +23,5 @@ public class Command
     /// <summary>
     ///     Users subscribed on this command
     /// </summary>
-    public List<Subsrciber> Subsrcibers { get; set; }
+    public List<SubscriberCommands> Subsrcibers { get; set; }
 }

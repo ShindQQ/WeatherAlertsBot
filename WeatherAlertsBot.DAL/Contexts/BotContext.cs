@@ -17,7 +17,7 @@ public class BotContext : DbContext
     /// <summary>
     ///     Table for subscribers, their commands and chat id
     /// </summary>
-    public DbSet<Subsrciber> Subsrcibers { get; set; } = null!;
+    public DbSet<Subscriber> Subscribers { get; set; } = null!;
 
     /// <summary>
     ///     Empty db context constructor
