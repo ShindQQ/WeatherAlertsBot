@@ -64,6 +64,11 @@ public static class WeatherHandler
 
         var splittedUserMessage = userMessage.Trim().Split(' ', 2);
 
+        if (splittedUserMessage.Length != 2)
+        {
+            return new WeatherResponseForUser { ErrorMessage = "Format of the input is wrong!" };
+        }
+
         var coordinatesInfo = await GetLattitudeAndLongitudeByCityNameAsync(splittedUserMessage[1]);
 
         if (coordinatesInfo == null || !coordinatesInfo.Any())
