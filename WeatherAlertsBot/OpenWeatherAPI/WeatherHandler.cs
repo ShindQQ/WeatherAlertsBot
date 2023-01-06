@@ -2,6 +2,7 @@
 using WeatherAlertsBot.Commands;
 using WeatherAlertsBot.Configuration;
 using WeatherAlertsBot.Helpers;
+using WeatherAlertsBot.OpenWeatherAPI.Models;
 using WeatherAlertsBot.Requesthandlers;
 
 namespace WeatherAlertsBot.OpenWeatherAPI;
