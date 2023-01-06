@@ -4,7 +4,6 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using WeatherAlertsBot.Commands;
-using WeatherAlertsBot.DAL.Context;
 using WeatherAlertsBot.Helpers;
 using WeatherAlertsBot.OpenWeatherAPI;
 using WeatherAlertsBot.Requesthandlers;
@@ -31,7 +30,7 @@ public sealed class UpdateHandler
     ///     Cancellation Token
     /// </summary>
     private readonly CancellationToken _cancellationToken;
-   
+
     /// <summary>
     ///     Constructor
     /// </summary>

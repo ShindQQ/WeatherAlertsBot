@@ -12,12 +12,12 @@ public class BotContext : DbContext
     /// <summary>
     ///     Table for commands of subscribers
     /// </summary>
-    public DbSet<SubscriberCommands> SubscriberCommands { get; set; } = null!;
+    public DbSet<SubscriberCommand> SubscriberCommands { get; set; } = null!;
 
     /// <summary>
     ///     Table for subscribers, their commands and chat id
     /// </summary>
-    public DbSet<Subscriber> Subscribers  { get; set; } = null!;
+    public DbSet<Subscriber> Subscribers { get; set; } = null!;
 
     /// <summary>
     ///     Empty db context constructor
@@ -36,7 +36,7 @@ public class BotContext : DbContext
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile($"appsettings.json").Build();
 
-        optionsBuilder.UseMySql(configuration.GetConnectionString("DbConnection"), 
+        optionsBuilder.UseMySql(configuration.GetConnectionString("DbConnection"),
             new MySqlServerVersion(new Version(8, 0, 30)));
     }
 }

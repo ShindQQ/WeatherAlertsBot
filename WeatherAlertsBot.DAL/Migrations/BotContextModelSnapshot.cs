@@ -18,22 +18,32 @@ namespace WeatherAlertsBot.DAL.Migrations
                 .HasAnnotation("ProductVersion", "7.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("CommandSubsrciber", b =>
+            modelBuilder.Entity("SubscriberSubscriberCommand", b =>
                 {
                     b.Property<int>("CommandsId")
                         .HasColumnType("int");
 
-                    b.Property<long>("SubsrciberChatId")
+                    b.Property<long>("SubsrcibersChatId")
                         .HasColumnType("bigint");
 
-                    b.HasKey("CommandsId", "SubsrciberChatId");
+                    b.HasKey("CommandsId", "SubsrcibersChatId");
 
-                    b.HasIndex("SubsrciberChatId");
+                    b.HasIndex("SubsrcibersChatId");
 
-                    b.ToTable("CommandSubsrciber");
+                    b.ToTable("SubscriberSubscriberCommand");
                 });
 
-            modelBuilder.Entity("WeatherAlertsBot.DAL.Entities.Command", b =>
+            modelBuilder.Entity("WeatherAlertsBot.DAL.Entities.Subscriber", b =>
+                {
+                    b.Property<long>("ChatId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ChatId");
+
+                    b.ToTable("Subscribers");
+                });
+
+            modelBuilder.Entity("WeatherAlertsBot.DAL.Entities.SubscriberCommand", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -45,30 +55,20 @@ namespace WeatherAlertsBot.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Commands");
+                    b.ToTable("SubscriberCommands");
                 });
 
-            modelBuilder.Entity("WeatherAlertsBot.DAL.Entities.Subsrciber", b =>
+            modelBuilder.Entity("SubscriberSubscriberCommand", b =>
                 {
-                    b.Property<long>("ChatId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("ChatId");
-
-                    b.ToTable("Subsrcibers");
-                });
-
-            modelBuilder.Entity("CommandSubsrciber", b =>
-                {
-                    b.HasOne("WeatherAlertsBot.DAL.Entities.Command", null)
+                    b.HasOne("WeatherAlertsBot.DAL.Entities.SubscriberCommand", null)
                         .WithMany()
                         .HasForeignKey("CommandsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WeatherAlertsBot.DAL.Entities.Subsrciber", null)
+                    b.HasOne("WeatherAlertsBot.DAL.Entities.Subscriber", null)
                         .WithMany()
-                        .HasForeignKey("SubsrciberChatId")
+                        .HasForeignKey("SubsrcibersChatId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

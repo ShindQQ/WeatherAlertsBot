@@ -15,7 +15,7 @@ namespace WeatherAlertsBot.DAL.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Commands",
+                name: "SubscriberCommands",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -25,64 +25,64 @@ namespace WeatherAlertsBot.DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Commands", x => x.Id);
+                    table.PrimaryKey("PK_SubscriberCommands", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Subsrcibers",
+                name: "Subscribers",
                 columns: table => new
                 {
                     ChatId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Subsrcibers", x => x.ChatId);
+                    table.PrimaryKey("PK_Subscribers", x => x.ChatId);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "CommandSubsrciber",
+                name: "SubscriberSubscriberCommand",
                 columns: table => new
                 {
                     CommandsId = table.Column<int>(type: "int", nullable: false),
-                    SubsrciberChatId = table.Column<long>(type: "bigint", nullable: false)
+                    SubsrcibersChatId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CommandSubsrciber", x => new { x.CommandsId, x.SubsrciberChatId });
+                    table.PrimaryKey("PK_SubscriberSubscriberCommand", x => new { x.CommandsId, x.SubsrcibersChatId });
                     table.ForeignKey(
-                        name: "FK_CommandSubsrciber_Commands_CommandsId",
+                        name: "FK_SubscriberSubscriberCommand_SubscriberCommands_CommandsId",
                         column: x => x.CommandsId,
-                        principalTable: "Commands",
+                        principalTable: "SubscriberCommands",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CommandSubsrciber_Subsrcibers_SubsrciberChatId",
-                        column: x => x.SubsrciberChatId,
-                        principalTable: "Subsrcibers",
+                        name: "FK_SubscriberSubscriberCommand_Subscribers_SubsrcibersChatId",
+                        column: x => x.SubsrcibersChatId,
+                        principalTable: "Subscribers",
                         principalColumn: "ChatId",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CommandSubsrciber_SubsrciberChatId",
-                table: "CommandSubsrciber",
-                column: "SubsrciberChatId");
+                name: "IX_SubscriberSubscriberCommand_SubsrcibersChatId",
+                table: "SubscriberSubscriberCommand",
+                column: "SubsrcibersChatId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CommandSubsrciber");
+                name: "SubscriberSubscriberCommand");
 
             migrationBuilder.DropTable(
-                name: "Commands");
+                name: "SubscriberCommands");
 
             migrationBuilder.DropTable(
-                name: "Subsrcibers");
+                name: "Subscribers");
         }
     }
 }

@@ -6,7 +6,7 @@ namespace WeatherAlertsBot.DAL.Entities;
 /// <summary>
 ///     Entity describing commands for subscribers
 /// </summary>
-public class Command
+public class SubscriberCommand
 {
     /// <summary>
     ///     Id of the command for the user
@@ -23,5 +23,5 @@ public class Command
     /// <summary>
     ///     Users subscribed on this command
     /// </summary>
-    public List<Subsrciber> Subsrcibers { get; set; }
+    public List<Subscriber> Subsrcibers { get; set; }
 }
