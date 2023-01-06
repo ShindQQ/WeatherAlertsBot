@@ -10,9 +10,6 @@ using WeatherAlertsBot.Configuration;
 using WeatherAlertsBot.DAL.Context;
 using WeatherAlertsBot.TelegramBotHandlers;
 
-BotContext botContext = new();
-var some = botContext.Commands.Count();
-
 var botClient = new TelegramBotClient(BotConfiguration.BotAccessToken);
 
 using CancellationTokenSource cansellationTokenSource = new();

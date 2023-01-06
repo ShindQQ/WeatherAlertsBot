@@ -31,12 +31,7 @@ public sealed class UpdateHandler
     ///     Cancellation Token
     /// </summary>
     private readonly CancellationToken _cancellationToken;
-
-    /// <summary>
-    ///     EF Core DB context
-    /// </summary>
-    private readonly BotContext _botContext;
-
+   
     /// <summary>
     ///     Constructor
     /// </summary>
@@ -48,7 +43,6 @@ public sealed class UpdateHandler
         _botClient = telegramBotClient;
         _update = update;
         _cancellationToken = cancellationToken;
-        _botContext = new();
     }
 
     /// <summary>

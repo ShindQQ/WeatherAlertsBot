@@ -15,11 +15,25 @@ namespace WeatherAlertsBot.DAL.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Commands",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    CommandName = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Commands", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Subsrcibers",
                 columns: table => new
                 {
                     ChatId = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
                 },
                 constraints: table =>
                 {
@@ -28,20 +42,23 @@ namespace WeatherAlertsBot.DAL.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Commands",
+                name: "CommandSubsrciber",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    CommandName = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CommandsId = table.Column<int>(type: "int", nullable: false),
                     SubsrciberChatId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Commands", x => x.Id);
+                    table.PrimaryKey("PK_CommandSubsrciber", x => new { x.CommandsId, x.SubsrciberChatId });
                     table.ForeignKey(
-                        name: "FK_Commands_Subsrcibers_SubsrciberChatId",
+                        name: "FK_CommandSubsrciber_Commands_CommandsId",
+                        column: x => x.CommandsId,
+                        principalTable: "Commands",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CommandSubsrciber_Subsrcibers_SubsrciberChatId",
                         column: x => x.SubsrciberChatId,
                         principalTable: "Subsrcibers",
                         principalColumn: "ChatId",
@@ -50,14 +67,17 @@ namespace WeatherAlertsBot.DAL.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Commands_SubsrciberChatId",
-                table: "Commands",
+                name: "IX_CommandSubsrciber_SubsrciberChatId",
+                table: "CommandSubsrciber",
                 column: "SubsrciberChatId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "CommandSubsrciber");
+
             migrationBuilder.DropTable(
                 name: "Commands");
 

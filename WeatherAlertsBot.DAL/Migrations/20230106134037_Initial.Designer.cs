@@ -10,7 +10,7 @@ using WeatherAlertsBot.DAL.Context;
 namespace WeatherAlertsBot.DAL.Migrations
 {
     [DbContext(typeof(BotContext))]
-    [Migration("20230105210641_Initial")]
+    [Migration("20230106134037_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -20,6 +20,21 @@ namespace WeatherAlertsBot.DAL.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "7.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            modelBuilder.Entity("CommandSubsrciber", b =>
+                {
+                    b.Property<int>("CommandsId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("SubsrciberChatId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("CommandsId", "SubsrciberChatId");
+
+                    b.HasIndex("SubsrciberChatId");
+
+                    b.ToTable("CommandSubsrciber");
+                });
 
             modelBuilder.Entity("WeatherAlertsBot.DAL.Entities.Command", b =>
                 {
@@ -31,12 +46,7 @@ namespace WeatherAlertsBot.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<long>("SubsrciberChatId")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("SubsrciberChatId");
 
                     b.ToTable("Commands");
                 });
@@ -44,7 +54,6 @@ namespace WeatherAlertsBot.DAL.Migrations
             modelBuilder.Entity("WeatherAlertsBot.DAL.Entities.Subsrciber", b =>
                 {
                     b.Property<long>("ChatId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
                     b.HasKey("ChatId");
@@ -52,20 +61,19 @@ namespace WeatherAlertsBot.DAL.Migrations
                     b.ToTable("Subsrcibers");
                 });
 
-            modelBuilder.Entity("WeatherAlertsBot.DAL.Entities.Command", b =>
+            modelBuilder.Entity("CommandSubsrciber", b =>
                 {
-                    b.HasOne("WeatherAlertsBot.DAL.Entities.Subsrciber", "Subsrciber")
-                        .WithMany("Commands")
-                        .HasForeignKey("SubsrciberChatId")
+                    b.HasOne("WeatherAlertsBot.DAL.Entities.Command", null)
+                        .WithMany()
+                        .HasForeignKey("CommandsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Subsrciber");
-                });
-
-            modelBuilder.Entity("WeatherAlertsBot.DAL.Entities.Subsrciber", b =>
-                {
-                    b.Navigation("Commands");
+                    b.HasOne("WeatherAlertsBot.DAL.Entities.Subsrciber", null)
+                        .WithMany()
+                        .HasForeignKey("SubsrciberChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

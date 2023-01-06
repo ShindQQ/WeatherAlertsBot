@@ -4,15 +4,19 @@ using WeatherAlertsBot.Configuration;
 
 namespace WeatherAlertsBot.BackgroundServices;
 
+/// <summary>
+///     Backgorund service for sending notifications to subscribed users
+/// </summary>
 public sealed class BotHostedService : BackgroundService
 {
+    /// <summary>
+    ///     Telegram bot client
+    /// </summary>
     private ITelegramBotClient _botClient = new TelegramBotClient(BotConfiguration.BotAccessToken);
-    private readonly CancellationTokenSource _stoppingCts =
-                                                   new CancellationTokenSource();
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             await Task.Delay(2000);
         }

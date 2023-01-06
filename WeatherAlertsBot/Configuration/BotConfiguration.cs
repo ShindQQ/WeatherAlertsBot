@@ -18,11 +18,6 @@ public static class BotConfiguration
     public static readonly string BotAccessToken;
 
     /// <summary>
-    ///     
-    /// </summary>
-    public static readonly string ConnectionString;
-
-    /// <summary>
     ///     Constructor
     /// </summary>
     static BotConfiguration()
@@ -32,6 +27,5 @@ public static class BotConfiguration
 
         OpenWeatherApiKey = configuration["OpenWeatherApiKey"]!;
         BotAccessToken = configuration["BotAccessToken"]!;
-        ConnectionString = configuration.GetConnectionString("DbConnection");
     }
 }
