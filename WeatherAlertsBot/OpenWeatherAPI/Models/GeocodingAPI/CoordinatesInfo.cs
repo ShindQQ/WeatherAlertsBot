@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WeatherAlertsBot.OpenWeatherAPI.Models;
+namespace WeatherAlertsBot.OpenWeatherAPI.Models.GeocodingAPI;
 
 /// <summary>
 ///     Class which represents response from Geocoding API

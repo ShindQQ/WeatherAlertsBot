@@ -23,6 +23,11 @@ public static class APIsLinks
     public const string CurrentWeatherUrl = "/data/2.5/weather";
 
     /// <summary>
+    ///     Open Weather API`s Weather forecast url
+    /// </summary>
+    public const string WeatherForecastUrl = "/data/2.5/forecast";
+
+    /// <summary>
     ///     Open Weather API`s Geo API url
     /// </summary>
     public const string GeoAPIUrl = "/geo/1.0/direct";

@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WeatherAlertsBot.OpenWeatherAPI.Models;
+namespace WeatherAlertsBot.OpenWeatherAPI.Models.CurrentWeather;
 
 /// <summary>
 ///     Class which represents weather forecast from OpenWeatherAPI Current Weather
 /// </summary>
-public sealed class WeatherForecastResult
+public sealed class WeatherResult
 {
     /// <summary>
     ///     List(?) of weather by coordinates

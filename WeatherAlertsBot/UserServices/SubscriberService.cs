@@ -13,15 +13,7 @@ public sealed class SubscriberService
     /// <summary>
     ///     EF Core DB context
     /// </summary>
-    private readonly BotContext _botContext;
-
-    /// <summary>
-    ///     Empty constructor for context initialization
-    /// </summary>
-    public SubscriberService()
-    {
-        _botContext = new();
-    }
+    private readonly BotContext _botContext = new();
 
     /// <summary>
     ///     Adding subscriber
@@ -65,7 +57,7 @@ public sealed class SubscriberService
 
         return true;
     }
-    
+
     /// <summary>
     ///     Removing command for subscriber
     /// </summary>

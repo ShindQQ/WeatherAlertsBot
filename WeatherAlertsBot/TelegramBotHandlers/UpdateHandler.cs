@@ -84,6 +84,7 @@ public sealed class UpdateHandler
         Task command = userCommand switch
         {
             BotCommands.StartCommand => HandleStartMessage(),
+            _ when userCommand.StartsWith(BotCommands.WeatherForecastCommand) => HandleWeatherForecastMessageAsync(userCommand),
             _ when userCommand.StartsWith(BotCommands.WeatherCommand) => HandleWeatherMessageAsync(userCommand),
             _ when userCommand.StartsWith(BotCommands.AlertsMapCommand) => HandleAlertsInfo(),
             _ when userCommand.StartsWith(BotCommands.AlertsLostCommand) => HandleRussianInvasionInfo(),
@@ -126,8 +127,42 @@ public sealed class UpdateHandler
         await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
                 $"""
                 `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
-                Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
+                Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.TypeOfWeather}.`
                 """,
+                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+    }
+    
+    /// <summary>
+    ///     Handling /weather [city_name] message
+    /// </summary>
+    /// <param name="userMessageText">Message sent by user</param>
+    /// <returns>True if user`s message starts with /weather and there were no troubles with request, false if there was troubleshooting</returns>
+    private async Task HandleWeatherForecastMessageAsync(string userMessageText)
+    {
+        var weatherForecastResult = await WeatherHandler.SendWeatherForecastByUserMessageAsync(userMessageText);
+        var errorMessage = weatherForecastResult.ErrorMessage;
+
+        if (!string.IsNullOrEmpty(errorMessage))
+        {
+            await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
+                $"""
+                `{errorMessage}`
+                """,
+                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+
+            return;
+        }
+
+        await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
+                $"`Current weather in {weatherForecastResult.WeatherForecastCity.CityName} for next 24 hours:\n\n"
+                + string.Join("\n\n", weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
+                $"""
+                Time: {weatherData.Date[^8..]}: 
+                Temperature: {weatherData.WeatherForecastData.Temperature:N2} °C.
+                Feels like {weatherData.WeatherForecastData.FeelsLike:N2} °C.
+                Humidity {weatherData.WeatherForecastData.Humidity}. 
+                Type of weather: {weatherData.WeatherForecastCurrentWeather.First().TypeOfWeather}.
+                """)) + "`",
                 ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
     }
 
@@ -142,7 +177,7 @@ public sealed class UpdateHandler
         await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
             $"""
                 `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
-                Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
+                Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.TypeOfWeather}.`
                 """,
             ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
     }
