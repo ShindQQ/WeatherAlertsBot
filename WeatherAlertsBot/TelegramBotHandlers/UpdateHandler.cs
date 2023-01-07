@@ -192,7 +192,8 @@ public sealed class UpdateHandler
             """
             `Hello!
             To receive weather by city name send me the message in format: /weather [city_name]!
-            Or just send me your location!
+            To receive weather forecast by city name send me the message in format: /weather_forecast [city_name]!
+            Or just send me your location for receiving current weather!
             For map of alerts use /alerts_map!
             For liquidations information /alerts_lost!`
             """,
@@ -202,7 +203,6 @@ public sealed class UpdateHandler
     /// <summary>
     ///     Receiving info about liquidations in russian invasion
     /// </summary>
-    /// <param name="userMessageText">Message sent by user</param>
     /// no troubles with request, false if there was troubleshooting</returns>
     private async Task HandleRussianInvasionInfo()
     {

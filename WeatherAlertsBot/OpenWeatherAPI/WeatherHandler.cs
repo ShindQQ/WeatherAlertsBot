@@ -88,7 +88,7 @@ public static class WeatherHandler
 
         if (coordinatesInfo == null)
         {
-            return new WeatherResponseForUser { ErrorMessage = "No data was found for your request!" };
+            return new WeatherResponseForUser { ErrorMessage = "Check correctness of your input!" };
         }
 
         var temperatureInfo = await GetCurrentWeatherByCoordinatesAsync(coordinatesInfo.Lattitude, coordinatesInfo.Longitude);
