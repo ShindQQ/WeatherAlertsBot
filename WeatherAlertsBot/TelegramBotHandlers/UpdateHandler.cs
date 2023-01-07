@@ -131,12 +131,12 @@ public sealed class UpdateHandler
                 """,
                 ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
     }
-    
+
     /// <summary>
-    ///     Handling /weather [city_name] message
+    ///     Handling /weather_forecast [city_name] message
     /// </summary>
     /// <param name="userMessageText">Message sent by user</param>
-    /// <returns>True if user`s message starts with /weather and there were no troubles with request, false if there was troubleshooting</returns>
+    /// <returns>True if user`s message starts with /weather_forecast and there were no troubles with request, false if there was troubleshooting</returns>
     private async Task HandleWeatherForecastMessageAsync(string userMessageText)
     {
         var weatherForecastResult = await WeatherHandler.SendWeatherForecastByUserMessageAsync(userMessageText);
@@ -158,9 +158,9 @@ public sealed class UpdateHandler
                 + string.Join("\n\n", weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
                 $"""
                 Time: {weatherData.Date[^8..]}: 
-                Temperature: {weatherData.WeatherForecastData.Temperature:N2} °C.
-                Feels like {weatherData.WeatherForecastData.FeelsLike:N2} °C.
-                Humidity {weatherData.WeatherForecastData.Humidity}. 
+                Temperature: {weatherData.WeatherForecastTemperatureData.Temperature:N2} °C.
+                Feels like {weatherData.WeatherForecastTemperatureData.FeelsLike:N2} °C.
+                Humidity {weatherData.WeatherForecastTemperatureData.Humidity}. 
                 Type of weather: {weatherData.WeatherForecastCurrentWeather.First().TypeOfWeather}.
                 """)) + "`",
                 ParseMode.MarkdownV2, cancellationToken: _cancellationToken);

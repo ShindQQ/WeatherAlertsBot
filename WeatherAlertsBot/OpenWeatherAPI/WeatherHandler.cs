@@ -1,5 +1,4 @@
 ﻿using Telegram.Bot.Types;
-using WeatherAlertsBot.Commands;
 using WeatherAlertsBot.Configuration;
 using WeatherAlertsBot.Helpers;
 using WeatherAlertsBot.OpenWeatherAPI.Models.CurrentWeather;
@@ -22,7 +21,7 @@ public static class WeatherHandler
     /// <returns>WeatherResult</returns>
     public static async Task<WeatherResult?> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
     {
-        string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.CurrentWeatherUrl 
+        string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.CurrentWeatherUrl
             + $"?units=metric&lat={lattitude}&lon={longitude}&appid={BotConfiguration.OpenWeatherApiKey}";
 
         return await APIsRequestsHandler.GetResponseFromAPIAsync<WeatherResult>(url);
@@ -36,7 +35,7 @@ public static class WeatherHandler
     /// <returns>WeatherForecastResult</returns>
     public static async Task<WeatherForecastResult?> GetWeatherForecastByCoordinatesAsync(float lattitude, float longitude)
     {
-        string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.WeatherForecastUrl 
+        string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.WeatherForecastUrl
             + $"?units=metric&cnt=8&lat={lattitude}&lon={longitude}&appid={BotConfiguration.OpenWeatherApiKey}";
 
         return await APIsRequestsHandler.GetResponseFromAPIAsync<WeatherForecastResult>(url);
@@ -54,6 +53,11 @@ public static class WeatherHandler
         return await APIsRequestsHandler.GetResponseFromAPIAsync<IEnumerable<CoordinatesInfo>>(url);
     }
 
+    /// <summary>
+    ///     Receiving coordinates for user request
+    /// </summary>
+    /// <param name="userMessage">UserMessage including command and city name</param>
+    /// <returns>Coordinates with longitude and latitude</returns>
     private static async Task<CoordinatesInfo?> GetUserCoordinatesAsync(string userMessage)
     {
         var splittedUserMessage = userMessage.Trim().Split(' ', 2);

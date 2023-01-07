@@ -7,7 +7,7 @@ namespace WeatherAlertsBot.OpenWeatherAPI.WeatherForecast;
 public sealed class WeatherForecastResult
 {
     [JsonPropertyName("list")]
-    public List<WeatherForecastHoursData> WeatherForecastHoursData { get; set; }
+    public List<WeatherForecastDataForEveryThreeHours> WeatherForecastHoursData { get; set; }
 
     [JsonPropertyName("city")]
     public WeatherForecastCity WeatherForecastCity { get; set; }
