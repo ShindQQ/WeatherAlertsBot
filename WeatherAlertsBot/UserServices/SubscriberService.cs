@@ -65,6 +65,29 @@ public sealed class SubscriberService
 
         return true;
     }
+    
+    /// <summary>
+    ///     Removing command for subscriber
+    /// </summary>
+    /// <param name="subscriberChatId">Id of the subsriber chat</param>
+    /// <param name="commandName">Command name which will be added</param>
+    /// <returns>Returns true in case of adding, false if it doesn`t exist</returns>
+    public async Task<bool> RemoveCommandFromSubscriberAsync(long subscriberChatId, string commandName)
+    {
+        var foundSubscriber = await FindSubscriberAsync(subscriberChatId);
+
+        if (foundSubscriber == null)
+        {
+            return false;
+        }
+
+        if (IsSubscriberCommandExist(foundSubscriber, commandName))
+        {
+            foundSubscriber.Commands.Remove(await FindCommandAsync(new SubscriberCommandDto { CommandName = commandName }));
+        }
+
+        return true;
+    }
 
     /// <summary>
     ///     Removing subscriber entity
@@ -184,6 +207,17 @@ public sealed class SubscriberService
     {
         return await _botContext.Subscribers
             .FirstOrDefaultAsync(subscriber => subscriber.ChatId == subscriberChatId);
+    }
+
+    /// <summary>
+    ///     Checking if user has such command
+    /// </summary>
+    /// <param name="subscriber">Subscriber given for check</param>
+    /// <param name="commandName">Name of the command to find</param>
+    /// <returns>True if found, false if not</returns>
+    public static bool IsSubscriberCommandExist(Subscriber subscriber, string commandName)
+    {
+        return subscriber.Commands.Any(command => command.CommandName.Equals(commandName));
     }
 
     /// <summary>

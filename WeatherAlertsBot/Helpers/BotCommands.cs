@@ -13,6 +13,11 @@ public static class BotCommands
     public const string WeatherCommand = "/weather";
 
     /// <summary>
+    ///     String for weather_forecast command
+    /// </summary>
+    public const string WeatherForecastCommand = "/weather_forecast";
+
+    /// <summary>
     ///     String for alerts_map command
     /// </summary>
     public const string AlertsMapCommand = "/alerts_map";
@@ -26,4 +31,10 @@ public static class BotCommands
     ///     Subscription on alerts_lost command
     /// </summary>
     public const string SubscribeOnAlertsCommand = "/subscribe_on_alerts_lost";
+
+    /// <summary>
+    ///     Subscription on weather_forecast command
+    /// </summary>
+    public const string SubscribeOnWeatherForecastCommand = "/subscribe_on_weather_forecast";
+
 }
