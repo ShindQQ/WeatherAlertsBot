@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Reflection.Metadata.Ecma335;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -119,14 +120,16 @@ public sealed class UpdateHandler
     /// <returns>Command for editing db</returns>
     private string HandleSubscriptionMessage(string userMessage)
     {
-        return userMessage switch
+        var splittedMessage = userMessage.Trim().Split(' ', 2); // splitting to take the city name
+
+        return splittedMessage[0] switch
         {
             _ when userMessage.Equals(BotCommands.SubscribeOnAlertsLostCommand) ||
                 userMessage.Equals(BotCommands.UnsubscribeFromAlertsLostCommand) => "/alerts_lost",
-            _ when userMessage.StartsWith(BotCommands.SubscribeOnWeatherForecastCommand) ||
-                userMessage.StartsWith(BotCommands.UnsubscribeFromWeatherForecastCommand) => "/weather_forecast " + userMessage.Trim().Split(' ', 2)[1], // splitting to take the city name
+            _ when splittedMessage.Count() == 2 && (userMessage.StartsWith(BotCommands.SubscribeOnWeatherForecastCommand) ||
+                userMessage.StartsWith(BotCommands.UnsubscribeFromWeatherForecastCommand)) => "/weather_forecast " + splittedMessage[1],
             _ => string.Empty
-        };
+        } ;
     }
 
     /// <summary>
@@ -141,7 +144,7 @@ public sealed class UpdateHandler
 
         if (subscriber != null)
         {
-            message = $"Your chat ID: {subscriber.ChatId}\nYour subscription list:\n" +
+            message = $"Your subscription list:\n" +
                 string.Join("\n", subscriber.Commands.Select(command => $"{command.CommandName}"));
         }
 

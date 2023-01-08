@@ -50,7 +50,12 @@ public static class SubscriberService
     {
         await AddCommandAsync(new SubscriberCommand { CommandName = commandName });
 
-        subscriber.Commands.Add(await FindCommandAsync(new SubscriberCommandDto { CommandName = commandName }));
+        var foundSubscriberCommand = FindSubscriberCommandE(subscriber, commandName);
+
+        if (foundSubscriberCommand == null)
+        {
+            subscriber.Commands.Add(await FindCommandAsync(new SubscriberCommandDto { CommandName = commandName }));
+        }
 
         return await _botContext.SaveChangesAsync();
     }
