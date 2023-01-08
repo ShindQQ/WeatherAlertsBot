@@ -4,10 +4,12 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using WeatherAlertsBot.Commands;
+using WeatherAlertsBot.DAL.Entities;
 using WeatherAlertsBot.Helpers;
 using WeatherAlertsBot.OpenWeatherAPI;
 using WeatherAlertsBot.Requesthandlers;
 using WeatherAlertsBot.RussianWarship;
+using WeatherAlertsBot.UserServices;
 
 namespace WeatherAlertsBot.TelegramBotHandlers;
 
@@ -45,6 +47,18 @@ public sealed class UpdateHandler
     }
 
     /// <summary>
+    ///     Constructor without update
+    /// </summary>
+    /// <param name="telegramBotClient">A client interface to use Telegram Bot API</param>
+    /// <param name="cancellationToken">Cancellation Token</param>
+    public UpdateHandler(ITelegramBotClient telegramBotClient, CancellationToken cancellationToken)
+    {
+        _botClient = telegramBotClient;
+        _update = new();
+        _cancellationToken = cancellationToken;
+    }
+
+    /// <summary>
     ///     Handling user message
     /// </summary>
     /// <returns>Task</returns>
@@ -57,7 +71,7 @@ public sealed class UpdateHandler
 
             if (userMessageText != null)
             {
-                await HandleCommandMessage(userMessageText);
+                await HandleCommandMessage(_update.Message!.Chat.Id, userMessageText);
             }
 
             var userMessageLocation = userMessage.Location;
@@ -69,7 +83,7 @@ public sealed class UpdateHandler
 
             if (userMessageText == null && userMessageLocation == null)
             {
-                await HandleErrorMessage();
+                await HandleErrorMessage(_update.Message!.Chat.Id);
             }
         }
     }
@@ -77,45 +91,153 @@ public sealed class UpdateHandler
     /// <summary>
     ///     Handling user`s commands
     /// </summary>
-    /// <param name="userCommand">Command sent by user</param>
+    /// <param name="chatId">User chat id</param>
+    /// <param name="userMessage">Command sent by user</param>
     /// <returns>Command for user`s request</returns>
-    public Task HandleCommandMessage(string userCommand)
+    public Task HandleCommandMessage(long chatId, string userMessage)
     {
-        Task command = userCommand switch
+        Task command = userMessage switch
         {
-            BotCommands.StartCommand => HandleStartMessage(),
-            _ when userCommand.StartsWith(BotCommands.WeatherForecastCommand) => HandleWeatherForecastMessageAsync(userCommand),
-            _ when userCommand.StartsWith(BotCommands.WeatherCommand) => HandleWeatherMessageAsync(userCommand),
-            _ when userCommand.StartsWith(BotCommands.AlertsMapCommand) => HandleAlertsInfo(),
-            _ when userCommand.StartsWith(BotCommands.AlertsLostCommand) => HandleRussianInvasionInfo(),
-            _ => HandleErrorMessage()
+            BotCommands.StartCommand => HandleStartMessage(chatId),
+            _ when userMessage.StartsWith(BotCommands.WeatherForecastCommand) => HandleWeatherForecastMessageAsync(chatId, userMessage),
+            _ when userMessage.StartsWith(BotCommands.WeatherCommand) => HandleWeatherMessageAsync(chatId, userMessage),
+            _ when userMessage.StartsWith(BotCommands.AlertsMapCommand) => HandleAlertsInfo(chatId),
+            _ when userMessage.StartsWith(BotCommands.AlertsLostCommand) => HandleRussianInvasionInfo(chatId),
+            _ when userMessage.StartsWith(BotCommands.GetListOfSubscriptionsCommand) => HandleSubscriptionListInfoAsync(chatId),
+            _ when userMessage.StartsWith(BotCommands.SubscribeCommand) => HandleSubscribeMessageAsync(chatId, userMessage),
+            _ when userMessage.StartsWith(BotCommands.UnsubscribeCommand) => HandleUnSubscribeMessageAsync(chatId, userMessage),
+            _ => HandleErrorMessage(chatId)
         };
 
         return command;
     }
 
     /// <summary>
+    ///     Handling subscription string results
+    /// </summary>
+    /// <param name="userMessage">Message sent by user</param>
+    /// <returns>Command for editing db</returns>
+    private string HandleSubscriptionMessage(string userMessage)
+    {
+        return userMessage switch
+        {
+            _ when userMessage.Equals(BotCommands.SubscribeOnAlertsLostCommand) ||
+                userMessage.Equals(BotCommands.UnsubscribeFromAlertsLostCommand) => "/alerts_lost",
+            _ when userMessage.StartsWith(BotCommands.SubscribeOnWeatherForecastCommand) ||
+                userMessage.StartsWith(BotCommands.UnsubscribeFromWeatherForecastCommand) => "/weather_forecast " + userMessage.Trim().Split(' ', 2)[1], // splitting to take the city name
+            _ => string.Empty
+        };
+    }
+
+    /// <summary>
+    ///     Handling receiving subscriber commands list
+    /// </summary>
+    /// <param name="chatId">User chat id</param>
+    /// <returns>List of user`s commands</returns>
+    private async Task HandleSubscriptionListInfoAsync(long chatId)
+    {
+        var subscriber = await SubscriberService.FindSubscriberAsync(chatId);
+        var message = "You aren`t subscribed to any services yet!";
+
+        if (subscriber != null)
+        {
+            message = $"Your chat ID: {subscriber.ChatId}\nYour subscription list:\n" +
+                string.Join("\n", subscriber.Commands.Select(command => $"{command.CommandName}"));
+        }
+
+        await _botClient.SendTextMessageAsync(chatId,
+                $"""
+                `{message}`
+                """,
+                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+    }
+
+    /// <summary>
+    ///     Handling user`s commands
+    /// </summary>
+    /// <param name="chatId">User chat id</param>
+    /// <param name="userMessage">Command sent by user</param>
+    /// <returns>Message with subscription status</returns>
+    public async Task HandleSubscribeMessageAsync(long chatId, string userMessage)
+    {
+        var command = HandleSubscriptionMessage(userMessage);
+
+        if (string.IsNullOrEmpty(command))
+        {
+            await HandleErrorMessage(chatId);
+            return;
+        }
+
+        var affectedRows = await SubscriberService.AddSubscriberAsync(new Subscriber { ChatId = chatId }, command);
+
+        string message = "Your subscription succesfully added!";
+        if (affectedRows == 0)
+        {
+            message = "You are already subscribed on this command!";
+        }
+
+        await _botClient.SendTextMessageAsync(chatId,
+                $"""
+                `{message}`
+                """,
+                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+    }
+
+    /// <summary>
+    ///     Handling user`s commands
+    /// </summary>
+    /// <param name="chatId">User chat id</param>
+    /// <param name="userMessage">Command sent by user</param>
+    /// <returns>Message with subscription status</returns>
+    public async Task HandleUnSubscribeMessageAsync(long chatId, string userMessage)
+    {
+        var command = HandleSubscriptionMessage(userMessage);
+
+        if (string.IsNullOrEmpty(command))
+        {
+            await HandleErrorMessage(chatId);
+            return;
+        }
+
+        var affectedRows = await SubscriberService.RemoveCommandFromSubscriberAsync(chatId, command);
+
+        string message = "Your subscription succesfully removed!";
+        if (affectedRows == 0)
+        {
+            message = "You are not subscribed on this command!";
+        }
+
+        await _botClient.SendTextMessageAsync(chatId,
+                $"""
+                `{message}`
+                """,
+                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+    }
+
+    /// <summary>
     ///     Handling /start message
     /// </summary>
-    /// <returns>True if user`s message equals /start, false if not</returns>
-    private Task HandleStartMessage()
+    /// <param name="chatId">User chat id</param>
+    /// <returns>Returns user start message</returns>
+    private Task HandleStartMessage(long chatId)
     {
-        return HandleErrorMessage();
+        return HandleErrorMessage(chatId);
     }
 
     /// <summary>
     ///     Handling /weather [city_name] message
     /// </summary>
+    /// <param name="chatId">User chat id</param>
     /// <param name="userMessageText">Message sent by user</param>
     /// <returns>True if user`s message starts with /weather and there were no troubles with request, false if there was troubleshooting</returns>
-    private async Task HandleWeatherMessageAsync(string userMessageText)
+    private async Task HandleWeatherMessageAsync(long chatId, string userMessageText)
     {
         var weatherResponseForUser = await WeatherHandler.SendWeatherByUserMessageAsync(userMessageText);
         var errorMessage = weatherResponseForUser.ErrorMessage;
 
         if (!string.IsNullOrEmpty(errorMessage))
         {
-            await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
+            await _botClient.SendTextMessageAsync(chatId,
                 $"""
                 `{errorMessage}`
                 """,
@@ -124,7 +246,7 @@ public sealed class UpdateHandler
             return;
         }
 
-        await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
+        await _botClient.SendTextMessageAsync(chatId,
                 $"""
                 `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
                 Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.TypeOfWeather}.`
@@ -135,16 +257,17 @@ public sealed class UpdateHandler
     /// <summary>
     ///     Handling /weather_forecast [city_name] message
     /// </summary>
+    /// <param name="chatId">User chat id</param>
     /// <param name="userMessageText">Message sent by user</param>
     /// <returns>True if user`s message starts with /weather_forecast and there were no troubles with request, false if there was troubleshooting</returns>
-    private async Task HandleWeatherForecastMessageAsync(string userMessageText)
+    private async Task HandleWeatherForecastMessageAsync(long chatId, string userMessageText)
     {
         var weatherForecastResult = await WeatherHandler.SendWeatherForecastByUserMessageAsync(userMessageText);
         var errorMessage = weatherForecastResult.ErrorMessage;
 
         if (!string.IsNullOrEmpty(errorMessage))
         {
-            await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
+            await _botClient.SendTextMessageAsync(chatId,
                 $"""
                 `{errorMessage}`
                 """,
@@ -153,7 +276,7 @@ public sealed class UpdateHandler
             return;
         }
 
-        await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
+        await _botClient.SendTextMessageAsync(chatId,
                 $"`Current weather in {weatherForecastResult.WeatherForecastCity.CityName} for next 24 hours:\n\n"
                 + string.Join("\n\n", weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
                 $"""
@@ -169,7 +292,7 @@ public sealed class UpdateHandler
     /// <summary>
     ///     Handling user location message
     /// </summary>
-    /// <returns>Task</returns>
+    /// <returns>Task with weather location</returns>
     private async Task HandleLocationMessageAsync(Location userLocation)
     {
         var weatherResponseForUser = await WeatherHandler.SendWeatherByUserLocationAsync(userLocation);
@@ -185,10 +308,11 @@ public sealed class UpdateHandler
     /// <summary>
     ///     Handling error message type
     /// </summary>
-    /// <returns>Task</returns>
-    private Task HandleErrorMessage()
+    /// <param name="chatId">User chat id</param>
+    /// <returns>Task with error message</returns>
+    private Task HandleErrorMessage(long chatId)
     {
-        return _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
+        return _botClient.SendTextMessageAsync(chatId,
             """
             `Hello!
             To receive weather by city name send me the message in format: /weather [city_name]!
@@ -203,12 +327,13 @@ public sealed class UpdateHandler
     /// <summary>
     ///     Receiving info about liquidations in russian invasion
     /// </summary>
+    /// <param name="chatId">User chat id</param>
     /// no troubles with request, false if there was troubleshooting</returns>
-    private async Task HandleRussianInvasionInfo()
+    private async Task HandleRussianInvasionInfo(long chatId)
     {
         var russianInvasion = (await APIsRequestsHandler.GetResponseFromAPIAsync<RussianInvasion>(APIsLinks.RussianWarshipUrl))!.RussianWarshipInfo;
 
-        await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
+        await _botClient.SendTextMessageAsync(chatId,
         russianInvasion.ToString(),
         ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
     }
@@ -216,9 +341,10 @@ public sealed class UpdateHandler
     /// <summary>
     ///     Receiving info about alerts in Ukraine regions
     /// </summary>
+    /// <param name="chatId">User chat id</param>
     /// <returns>True if user`s message equals with /alerts_map and there were 
     /// no troubles with request, false if there was troubleshooting</returns>
-    private async Task HandleAlertsInfo()
+    private async Task HandleAlertsInfo(long chatId)
     {
         string messageForUser = $"`Information about current alerts in Ukraine:\n";
 
@@ -226,7 +352,7 @@ public sealed class UpdateHandler
 
         var bytes = AlarmsMapGenerator.DrawAlertsMap(regions);
 
-        await _botClient.SendPhotoAsync(_update.Message!.Chat.Id, new InputOnlineFile(new MemoryStream(bytes)),
+        await _botClient.SendPhotoAsync(chatId, new InputOnlineFile(new MemoryStream(bytes)),
             messageForUser + string.Join("\n",
             regions.Where(region => region.Value.Enabled)
             .Select(region => $"🚨 {region.Key.Trim('\'')}; Enabled at: " +
