@@ -316,17 +316,18 @@ public sealed class UpdateHandler
     private Task HandleErrorMessage(long chatId)
     {
         return _botClient.SendTextMessageAsync(chatId,
-            """
+            $"""
             `Hello!
-            To receive weather by city name send me the message in format: /weather [city_name]!
-            To receive weather forecast by city name send me the message in format: /weather_forecast [city_name]!
+            To receive weather by city name send me the message in format: {BotCommands.WeatherCommand} [city_name]!
+            To receive weather forecast by city name send me the message in format: {BotCommands.WeatherForecastCommand} [city_name]!
             Or just send me your location for receiving current weather!
-            For map of alerts use /alerts_map!
-            For subscribing on alerts_lost command /subscribe_on_alerts_lost!
-            For unsubscribing from alerts_lost command /unsubscribe_from_alerts_lost!
-            For subscribing on weather_forecast command  /subscribe_on_weather_forecast [city_name]!
-            For unsubscribing from weather_forecast command  /unsubscribe_from_weather_forecast [city_name]!
-            For receiving list of all your subscriptions send me /get_list_of_subscriptions!`
+            For map of alerts use {BotCommands.AlertsLostCommand}!
+            To see russian losses use {BotCommands.AlertsMapCommand}!
+            For subscribing on alerts_lost command {BotCommands.SubscribeOnAlertsLostCommand}!
+            For unsubscribing from alerts_lost command {BotCommands.UnsubscribeFromAlertsLostCommand}!
+            For subscribing on weather_forecast command {BotCommands.SubscribeOnWeatherForecastCommand} [city_name]!
+            For unsubscribing from weather_forecast command {BotCommands.UnsubscribeFromWeatherForecastCommand} [city_name]!
+            For receiving list of all your subscriptions send me {BotCommands.GetListOfSubscriptionsCommand}!`
             """,
             ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
     }
