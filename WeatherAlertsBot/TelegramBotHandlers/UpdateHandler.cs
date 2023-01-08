@@ -322,7 +322,11 @@ public sealed class UpdateHandler
             To receive weather forecast by city name send me the message in format: /weather_forecast [city_name]!
             Or just send me your location for receiving current weather!
             For map of alerts use /alerts_map!
-            For liquidations information /alerts_lost!`
+            For subscribing on alerts_lost command /subscribe_on_alerts_lost!
+            For unsubscribing from alerts_lost command /unsubscribe_from_alerts_lost!
+            For subscribing on weather_forecast command  /subscribe_on_weather_forecast [city_name]!
+            For unsubscribing from weather_forecast command  /unsubscribe_from_weather_forecast [city_name]!
+            For receiving list of all your subscriptions send me /get_list_of_subscriptions!`
             """,
             ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
     }
