@@ -13,53 +13,53 @@ public static class BotCommands
     public static readonly string WeatherCommand = "/weather";
 
     /// <summary>
-    ///     String for weather_forecast command
+    ///     String for wf command
     /// </summary>
-    public static readonly string WeatherForecastCommand = "/weather_forecast";
+    public static readonly string WeatherForecastCommand = "/wf";
 
     /// <summary>
-    ///     String for alerts_map command
+    ///     String for al_map command
     /// </summary>
-    public static readonly string AlertsMapCommand = "/alerts_map";
+    public static readonly string AlertsMapCommand = "/al_map";
 
     /// <summary>
-    ///     String for alerts_lost command
+    ///     String for al_lost command
     /// </summary>
-    public static readonly string AlertsLostCommand = "/alerts_lost";
+    public static readonly string AlertsLostCommand = "/al_lost";
 
     /// <summary>
     ///     Subscription command 
     /// </summary>
-    public static readonly string SubscribeCommand = "/subscribe_on";
+    public static readonly string SubscribeCommand = "/sub";
 
     /// <summary>
     ///     Unsubscription command 
     /// </summary>
-    public static readonly string UnsubscribeCommand = "/unsubscribe_from";
+    public static readonly string UnsubscribeCommand = "/unsub";
 
     /// <summary>
-    ///     Subscription on alerts_lost command
+    ///     Subscription al_lost command
     /// </summary>
-    public static readonly string SubscribeOnAlertsLostCommand = "/subscribe_on_alerts_lost";
+    public static readonly string SubscribeOnAlertsLostCommand = "/sub_al_lost";
 
     /// <summary>
-    ///     Subscription on weather_forecast command
+    ///     Subscription on wf command
     /// </summary>
-    public static readonly string SubscribeOnWeatherForecastCommand = "/subscribe_on_weather_forecast";
+    public static readonly string SubscribeOnWeatherForecastCommand = "/sub_wf";
 
     /// <summary>
-    ///     Unsubscription from alerts_lost command
+    ///     Unsubscription from al_lost command
     /// </summary>
-    public static readonly string UnsubscribeFromAlertsLostCommand = "/unsubscribe_from_alerts_lost";
+    public static readonly string UnsubscribeFromAlertsLostCommand = "/unsub_al_lost";
 
     /// <summary>
-    ///     Unsubscription from weather_forecast command
+    ///     Unsubscription from wf command
     /// </summary>
-    public static readonly string UnsubscribeFromWeatherForecastCommand = "/unsubscribe_from_weather_forecast";
+    public static readonly string UnsubscribeFromWeatherForecastCommand = "/unsub_wf";
 
     /// <summary>
     ///     Receiving list of subscriptions for selected user command
     /// </summary>
-    public static readonly string GetListOfSubscriptionsCommand = "/get_list_of_subscriptions";
+    public static readonly string GetListOfSubscriptionsCommand = "/sub_list";
 
 }

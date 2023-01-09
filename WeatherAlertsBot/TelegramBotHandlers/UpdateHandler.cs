@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Reflection.Metadata.Ecma335;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -118,16 +117,16 @@ public sealed class UpdateHandler
     /// </summary>
     /// <param name="userMessage">Message sent by user</param>
     /// <returns>Command for editing db</returns>
-    private string HandleSubscriptionMessage(string userMessage)
+    private static string HandleSubscriptionMessage(string userMessage)
     {
         var splittedMessage = userMessage.Trim().Split(' ', 2); // splitting to take the city name
 
-        return splittedMessage[0] switch
+        return splittedMessage switch
         {
             _ when userMessage.Equals(BotCommands.SubscribeOnAlertsLostCommand) ||
                 userMessage.Equals(BotCommands.UnsubscribeFromAlertsLostCommand) => "/alerts_lost",
-            _ when splittedMessage.Count() == 2 && (userMessage.StartsWith(BotCommands.SubscribeOnWeatherForecastCommand) ||
-                userMessage.StartsWith(BotCommands.UnsubscribeFromWeatherForecastCommand)) => "/weather_forecast " + splittedMessage[1],
+            [string userCommand, string userCityName] when userCommand.StartsWith(BotCommands.SubscribeOnWeatherForecastCommand) ||
+                userCommand.StartsWith(BotCommands.UnsubscribeFromWeatherForecastCommand) => "/weather_forecast " + userCityName,
             _ => string.Empty
         } ;
     }
