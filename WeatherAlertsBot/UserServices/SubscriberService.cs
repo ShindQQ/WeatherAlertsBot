@@ -50,7 +50,7 @@ public static class SubscriberService
     {
         await AddCommandAsync(new SubscriberCommand { CommandName = commandName });
 
-        var foundSubscriberCommand = FindSubscriberCommandE(subscriber, commandName);
+        var foundSubscriberCommand = FindSubscriberCommand(subscriber, commandName);
 
         if (foundSubscriberCommand == null)
         {
@@ -64,7 +64,7 @@ public static class SubscriberService
     ///     Removing command for subscriber
     /// </summary>
     /// <param name="subscriberChatId">Id of the subsriber chat</param>
-    /// <param name="commandName">Command name which will be added</param>
+    /// <param name="commandName">Command name which will be removed</param>
     /// <returns>Ammount of removed entities</returns>
     public static async Task<int> RemoveCommandFromSubscriberAsync(long subscriberChatId, string commandName)
     {
@@ -75,7 +75,7 @@ public static class SubscriberService
             return 0;
         }
 
-        var foundSubscriberCommand = FindSubscriberCommandE(foundSubscriber, commandName);
+        var foundSubscriberCommand = FindSubscriberCommand(foundSubscriber, commandName);
 
         if (foundSubscriberCommand == null)
         {
@@ -85,6 +85,33 @@ public static class SubscriberService
         foundSubscriber.Commands.Remove(foundSubscriberCommand);
 
         return await _botContext.SaveChangesAsync();
+    }
+    
+    /// <summary>
+    ///     Removing command for subscriber
+    /// </summary>
+    /// <param name="subscriberChatId">Id of the subsriber chat</param>
+    /// <param name="commandName">Command name which will be updated</param>
+    /// <returns>Ammount of removed entities</returns>
+    public static async Task<int> UpdateSubscriberCommandAsync(long subscriberChatId, string commandName, string commandForUpdate)
+    {
+        var foundSubscriber = await FindSubscriberAsync(subscriberChatId);
+
+        if (foundSubscriber == null)
+        {
+            return 0;
+        }
+
+        var foundSubscriberCommand = FindSubscriberCommand(foundSubscriber, commandName);
+
+        if (foundSubscriberCommand == null)
+        {
+            return await AddCommandToSubscriberAsync(foundSubscriber, commandForUpdate);
+        }
+
+        await RemoveCommandFromSubscriberAsync(subscriberChatId, commandName);
+
+        return await AddCommandToSubscriberAsync(foundSubscriber, commandForUpdate);
     }
 
     /// <summary>
@@ -211,7 +238,7 @@ public static class SubscriberService
     /// <param name="subscriber">Subscriber given for check</param>
     /// <param name="commandName">Name of the command to find</param>
     /// <returns>Found command for selected user</returns>
-    public static SubscriberCommand? FindSubscriberCommandE(Subscriber subscriber, string commandName)
+    public static SubscriberCommand? FindSubscriberCommand(Subscriber subscriber, string commandName)
     {
         return subscriber.Commands.FirstOrDefault(command => command.CommandName.Equals(commandName));
     }

@@ -106,6 +106,7 @@ public sealed class UpdateHandler
             _ when userMessage.StartsWith(BotCommands.GetListOfSubscriptionsCommand) => HandleSubscriptionListInfoAsync(chatId),
             _ when userMessage.StartsWith(BotCommands.SubscribeCommand) => HandleSubscribeMessageAsync(chatId, userMessage),
             _ when userMessage.StartsWith(BotCommands.UnsubscribeCommand) => HandleUnSubscribeMessageAsync(chatId, userMessage),
+            _ when userMessage.StartsWith(BotCommands.UpdateSubscribeCommand) => HandleUpdateSubscribeMessageAsync(chatId, userMessage),
             _ => HandleErrorMessage(chatId)
         };
 
@@ -119,14 +120,16 @@ public sealed class UpdateHandler
     /// <returns>Command for editing db</returns>
     private static string HandleSubscriptionMessage(string userMessage)
     {
-        var splittedMessage = userMessage.Trim().Split(' ', 2); // splitting to take the city name
+        var splittedMessage = userMessage.Trim().Split(' ', 2);
 
         return splittedMessage switch
         {
             _ when userMessage.Equals(BotCommands.SubscribeOnAlertsLostCommand) ||
-                userMessage.Equals(BotCommands.UnsubscribeFromAlertsLostCommand) => "/alerts_lost",
+                userMessage.Equals(BotCommands.UnsubscribeFromAlertsLostCommand) => BotCommands.AlertsLostCommand,
             [string userCommand, string userCityName] when userCommand.StartsWith(BotCommands.SubscribeOnWeatherForecastCommand) ||
-                userCommand.StartsWith(BotCommands.UnsubscribeFromWeatherForecastCommand) => "/weather_forecast " + userCityName,
+                userCommand.StartsWith(BotCommands.UnsubscribeFromWeatherForecastCommand) => BotCommands.WeatherForecastCommand + userCityName,
+            _ when userMessage.StartsWith(BotCommands.UpdateSubscribeCommand)
+            => userMessage.Replace(BotCommands.UpdateSubscribeCommand, string.Empty),
             _ => string.Empty
         } ;
     }
@@ -173,6 +176,7 @@ public sealed class UpdateHandler
         var affectedRows = await SubscriberService.AddSubscriberAsync(new Subscriber { ChatId = chatId }, command);
 
         string message = "Your subscription succesfully added!";
+        
         if (affectedRows == 0)
         {
             message = "You are already subscribed on this command!";
@@ -204,6 +208,41 @@ public sealed class UpdateHandler
         var affectedRows = await SubscriberService.RemoveCommandFromSubscriberAsync(chatId, command);
 
         string message = "Your subscription succesfully removed!";
+
+        if (affectedRows == 0)
+        {
+            message = "You are not subscribed on this command!";
+        }
+
+        await _botClient.SendTextMessageAsync(chatId,
+                $"""
+                `{message}`
+                """,
+                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+    }
+    
+    /// <summary>
+    ///     Handling user`s commands
+    /// </summary>
+    /// <param name="chatId">User chat id</param>
+    /// <param name="userMessage">Command sent by user</param>
+    /// <returns>Message with subscription status</returns>
+    public async Task HandleUpdateSubscribeMessageAsync(long chatId, string userMessage)
+    {
+        var command = HandleSubscriptionMessage(userMessage);
+
+        if (string.IsNullOrEmpty(command))
+        {
+            await HandleErrorMessage(chatId);
+            return;
+        }
+
+        var commandsParts = command.Trim().Split(' ');
+
+        var affectedRows = await SubscriberService.UpdateSubscriberCommandAsync(chatId, commandsParts[0], commandsParts[1]);
+
+        string message = "Your subscription succesfully updated!";
+
         if (affectedRows == 0)
         {
             message = "You are not subscribed on this command!";
