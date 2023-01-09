@@ -8,12 +8,12 @@ namespace WeatherAlertsBot.UserServices;
 /// <summary>
 ///     Service for working with subscribers db
 /// </summary>
-public static class SubscriberService
+public class SubscriberService
 {
     /// <summary>
     ///     EF Core DB context
     /// </summary>
-    private static readonly BotContext _botContext = new();
+    private readonly BotContext _botContext = new();
 
     /// <summary>
     ///     Adding subscriber
@@ -21,7 +21,7 @@ public static class SubscriberService
     /// <param name="subscriber">Subscriber which will be added</param>
     /// <param name="commandName">Command name which will be added</param>
     /// <returns>Ammount of added entities</returns>
-    public static async Task<int> AddSubscriberAsync(Subscriber subscriber, string commandName)
+    public async Task<int> AddSubscriberAsync(Subscriber subscriber, string commandName)
     {
         var subscriberCommandDto = new SubscriberCommandDto { CommandName = commandName };
 
@@ -46,7 +46,7 @@ public static class SubscriberService
     /// <param name="subscriber">Subsriber for adding</param>
     /// <param name="commandName">Command name which will be added</param>
     /// <returns>Ammount of added entities</returns>
-    public static async Task<int> AddCommandToSubscriberAsync(Subscriber subscriber, string commandName)
+    public async Task<int> AddCommandToSubscriberAsync(Subscriber subscriber, string commandName)
     {
         await AddCommandAsync(new SubscriberCommand { CommandName = commandName });
 
@@ -66,7 +66,7 @@ public static class SubscriberService
     /// <param name="subscriberChatId">Id of the subsriber chat</param>
     /// <param name="commandName">Command name which will be removed</param>
     /// <returns>Ammount of removed entities</returns>
-    public static async Task<int> RemoveCommandFromSubscriberAsync(long subscriberChatId, string commandName)
+    public async Task<int> RemoveCommandFromSubscriberAsync(long subscriberChatId, string commandName)
     {
         var foundSubscriber = await FindSubscriberAsync(subscriberChatId);
 
@@ -93,7 +93,7 @@ public static class SubscriberService
     /// <param name="subscriberChatId">Id of the subsriber chat</param>
     /// <param name="commandName">Command name which will be updated</param>
     /// <returns>Ammount of removed entities</returns>
-    public static async Task<int> UpdateSubscriberCommandAsync(long subscriberChatId, string commandName, string commandForUpdate)
+    public async Task<int> UpdateSubscriberCommandAsync(long subscriberChatId, string commandName, string commandForUpdate)
     {
         var foundSubscriber = await FindSubscriberAsync(subscriberChatId);
 
@@ -119,7 +119,7 @@ public static class SubscriberService
     /// </summary>
     /// <param name="subscriber">Subscriber which will be removed</param>
     /// <returns>Ammount of removed entities</returns>
-    public static async Task<int> RemoveSubscriberAsync(Subscriber subscriber)
+    public async Task<int> RemoveSubscriberAsync(Subscriber subscriber)
     {
         if (!await IsSubscriberExistAsync(subscriber.ChatId))
         {
@@ -137,7 +137,7 @@ public static class SubscriberService
     /// </summary>
     /// <param name="subscriber">Subscriber for update</param>
     /// <returns>Updated subscriber</returns>
-    public static async Task<Subscriber?> UpdateSubscriberAsync(Subscriber subscriber)
+    public async Task<Subscriber?> UpdateSubscriberAsync(Subscriber subscriber)
     {
         if (!await IsSubscriberExistAsync(subscriber.ChatId))
         {
@@ -154,7 +154,7 @@ public static class SubscriberService
     ///     Receiving list of subscribers
     /// </summary>
     /// <returns>List of subscribers</returns>
-    public static async Task<List<Subscriber>> GetSubscribersAsync()
+    public async Task<List<Subscriber>> GetSubscribersAsync()
     {
         return await _botContext.Subscribers.Include(subscriber => subscriber.Commands).ToListAsync();
     }
@@ -164,7 +164,7 @@ public static class SubscriberService
     /// </summary>
     /// <param name="command">Command which will be added</param>
     /// <returns>Ammount of added entities</returns>
-    public static async Task<int> AddCommandAsync(SubscriberCommand command)
+    public async Task<int> AddCommandAsync(SubscriberCommand command)
     {
         if (await IsCommandExistAsync(new SubscriberCommandDto { CommandName = command.CommandName }))
         {
@@ -181,7 +181,7 @@ public static class SubscriberService
     /// </summary>
     /// <param name="command">Command which will be removed</param>
     /// <returns>Ammount of removed entities</returns>
-    public static async Task<int> RemoveCommandAsync(SubscriberCommand command)
+    public async Task<int> RemoveCommandAsync(SubscriberCommand command)
     {
         if (!await IsCommandExistAsync(new SubscriberCommandDto { CommandName = command.CommandName }))
         {
@@ -198,7 +198,7 @@ public static class SubscriberService
     /// </summary>
     /// <param name="command">Command for update</param>
     /// <returns>Updated command</returns>
-    public static async Task<SubscriberCommand?> UpdateCommandAsync(SubscriberCommand command)
+    public async Task<SubscriberCommand?> UpdateCommandAsync(SubscriberCommand command)
     {
         if (!await IsCommandExistAsync(new SubscriberCommandDto { CommandName = command.CommandName }))
         {
@@ -216,7 +216,7 @@ public static class SubscriberService
     /// </summary>
     /// <param name="subscriberChatId">Id of the subscriber chat</param>
     /// <returns>True if subscriber exists, false if not</returns>
-    public static async Task<bool> IsSubscriberExistAsync(long subscriberChatId)
+    public async Task<bool> IsSubscriberExistAsync(long subscriberChatId)
     {
         return await _botContext.Subscribers.AnyAsync(subscriber => subscriber.ChatId == subscriberChatId);
     }
@@ -226,7 +226,7 @@ public static class SubscriberService
     /// </summary>
     /// <param name="subscriberChatId">Id of the subscriber chat</param>
     /// <returns>Found subsriber</returns>
-    public static async Task<Subscriber?> FindSubscriberAsync(long subscriberChatId)
+    public async Task<Subscriber?> FindSubscriberAsync(long subscriberChatId)
     {
         return await _botContext.Subscribers.Include(subscriber => subscriber.Commands)
             .FirstOrDefaultAsync(subscriber => subscriber.ChatId == subscriberChatId);
@@ -248,7 +248,7 @@ public static class SubscriberService
     /// </summary>
     /// <param name="subscriberCommand">Subscriber command for looking for</param>
     /// <returns>True if command exists, false if not</returns>
-    public static async Task<bool> IsCommandExistAsync(SubscriberCommandDto subscriberCommand)
+    public async Task<bool> IsCommandExistAsync(SubscriberCommandDto subscriberCommand)
     {
         return await _botContext.SubscriberCommands
              .Where(command => !subscriberCommand.Id.HasValue || command.Id == subscriberCommand.Id)
@@ -262,7 +262,7 @@ public static class SubscriberService
     /// </summary>
     /// <param name="subscriberCommand">Subscriber command for looking for</param>
     /// <returns>Found subscriber command</returns>
-    public static async Task<SubscriberCommand?> FindCommandAsync(SubscriberCommandDto subscriberCommand)
+    public async Task<SubscriberCommand?> FindCommandAsync(SubscriberCommandDto subscriberCommand)
     {
         return await _botContext.SubscriberCommands
             .Where(command => !subscriberCommand.Id.HasValue || command.Id == subscriberCommand.Id)

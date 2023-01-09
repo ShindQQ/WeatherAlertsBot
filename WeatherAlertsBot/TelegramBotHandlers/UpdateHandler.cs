@@ -34,6 +34,11 @@ public sealed class UpdateHandler
     private readonly CancellationToken _cancellationToken;
 
     /// <summary>
+    ///     Subscriber survice to work with db
+    /// </summary>
+    public readonly SubscriberService SubscriberService = new();
+
+    /// <summary>
     ///     Constructor
     /// </summary>
     /// <param name="telegramBotClient">A client interface to use Telegram Bot API</param>
@@ -127,7 +132,7 @@ public sealed class UpdateHandler
             _ when userMessage.Equals(BotCommands.SubscribeOnAlertsLostCommand) ||
                 userMessage.Equals(BotCommands.UnsubscribeFromAlertsLostCommand) => BotCommands.AlertsLostCommand,
             [string userCommand, string userCityName] when userCommand.StartsWith(BotCommands.SubscribeOnWeatherForecastCommand) ||
-                userCommand.StartsWith(BotCommands.UnsubscribeFromWeatherForecastCommand) => BotCommands.WeatherForecastCommand + userCityName,
+                userCommand.StartsWith(BotCommands.UnsubscribeFromWeatherForecastCommand) => BotCommands.WeatherForecastCommand + " " + userCityName,
             _ when userMessage.StartsWith(BotCommands.UpdateSubscribeCommand)
             => userMessage.Replace(BotCommands.UpdateSubscribeCommand, string.Empty),
             _ => string.Empty
