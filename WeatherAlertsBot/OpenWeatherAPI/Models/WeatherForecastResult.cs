@@ -24,4 +24,6 @@ public sealed class WeatherForecastResult
     /// </summary>
     [JsonPropertyName("name")]
     public string Name { get; set; }
+
+   
 }

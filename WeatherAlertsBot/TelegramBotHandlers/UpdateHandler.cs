@@ -123,12 +123,11 @@ public sealed class UpdateHandler
             return;
         }
 
-        await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
-                $"""
-                `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
-                Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.WeatherInfo}.`
-                """,
-                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+        var result = WeatherMapGenerator.GenerateWeatherForecastImage(weatherResponseForUser);
+        
+        await _botClient.SendPhotoAsync(_update.Message!.Chat.Id, new InputOnlineFile(new MemoryStream(result)),
+            "Тут могла бути ваша реклама", ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+        
     }
 
     /// <summary>
@@ -197,5 +196,10 @@ public sealed class UpdateHandler
             .Select(region => $"🚨 {region.Key.Trim('\'')}; Enabled at: " +
             $"{DateTime.Parse(region.Value.EnabledAt):MM/dd/yyyy HH:mm}")) + "`",
             ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+    }
+
+    private async Task HandleWeatherMap()
+    {
+        
     }
 }

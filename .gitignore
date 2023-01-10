@@ -364,3 +364,5 @@ FodyWeavers.xsd
 
 # Hiding appsettings.json
 appsettings.json
+
+.idea/
