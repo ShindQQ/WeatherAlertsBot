@@ -2,7 +2,6 @@
 using Telegram.Bot;
 using WeatherAlertsBot.Configuration;
 using WeatherAlertsBot.TelegramBotHandlers;
-using WeatherAlertsBot.UserServices;
 
 namespace WeatherAlertsBot.BackgroundServices;
 
@@ -14,7 +13,7 @@ public sealed class BotHostedService : BackgroundService
     /// <summary>
     ///     Handler for sending messages to users
     /// </summary>
-    private UpdateHandler _updateHandler = new(new TelegramBotClient(BotConfiguration.BotAccessToken), new CancellationToken());
+    private readonly UpdateHandler _updateHandler = new(new TelegramBotClient(BotConfiguration.BotAccessToken), new CancellationToken());
 
     /// <summary>
     ///     Execution of background subscriber service

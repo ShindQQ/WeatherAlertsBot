@@ -86,33 +86,6 @@ public class SubscriberService
 
         return await _botContext.SaveChangesAsync();
     }
-    
-    /// <summary>
-    ///     Removing command for subscriber
-    /// </summary>
-    /// <param name="subscriberChatId">Id of the subsriber chat</param>
-    /// <param name="commandName">Command name which will be updated</param>
-    /// <returns>Ammount of removed entities</returns>
-    public async Task<int> UpdateSubscriberCommandAsync(long subscriberChatId, string commandName, string commandForUpdate)
-    {
-        var foundSubscriber = await FindSubscriberAsync(subscriberChatId);
-
-        if (foundSubscriber == null)
-        {
-            return 0;
-        }
-
-        var foundSubscriberCommand = FindSubscriberCommand(foundSubscriber, commandName);
-
-        if (foundSubscriberCommand == null)
-        {
-            return await AddCommandToSubscriberAsync(foundSubscriber, commandForUpdate);
-        }
-
-        await RemoveCommandFromSubscriberAsync(subscriberChatId, commandName);
-
-        return await AddCommandToSubscriberAsync(foundSubscriber, commandForUpdate);
-    }
 
     /// <summary>
     ///     Removing subscriber entity

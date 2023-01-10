@@ -2,9 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
-using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 using WeatherAlertsBot.BackgroundServices;
 using WeatherAlertsBot.Configuration;
 using WeatherAlertsBot.TelegramBotHandlers;
@@ -13,19 +11,14 @@ var botClient = new TelegramBotClient(BotConfiguration.BotAccessToken);
 
 using CancellationTokenSource cancellationTokenSource = new();
 
-ReceiverOptions receiverOptions = new()
-{
-    AllowedUpdates = Array.Empty<UpdateType>()
-};
-
 botClient.StartReceiving(
     HandleUpdateAsync,
     HandlePollingErrorAsync,
-    receiverOptions,
+    new(),
     cancellationTokenSource.Token
     );
 
-await Host.CreateDefaultBuilder(args)
+ await Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
 {
     services.AddHostedService<BotHostedService>();

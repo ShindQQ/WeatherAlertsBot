@@ -38,11 +38,6 @@ public static class BotCommands
     public static readonly string UnsubscribeCommand = "/unsub";
 
     /// <summary>
-    ///     Command for updating subscription command
-    /// </summary>
-    public static readonly string UpdateSubscribeCommand = "/update_sub";
-
-    /// <summary>
     ///     Subscription al_lost command
     /// </summary>
     public static readonly string SubscribeOnAlertsLostCommand = "/sub_al_lost";

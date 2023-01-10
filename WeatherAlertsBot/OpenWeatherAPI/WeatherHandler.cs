@@ -118,9 +118,7 @@ public static class WeatherHandler
             return new WeatherForecastResult { ErrorMessage = "No data was found for your request!" };
         }
 
-        var weatherForecastResult = await GetWeatherForecastByCoordinatesAsync(coordinatesInfo.Lattitude, coordinatesInfo.Longitude);
-
-        return weatherForecastResult;
+        return await GetWeatherForecastByCoordinatesAsync(coordinatesInfo.Lattitude, coordinatesInfo.Longitude);
     }
 
     /// <summary>

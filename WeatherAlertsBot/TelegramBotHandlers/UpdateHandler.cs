@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Telegram.Bot;
+using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
@@ -111,7 +112,6 @@ public sealed class UpdateHandler
             _ when userMessage.StartsWith(BotCommands.GetListOfSubscriptionsCommand) => HandleSubscriptionListInfoAsync(chatId),
             _ when userMessage.StartsWith(BotCommands.SubscribeCommand) => HandleSubscribeMessageAsync(chatId, userMessage),
             _ when userMessage.StartsWith(BotCommands.UnsubscribeCommand) => HandleUnSubscribeMessageAsync(chatId, userMessage),
-            _ when userMessage.StartsWith(BotCommands.UpdateSubscribeCommand) => HandleUpdateSubscribeMessageAsync(chatId, userMessage),
             _ => HandleErrorMessage(chatId)
         };
 
@@ -132,11 +132,10 @@ public sealed class UpdateHandler
             _ when userMessage.Equals(BotCommands.SubscribeOnAlertsLostCommand) ||
                 userMessage.Equals(BotCommands.UnsubscribeFromAlertsLostCommand) => BotCommands.AlertsLostCommand,
             [string userCommand, string userCityName] when userCommand.StartsWith(BotCommands.SubscribeOnWeatherForecastCommand) ||
-                userCommand.StartsWith(BotCommands.UnsubscribeFromWeatherForecastCommand) => BotCommands.WeatherForecastCommand + " " + userCityName,
-            _ when userMessage.StartsWith(BotCommands.UpdateSubscribeCommand)
-            => userMessage.Replace(BotCommands.UpdateSubscribeCommand, string.Empty),
+                userCommand.StartsWith(BotCommands.UnsubscribeFromWeatherForecastCommand)
+                => BotCommands.WeatherForecastCommand + " " + userCityName,
             _ => string.Empty
-        } ;
+        };
     }
 
     /// <summary>
@@ -155,11 +154,7 @@ public sealed class UpdateHandler
                 string.Join("\n", subscriber.Commands.Select(command => $"{command.CommandName}"));
         }
 
-        await _botClient.SendTextMessageAsync(chatId,
-                $"""
-                `{message}`
-                """,
-                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+        await HandleTextMessageAsync(chatId, $"`{message}`");
     }
 
     /// <summary>
@@ -181,17 +176,13 @@ public sealed class UpdateHandler
         var affectedRows = await SubscriberService.AddSubscriberAsync(new Subscriber { ChatId = chatId }, command);
 
         string message = "Your subscription succesfully added!";
-        
+
         if (affectedRows == 0)
         {
             message = "You are already subscribed on this command!";
         }
 
-        await _botClient.SendTextMessageAsync(chatId,
-                $"""
-                `{message}`
-                """,
-                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+        await HandleTextMessageAsync(chatId, $"`{message}`");
     }
 
     /// <summary>
@@ -219,45 +210,7 @@ public sealed class UpdateHandler
             message = "You are not subscribed on this command!";
         }
 
-        await _botClient.SendTextMessageAsync(chatId,
-                $"""
-                `{message}`
-                """,
-                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
-    }
-    
-    /// <summary>
-    ///     Handling user`s commands
-    /// </summary>
-    /// <param name="chatId">User chat id</param>
-    /// <param name="userMessage">Command sent by user</param>
-    /// <returns>Message with subscription status</returns>
-    public async Task HandleUpdateSubscribeMessageAsync(long chatId, string userMessage)
-    {
-        var command = HandleSubscriptionMessage(userMessage);
-
-        if (string.IsNullOrEmpty(command))
-        {
-            await HandleErrorMessage(chatId);
-            return;
-        }
-
-        var commandsParts = command.Trim().Split(' ');
-
-        var affectedRows = await SubscriberService.UpdateSubscriberCommandAsync(chatId, commandsParts[0], commandsParts[1]);
-
-        string message = "Your subscription succesfully updated!";
-
-        if (affectedRows == 0)
-        {
-            message = "You are not subscribed on this command!";
-        }
-
-        await _botClient.SendTextMessageAsync(chatId,
-                $"""
-                `{message}`
-                """,
-                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+        await HandleTextMessageAsync(chatId, $"`{message}`");
     }
 
     /// <summary>
@@ -283,21 +236,15 @@ public sealed class UpdateHandler
 
         if (!string.IsNullOrEmpty(errorMessage))
         {
-            await _botClient.SendTextMessageAsync(chatId,
-                $"""
-                `{errorMessage}`
-                """,
-                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+            await HandleTextMessageAsync(chatId, $"`{errorMessage}`");
 
             return;
         }
 
-        await _botClient.SendTextMessageAsync(chatId,
-                $"""
+        await HandleTextMessageAsync(chatId, $"""
                 `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
                 Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.TypeOfWeather}.`
-                """,
-                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+                """);
     }
 
     /// <summary>
@@ -313,26 +260,21 @@ public sealed class UpdateHandler
 
         if (!string.IsNullOrEmpty(errorMessage))
         {
-            await _botClient.SendTextMessageAsync(chatId,
-                $"""
-                `{errorMessage}`
-                """,
-                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+            await HandleTextMessageAsync(chatId, $"`{errorMessage}`");
 
             return;
         }
 
-        await _botClient.SendTextMessageAsync(chatId,
-                $"`Current weather in {weatherForecastResult.WeatherForecastCity.CityName} for next 24 hours:\n\n"
-                + string.Join("\n\n", weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
-                $"""
-                Time: {weatherData.Date[^8..]}: 
-                Temperature: {weatherData.WeatherForecastTemperatureData.Temperature:N2} °C.
-                Feels like {weatherData.WeatherForecastTemperatureData.FeelsLike:N2} °C.
-                Humidity {weatherData.WeatherForecastTemperatureData.Humidity}. 
-                Type of weather: {weatherData.WeatherForecastCurrentWeather.First().TypeOfWeather}.
-                """)) + "`",
-                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+        await HandleTextMessageAsync(chatId,
+            $"`Current weather in {weatherForecastResult.WeatherForecastCity.CityName} for next 24 hours:\n\n"
+            + string.Join("\n\n", weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
+            $"""
+            Time: {weatherData.Date[^8..]}: 
+            Temperature: {weatherData.WeatherForecastTemperatureData.Temperature:N2} °C.
+            Feels like {weatherData.WeatherForecastTemperatureData.FeelsLike:N2} °C.
+            Humidity {weatherData.WeatherForecastTemperatureData.Humidity}. 
+            Type of weather: {weatherData.WeatherForecastCurrentWeather.First().TypeOfWeather}.
+            """)) + "`");
     }
 
     /// <summary>
@@ -343,12 +285,11 @@ public sealed class UpdateHandler
     {
         var weatherResponseForUser = await WeatherHandler.SendWeatherByUserLocationAsync(userLocation);
 
-        await _botClient.SendTextMessageAsync(_update.Message!.Chat.Id,
-            $"""
-                `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
-                Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.TypeOfWeather}.`
-                """,
-            ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+        await HandleTextMessageAsync(_update.Message!.Chat.Id,
+           $"""
+           `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
+           Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.TypeOfWeather}.`
+           """);
     }
 
     /// <summary>
@@ -358,7 +299,7 @@ public sealed class UpdateHandler
     /// <returns>Task with error message</returns>
     private Task HandleErrorMessage(long chatId)
     {
-        return _botClient.SendTextMessageAsync(chatId,
+        return HandleTextMessageAsync(chatId,
             $"""
             `Hello!
             To receive weather by city name send me the message in format: {BotCommands.WeatherCommand} [city_name]!
@@ -371,8 +312,7 @@ public sealed class UpdateHandler
             For subscribing on weather_forecast command {BotCommands.SubscribeOnWeatherForecastCommand} [city_name]!
             For unsubscribing from weather_forecast command {BotCommands.UnsubscribeFromWeatherForecastCommand} [city_name]!
             For receiving list of all your subscriptions send me {BotCommands.GetListOfSubscriptionsCommand}!`
-            """,
-            ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+            """);
     }
 
     /// <summary>
@@ -384,9 +324,8 @@ public sealed class UpdateHandler
     {
         var russianInvasion = (await APIsRequestsHandler.GetResponseFromAPIAsync<RussianInvasion>(APIsLinks.RussianWarshipUrl))!.RussianWarshipInfo;
 
-        await _botClient.SendTextMessageAsync(chatId,
-        russianInvasion.ToString(),
-        ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+        await HandleTextMessageAsync(chatId,
+            russianInvasion.ToString());
     }
 
     /// <summary>
@@ -403,11 +342,37 @@ public sealed class UpdateHandler
 
         var bytes = AlarmsMapGenerator.DrawAlertsMap(regions);
 
-        await _botClient.SendPhotoAsync(chatId, new InputOnlineFile(new MemoryStream(bytes)),
-            messageForUser + string.Join("\n",
-            regions.Where(region => region.Value.Enabled)
-            .Select(region => $"🚨 {region.Key.Trim('\'')}; Enabled at: " +
-            $"{DateTime.Parse(region.Value.EnabledAt):MM/dd/yyyy HH:mm}")) + "`",
-            ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+        try
+        {
+            await _botClient.SendPhotoAsync(chatId, new InputOnlineFile(new MemoryStream(bytes)),
+                messageForUser + string.Join("\n",
+                regions.Where(region => region.Value.Enabled)
+                .Select(region => $"🚨 {region.Key.Trim('\'')}; Enabled at: " +
+                $"{DateTime.Parse(region.Value.EnabledAt):MM/dd/yyyy HH:mm}")) + "`",
+                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+        }
+        catch (ApiRequestException)
+        {
+        }
+    }
+
+
+    /// <summary>
+    ///     Handling sending text messages because of Telegram.Bot.Exceptions
+    /// </summary>
+    /// <param name="chatId">Id of the chat to send to</param>
+    /// <param name="messageForUser">Message which will be sent</param>
+    /// <returns>Sent message</returns>
+    private async Task HandleTextMessageAsync(long chatId, string messageForUser)
+    {
+        try
+        {
+            await _botClient.SendTextMessageAsync(chatId,
+                messageForUser,
+                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+        }
+        catch (ApiRequestException)
+        {
+        }
     }
 }
