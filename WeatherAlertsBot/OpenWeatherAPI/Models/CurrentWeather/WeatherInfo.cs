@@ -12,4 +12,10 @@ public sealed class WeatherInfo
     /// </summary>
     [JsonPropertyName("main")]
     public string TypeOfWeather { get; set; }
+    
+    /// <summary>
+    ///  Type of icon
+    /// </summary>
+    [JsonPropertyName("icon")]
+    public string IconType { get; set; }
 }
