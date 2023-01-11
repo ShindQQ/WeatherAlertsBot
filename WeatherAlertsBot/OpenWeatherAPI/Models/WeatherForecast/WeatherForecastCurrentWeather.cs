@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WeatherAlertsBot.OpenWeatherAPI.WeatherForecast;
+namespace WeatherAlertsBot.OpenWeatherAPI.Models.WeatherForecast;
 
 /// <summary>
 ///     Information about type of weather 

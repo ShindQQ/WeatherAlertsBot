@@ -173,16 +173,9 @@ public sealed class UpdateHandler
             return;
         }
 
-        var affectedRows = await SubscriberService.AddSubscriberAsync(new Subscriber { ChatId = chatId }, command);
-
-        string message = "Your subscription succesfully added!";
-
-        if (affectedRows == 0)
-        {
-            message = "You are already subscribed on this command!";
-        }
-
-        await HandleTextMessageAsync(chatId, $"`{message}`");
+        await HandleTextMessageAsync(chatId,
+            $"`{GenerateMessageForSubscriptionResult(
+            await SubscriberService.AddSubscriberAsync(new Subscriber { ChatId = chatId }, command))}`");
     }
 
     /// <summary>
@@ -201,17 +194,18 @@ public sealed class UpdateHandler
             return;
         }
 
-        var affectedRows = await SubscriberService.RemoveCommandFromSubscriberAsync(chatId, command);
-
-        string message = "Your subscription succesfully removed!";
-
-        if (affectedRows == 0)
-        {
-            message = "You are not subscribed on this command!";
-        }
-
-        await HandleTextMessageAsync(chatId, $"`{message}`");
+        await HandleTextMessageAsync(chatId,
+            $"`{GenerateMessageForSubscriptionResult(
+            await SubscriberService.RemoveCommandFromSubscriberAsync(chatId, command))}`");
     }
+
+    /// <summary>
+    ///     Generating message response for user on result of affected rows in table
+    /// </summary>
+    /// <param name="affectedRows">Ammount of affected rows</param>
+    /// <returns>String with message for user</returns>
+    public string GenerateMessageForSubscriptionResult(int affectedRows)
+        => affectedRows == 0 ? "Operation unsuccessful!" : "Operation successful!";
 
     /// <summary>
     ///     Handling /start message

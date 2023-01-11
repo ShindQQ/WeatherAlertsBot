@@ -18,8 +18,8 @@ botClient.StartReceiving(
     cancellationTokenSource.Token
     );
 
- await Host.CreateDefaultBuilder(args)
-    .ConfigureServices((hostContext, services) =>
+await Host.CreateDefaultBuilder(args)
+   .ConfigureServices((hostContext, services) =>
 {
     services.AddHostedService<BotHostedService>();
 }).StartAsync();
