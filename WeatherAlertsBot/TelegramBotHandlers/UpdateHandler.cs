@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
+using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
@@ -37,7 +38,7 @@ public sealed class UpdateHandler
     /// <summary>
     ///     Subscriber survice to work with db
     /// </summary>
-    public readonly SubscriberService SubscriberService = new();
+    private readonly SubscriberService _subscriberService = new();
 
     /// <summary>
     ///     Constructor
@@ -95,6 +96,18 @@ public sealed class UpdateHandler
     }
 
     /// <summary>
+    ///     Handling sending notifications to users
+    /// </summary>
+    /// <returns>Task</returns>
+    public async Task HandleSubscribersNotificationsAsync()
+    {
+        var subscribers = await _subscriberService.GetSubscribersAsync();
+
+        subscribers.ForEach(subscriber => subscriber.Commands
+            .ForEach(async command => await HandleCommandMessage(subscriber.ChatId, command.CommandName)));
+    }
+
+    /// <summary>
     ///     Handling user`s commands
     /// </summary>
     /// <param name="chatId">User chat id</param>
@@ -145,7 +158,7 @@ public sealed class UpdateHandler
     /// <returns>List of user`s commands</returns>
     private async Task HandleSubscriptionListInfoAsync(long chatId)
     {
-        var subscriber = await SubscriberService.FindSubscriberAsync(chatId);
+        var subscriber = await _subscriberService.FindSubscriberAsync(chatId);
         var message = "You aren`t subscribed to any services yet!";
 
         if (subscriber != null)
@@ -175,7 +188,7 @@ public sealed class UpdateHandler
 
         await HandleTextMessageAsync(chatId,
             $"`{GenerateMessageForSubscriptionResult(
-            await SubscriberService.AddSubscriberAsync(new Subscriber { ChatId = chatId }, command))}`");
+            await _subscriberService.AddSubscriberAsync(new Subscriber { ChatId = chatId }, command))}`");
     }
 
     /// <summary>
@@ -196,7 +209,7 @@ public sealed class UpdateHandler
 
         await HandleTextMessageAsync(chatId,
             $"`{GenerateMessageForSubscriptionResult(
-            await SubscriberService.RemoveCommandFromSubscriberAsync(chatId, command))}`");
+            await _subscriberService.RemoveCommandFromSubscriberAsync(chatId, command))}`");
     }
 
     /// <summary>

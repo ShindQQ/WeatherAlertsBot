@@ -22,14 +22,11 @@ public sealed class BotHostedService : BackgroundService
     /// <returns></returns>
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        //while (!cancellationToken.IsCancellationRequested)
-        //{
-        //    var subscribers = await _updateHandler.SubscriberService.GetSubscribersAsync();
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            await _updateHandler.HandleSubscribersNotificationsAsync();
 
-        //    subscribers.ForEach(subscriber => subscriber.Commands
-        //        .ForEach(async command => await _updateHandler.HandleCommandMessage(subscriber.ChatId, command.CommandName)));
-
-        //    await Task.Delay(86400000);
-        //}
+            await Task.Delay(86400000);
+        }
     }
 }
