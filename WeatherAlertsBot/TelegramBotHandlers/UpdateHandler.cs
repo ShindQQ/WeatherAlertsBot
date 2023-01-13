@@ -26,11 +26,6 @@ public sealed class UpdateHandler
     private readonly ITelegramBotClient _botClient;
 
     /// <summary>
-    ///     Incoming update from user
-    /// </summary>
-    private readonly Update _update;
-
-    /// <summary>
     ///     Cancellation Token
     /// </summary>
     private readonly CancellationToken _cancellationToken;
@@ -44,53 +39,42 @@ public sealed class UpdateHandler
     ///     Constructor
     /// </summary>
     /// <param name="telegramBotClient">A client interface to use Telegram Bot API</param>
-    /// <param name="update">Incoming update from user</param>
-    /// <param name="cancellationToken">Cancellation Token</param>
-    public UpdateHandler(ITelegramBotClient telegramBotClient, Update update, CancellationToken cancellationToken)
-    {
-        _botClient = telegramBotClient;
-        _update = update;
-        _cancellationToken = cancellationToken;
-    }
-
-    /// <summary>
-    ///     Constructor without update
-    /// </summary>
-    /// <param name="telegramBotClient">A client interface to use Telegram Bot API</param>
     /// <param name="cancellationToken">Cancellation Token</param>
     public UpdateHandler(ITelegramBotClient telegramBotClient, CancellationToken cancellationToken)
     {
         _botClient = telegramBotClient;
-        _update = new();
         _cancellationToken = cancellationToken;
     }
 
     /// <summary>
     ///     Handling user message
     /// </summary>
+    /// <param name="update">Variable for handling user chat info and messages</param>
     /// <returns>Task</returns>
-    public async Task HandleMessageAsync()
+    public async Task HandleMessageAsync(Update update)
     {
-        if (_update.Message != null)
+        var userMessage = update.Message;
+
+        if (userMessage != null)
         {
-            var userMessage = _update.Message;
             var userMessageText = userMessage.Text;
+            var chatId = userMessage!.Chat.Id;
 
             if (userMessageText != null)
             {
-                await HandleCommandMessage(_update.Message!.Chat.Id, userMessageText);
+                await HandleCommandMessage(chatId, userMessageText);
             }
 
             var userMessageLocation = userMessage.Location;
 
             if (userMessageLocation != null)
             {
-                await HandleLocationMessageAsync(userMessageLocation);
+                await HandleLocationMessageAsync(chatId, userMessageLocation);
             }
 
             if (userMessageText == null && userMessageLocation == null)
             {
-                await HandleErrorMessage(_update.Message!.Chat.Id);
+                await HandleErrorMessage(chatId);
             }
         }
     }
@@ -287,12 +271,14 @@ public sealed class UpdateHandler
     /// <summary>
     ///     Handling user location message
     /// </summary>
+    /// <param name="chatId">>User chat id</param>
+    /// <param name="userLocation">Location sent by user</param>
     /// <returns>Task with weather location</returns>
-    private async Task HandleLocationMessageAsync(Location userLocation)
+    private async Task HandleLocationMessageAsync(long chatId, Location userLocation)
     {
         var weatherResponseForUser = await WeatherHandler.SendWeatherByUserLocationAsync(userLocation);
 
-        await HandleTextMessageAsync(_update.Message!.Chat.Id,
+        await HandleTextMessageAsync(chatId,
            $"""
            `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
            Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.TypeOfWeather}.`

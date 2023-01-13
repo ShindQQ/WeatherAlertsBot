@@ -31,9 +31,9 @@ cancellationTokenSource.Cancel();
 
 async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
 {
-    UpdateHandler updateHandler = new(botClient, update, cancellationToken);
+    UpdateHandler updateHandler = new(botClient, cancellationToken);
 
-    await updateHandler.HandleMessageAsync();
+    await updateHandler.HandleMessageAsync(update);
 }
 
 async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)

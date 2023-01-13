@@ -24,7 +24,7 @@ public sealed class BotHostedService : BackgroundService
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            await _updateHandler.HandleSubscribersNotificationsAsync();
+            //await _updateHandler.HandleSubscribersNotificationsAsync();
 
             await Task.Delay(86400000);
         }
