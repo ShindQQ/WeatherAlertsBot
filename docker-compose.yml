@@ -5,6 +5,8 @@ services:
   image: shindqq/weatheralertsbot_image
   restart: unless-stopped
   container_name: weatheralertsbot_compose_container
+  volumes:
+  - ./appsettings.json:src/WeatherAlertsBot/appsetting.json
   build:
    context: .
    dockerfile: WeatherAlertsBot/Dockerfile
@@ -28,4 +30,6 @@ services:
   - weatheralertsbotdb:/var/lib/mysql
 
 volumes:
+  appsettings.json:
+   external: true
   weatheralertsbotdb:
