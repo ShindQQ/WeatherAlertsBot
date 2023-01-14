@@ -257,7 +257,7 @@ public sealed class UpdateHandler
         }
 
         await HandleTextMessageAsync(chatId,
-            $"`Current weather in {weatherForecastResult.WeatherForecastCity.CityName} for next 24 hours:\n\n"
+            $"`Weather in {weatherForecastResult.WeatherForecastCity.CityName} for next 24 hours:\n\n"
             + string.Join("\n\n", weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
             $"""
             Time: {weatherData.Date[^8..]}: 
@@ -329,7 +329,7 @@ public sealed class UpdateHandler
     /// no troubles with request, false if there was troubleshooting</returns>
     private async Task HandleAlertsInfo(long chatId)
     {
-        string messageForUser = $"`Information about current alerts in Ukraine:\n";
+        string messageForUser = $"`Current alerts in Ukraine:\n";
 
         var regions = await APIsRequestsHandler.GetResponseForAlertsCachedAsync();
 
