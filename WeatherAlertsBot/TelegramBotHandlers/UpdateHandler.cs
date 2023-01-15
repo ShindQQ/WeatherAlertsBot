@@ -1,7 +1,6 @@
 ﻿using System.Data;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
-using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
@@ -28,22 +27,24 @@ public sealed class UpdateHandler
     /// <summary>
     ///     Cancellation Token
     /// </summary>
-    private readonly CancellationToken _cancellationToken;
+    private readonly CancellationTokenSource _cancellationTokenSource;
 
     /// <summary>
     ///     Subscriber survice to work with db
     /// </summary>
-    private readonly SubscriberService _subscriberService = new();
+    private readonly SubscriberService _subscriberService;
 
     /// <summary>
     ///     Constructor
     /// </summary>
     /// <param name="telegramBotClient">A client interface to use Telegram Bot API</param>
-    /// <param name="cancellationToken">Cancellation Token</param>
-    public UpdateHandler(ITelegramBotClient telegramBotClient, CancellationToken cancellationToken)
+    /// <param name="subscriberService">Service for work with db context</param>
+    /// <param name="cancellationTokenSource">Cancellation Token Source</param>
+    public UpdateHandler(ITelegramBotClient telegramBotClient, SubscriberService subscriberService, CancellationTokenSource cancellationTokenSource)
     {
         _botClient = telegramBotClient;
-        _cancellationToken = cancellationToken;
+        _subscriberService = subscriberService;
+        _cancellationTokenSource = cancellationTokenSource;
     }
 
     /// <summary>
@@ -201,7 +202,7 @@ public sealed class UpdateHandler
     /// </summary>
     /// <param name="affectedRows">Ammount of affected rows</param>
     /// <returns>String with message for user</returns>
-    public string GenerateMessageForSubscriptionResult(int affectedRows)
+    public static string GenerateMessageForSubscriptionResult(int affectedRows)
         => affectedRows == 0 ? "Operation unsuccessful!" : "Operation successful!";
 
     /// <summary>
@@ -335,20 +336,32 @@ public sealed class UpdateHandler
 
         var bytes = AlarmsMapGenerator.DrawAlertsMap(regions);
 
+
+        await HandlePhotoMessageAsync(chatId, bytes,
+            messageForUser + string.Join("\n",
+                regions.Where(region => region.Value.Enabled)
+                .Select(region => $"🚨 {region.Key.Trim('\'')}; Enabled at: " +
+                $"{DateTime.Parse(region.Value.EnabledAt):MM/dd/yyyy HH:mm}")) + "`");
+    }
+
+    /// <summary>
+    ///     Handling sending photo message with caption
+    /// </summary>
+    /// <param name="chatId">Id og the chat to send to</param>
+    /// <param name="bytes">Bytes array (photo)</param>
+    /// <param name="message">Message which will be sent or not(caption)</param>
+    /// <returns>Sent photo message with caption or not</returns>
+    private async Task HandlePhotoMessageAsync(long chatId, byte[] bytes, string? message)
+    {
         try
         {
             await _botClient.SendPhotoAsync(chatId, new InputOnlineFile(new MemoryStream(bytes)),
-                messageForUser + string.Join("\n",
-                regions.Where(region => region.Value.Enabled)
-                .Select(region => $"🚨 {region.Key.Trim('\'')}; Enabled at: " +
-                $"{DateTime.Parse(region.Value.EnabledAt):MM/dd/yyyy HH:mm}")) + "`",
-                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+                message, ParseMode.MarkdownV2, cancellationToken: _cancellationTokenSource.Token);
         }
         catch (ApiRequestException)
         {
         }
     }
-
 
     /// <summary>
     ///     Handling sending text messages because of Telegram.Bot.Exceptions
@@ -362,7 +375,7 @@ public sealed class UpdateHandler
         {
             await _botClient.SendTextMessageAsync(chatId,
                 messageForUser,
-                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+                ParseMode.MarkdownV2, cancellationToken: _cancellationTokenSource.Token);
         }
         catch (ApiRequestException)
         {

@@ -13,7 +13,16 @@ public class SubscriberService
     /// <summary>
     ///     EF Core DB context
     /// </summary>
-    private readonly BotContext _botContext = new();
+    private readonly BotContext _botContext;
+
+    /// <summary>
+    ///     Constructor for di
+    /// </summary>
+    /// <param name="botContext">Bot db context</param>
+    public SubscriberService(BotContext botContext)
+    {
+        _botContext = botContext;
+    }
 
     /// <summary>
     ///     Adding subscriber
