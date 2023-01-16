@@ -100,7 +100,8 @@ public static class WeatherHandler
             FeelsLike = temperatureInfo.TemperatureInfo.FeelsLike,
             Longitude = coordinatesInfo.Longitude,
             Lattitude = coordinatesInfo.Lattitude,
-            TypeOfWeather = temperatureInfo.WeatherInfo.First().TypeOfWeather
+            TypeOfWeather = temperatureInfo.WeatherInfo.First().TypeOfWeather,
+            IconType = temperatureInfo.WeatherInfo.First().IconType
         };
     }
 

@@ -233,11 +233,19 @@ public sealed class UpdateHandler
 
             return;
         }
-
-        await HandleTextMessageAsync(chatId, $"""
-                `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
-                Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.TypeOfWeather}.`
-                """);
+        
+        var weatherPrintData = new WeatherToPrint
+        {
+            CityName = weatherResponseForUser.CityName,
+            Temperature = weatherResponseForUser.Temperature,
+            FeelsLike = weatherResponseForUser.FeelsLike,
+            IconType  = weatherResponseForUser.IconType
+        };
+        
+        var result = WeatherMapGenerator.GenerateCurrentWeatherImage(weatherPrintData);
+        
+        await _botClient.SendPhotoAsync(_update.Message!.Chat.Id, new InputOnlineFile(new MemoryStream(result)),
+            null, ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
     }
 
     /// <summary>
@@ -257,17 +265,19 @@ public sealed class UpdateHandler
 
             return;
         }
-
-        await HandleTextMessageAsync(chatId,
-            $"`Weather in {weatherForecastResult.WeatherForecastCity.CityName} for next 24 hours:\n\n"
-            + string.Join("\n\n", weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
-            $"""
-            Time: {weatherData.Date[^8..]}: 
-            Temperature: {weatherData.WeatherForecastTemperatureData.Temperature:N2} °C.
-            Feels like {weatherData.WeatherForecastTemperatureData.FeelsLike:N2} °C.
-            Humidity {weatherData.WeatherForecastTemperatureData.Humidity}. 
-            Type of weather: {weatherData.WeatherForecastCurrentWeather.First().TypeOfWeather}.
-            """)) + "`");
+        
+        var res = WeatherMapGenerator.GenerateWeatherForecastImage(weatherForecastResult.WeatherForecastHoursData.Select(weatherData => 
+            new WeatherToPrint
+            {
+                CityName = weatherForecastResult.WeatherForecastCity.CityName,
+                Temperature = weatherData.WeatherForecastTemperatureData.Temperature,
+                FeelsLike = weatherData.WeatherForecastTemperatureData.FeelsLike,
+                IconType = weatherData.WeatherForecastCurrentWeather.First().IconType
+            }).ToList());
+        
+        
+        await _botClient.SendPhotoAsync(_update.Message!.Chat.Id, new InputOnlineFile(new MemoryStream(res)),
+            null, ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
     }
 
     /// <summary>

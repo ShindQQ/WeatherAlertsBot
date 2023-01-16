@@ -38,5 +38,11 @@ public sealed class WeatherResponseForUser
     /// <summary>
     ///     Error message for user if there were some troubles for his request
     /// </summary>
+
+    /// <summary>
+    /// Type of icon that will need to be downloaded from OpenWeatherAPI
+    /// </summary>
+    public string IconType { get; set; }
+    
     public string ErrorMessage { get; set; } = string.Empty;
 }
