@@ -24,9 +24,9 @@ public static class WeatherImageGenerator
                 <img
                 src = "http://openweathermap.org/img/wn/{weather.IconType}@2x.png" 
                   >
-                <h1 style="font-size:16px;color:white">Weather in {weather.CityName}</h1>
-                <h1 style="font-size:16px;color:white">Temperature {weather.Temperature:N2} &degC</h1>
-                <h1 style="font-size:16px;color:white">Feels like {weather.FeelsLike:N2} &degC</h1>
+                <h1 style="font-size:12px;color:white">Weather in {weather.CityName}</h1>
+                <h1 style="font-size:12px;color:white">Temperature {weather.Temperature:N2} &degC</h1>
+                <h1 style="font-size:12px;color:white">Feels like {weather.FeelsLike:N2} &degC</h1>
             </div>
         </div>
         """;
