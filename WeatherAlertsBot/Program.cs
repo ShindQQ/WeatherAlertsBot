@@ -23,8 +23,8 @@ var host = Host.CreateDefaultBuilder(args)
        services.AddScoped<UpdateHandler>();
        services.AddSingleton(cancellationTokenSource);
        services.AddScoped<SubscriberService>().AddDbContext<BotContext>(options =>
-       options.UseMySql(hostContext.Configuration.GetConnectionString("DbConnection"),
-                new MySqlServerVersion(new Version(8, 0, 30))));
+            options.UseMySql(hostContext.Configuration.GetConnectionString("DbConnection"),
+            new MySqlServerVersion(new Version(8, 0, 30))));
    }).Build();
 
 

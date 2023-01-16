@@ -40,7 +40,8 @@ public sealed class UpdateHandler
     /// <param name="telegramBotClient">A client interface to use Telegram Bot API</param>
     /// <param name="subscriberService">Service for work with db context</param>
     /// <param name="cancellationTokenSource">Cancellation Token Source</param>
-    public UpdateHandler(ITelegramBotClient telegramBotClient, SubscriberService subscriberService, CancellationTokenSource cancellationTokenSource)
+    public UpdateHandler(ITelegramBotClient telegramBotClient, SubscriberService subscriberService, 
+        CancellationTokenSource cancellationTokenSource)
     {
         _botClient = telegramBotClient;
         _subscriberService = subscriberService;
@@ -349,14 +350,14 @@ public sealed class UpdateHandler
     /// </summary>
     /// <param name="chatId">Id og the chat to send to</param>
     /// <param name="bytes">Bytes array (photo)</param>
-    /// <param name="message">Message which will be sent or not(caption)</param>
+    /// <param name="messageForUser">Message which will be sent or not(caption)</param>
     /// <returns>Sent photo message with caption or not</returns>
-    private async Task HandlePhotoMessageAsync(long chatId, byte[] bytes, string? message)
+    private async Task HandlePhotoMessageAsync(long chatId, byte[] bytes, string? messageForUser)
     {
         try
         {
             await _botClient.SendPhotoAsync(chatId, new InputOnlineFile(new MemoryStream(bytes)),
-                message, ParseMode.MarkdownV2, cancellationToken: _cancellationTokenSource.Token);
+                messageForUser, ParseMode.MarkdownV2, cancellationToken: _cancellationTokenSource.Token);
         }
         catch (ApiRequestException)
         {
@@ -373,8 +374,7 @@ public sealed class UpdateHandler
     {
         try
         {
-            await _botClient.SendTextMessageAsync(chatId,
-                messageForUser,
+            await _botClient.SendTextMessageAsync(chatId, messageForUser, 
                 ParseMode.MarkdownV2, cancellationToken: _cancellationTokenSource.Token);
         }
         catch (ApiRequestException)
