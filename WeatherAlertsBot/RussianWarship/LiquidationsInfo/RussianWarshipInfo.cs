@@ -38,7 +38,7 @@ public sealed class RussianWarshipInfo
     public override string ToString()
     {
         return $"""
-                `Information about enemy losses on {Date}, day {Day}: 
+                `Enemy losses on {Date}, day {Day}: 
                 Personnel units: {LiquidatedStats.PersonnelUnits} (+{IncreaseLiquidatedStats.PersonnelUnits})
                 Tanks: {LiquidatedStats.Tanks} (+{IncreaseLiquidatedStats.Tanks})
                 Armoured fighting vehicles: {LiquidatedStats.ArmouredFightingVehicles} (+{IncreaseLiquidatedStats.ArmouredFightingVehicles})

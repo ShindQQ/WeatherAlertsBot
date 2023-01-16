@@ -13,7 +13,16 @@ public class SubscriberService
     /// <summary>
     ///     EF Core DB context
     /// </summary>
-    private readonly BotContext _botContext = new();
+    private readonly BotContext _botContext;
+
+    /// <summary>
+    ///     Constructor for di
+    /// </summary>
+    /// <param name="botContext">Bot db context</param>
+    public SubscriberService(BotContext botContext)
+    {
+        _botContext = botContext;
+    }
 
     /// <summary>
     ///     Adding subscriber
@@ -85,33 +94,6 @@ public class SubscriberService
         foundSubscriber.Commands.Remove(foundSubscriberCommand);
 
         return await _botContext.SaveChangesAsync();
-    }
-    
-    /// <summary>
-    ///     Removing command for subscriber
-    /// </summary>
-    /// <param name="subscriberChatId">Id of the subsriber chat</param>
-    /// <param name="commandName">Command name which will be updated</param>
-    /// <returns>Ammount of removed entities</returns>
-    public async Task<int> UpdateSubscriberCommandAsync(long subscriberChatId, string commandName, string commandForUpdate)
-    {
-        var foundSubscriber = await FindSubscriberAsync(subscriberChatId);
-
-        if (foundSubscriber == null)
-        {
-            return 0;
-        }
-
-        var foundSubscriberCommand = FindSubscriberCommand(foundSubscriber, commandName);
-
-        if (foundSubscriberCommand == null)
-        {
-            return await AddCommandToSubscriberAsync(foundSubscriber, commandForUpdate);
-        }
-
-        await RemoveCommandFromSubscriberAsync(subscriberChatId, commandName);
-
-        return await AddCommandToSubscriberAsync(foundSubscriber, commandForUpdate);
     }
 
     /// <summary>

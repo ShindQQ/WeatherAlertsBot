@@ -1,8 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
-using Telegram.Bot;
-using WeatherAlertsBot.Configuration;
 using WeatherAlertsBot.TelegramBotHandlers;
-using WeatherAlertsBot.UserServices;
 
 namespace WeatherAlertsBot.BackgroundServices;
 
@@ -14,7 +11,16 @@ public sealed class BotHostedService : BackgroundService
     /// <summary>
     ///     Handler for sending messages to users
     /// </summary>
-    private UpdateHandler _updateHandler = new(new TelegramBotClient(BotConfiguration.BotAccessToken), new CancellationToken());
+    private readonly UpdateHandler _updateHandler;
+
+    /// <summary>
+    ///     Constructor for di
+    /// </summary>
+    /// <param name="updateHandler">Handler of messages</param>
+    public BotHostedService(UpdateHandler updateHandler)
+    {
+        _updateHandler = updateHandler;
+    }
 
     /// <summary>
     ///     Execution of background subscriber service
@@ -23,14 +29,11 @@ public sealed class BotHostedService : BackgroundService
     /// <returns></returns>
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        //while (!cancellationToken.IsCancellationRequested)
-        //{
-        //    var subscribers = await _updateHandler.SubscriberService.GetSubscribersAsync();
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            //await _updateHandler.HandleSubscribersNotificationsAsync();
 
-        //    subscribers.ForEach(subscriber => subscriber.Commands
-        //        .ForEach(async command => await _updateHandler.HandleCommandMessage(subscriber.ChatId, command.CommandName)));
-
-        //    await Task.Delay(86400000);
-        //}
+            await Task.Delay(86400000, cancellationToken);
+        }
     }
 }

@@ -3,7 +3,7 @@ using WeatherAlertsBot.Configuration;
 using WeatherAlertsBot.Helpers;
 using WeatherAlertsBot.OpenWeatherAPI.Models.CurrentWeather;
 using WeatherAlertsBot.OpenWeatherAPI.Models.GeocodingAPI;
-using WeatherAlertsBot.OpenWeatherAPI.WeatherForecast;
+using WeatherAlertsBot.OpenWeatherAPI.Models.WeatherForecast;
 using WeatherAlertsBot.Requesthandlers;
 
 namespace WeatherAlertsBot.OpenWeatherAPI;
@@ -96,7 +96,7 @@ public static class WeatherHandler
         return new WeatherResponseForUser
         {
             CityName = coordinatesInfo.CityName,
-            Temperature = temperatureInfo.TemperatureInfo.Temperature,
+            Temperature = temperatureInfo!.TemperatureInfo.Temperature,
             FeelsLike = temperatureInfo.TemperatureInfo.FeelsLike,
             Longitude = coordinatesInfo.Longitude,
             Lattitude = coordinatesInfo.Lattitude,
@@ -119,9 +119,7 @@ public static class WeatherHandler
             return new WeatherForecastResult { ErrorMessage = "No data was found for your request!" };
         }
 
-        var weatherForecastResult = await GetWeatherForecastByCoordinatesAsync(coordinatesInfo.Lattitude, coordinatesInfo.Longitude);
-
-        return weatherForecastResult;
+        return await GetWeatherForecastByCoordinatesAsync(coordinatesInfo.Lattitude, coordinatesInfo.Longitude);
     }
 
     /// <summary>
