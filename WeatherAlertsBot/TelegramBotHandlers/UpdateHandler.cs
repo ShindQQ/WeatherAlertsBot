@@ -291,12 +291,19 @@ public sealed class UpdateHandler
 
             return;
         }
-
-        var result = WeatherMapGenerator.GenerateWeatherForecastImage(weatherResponseForUser);
+        
+        var weatherPrintData = new WeatherToPrint
+        {
+            CityName = weatherResponseForUser.CityName,
+            Temperature = weatherResponseForUser.Temperature,
+            FeelsLike = weatherResponseForUser.FeelsLike,
+            IconType  = weatherResponseForUser.IconType
+        };
+        
+        var result = WeatherMapGenerator.GenerateCurrentWeatherImage(weatherPrintData);
         
         await _botClient.SendPhotoAsync(_update.Message!.Chat.Id, new InputOnlineFile(new MemoryStream(result)),
-            "Тут могла бути ваша реклама", ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
-        
+            null, ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
     }
 
     /// <summary>
@@ -320,18 +327,19 @@ public sealed class UpdateHandler
 
             return;
         }
-
-        await _botClient.SendTextMessageAsync(chatId,
-                $"`Current weather in {weatherForecastResult.WeatherForecastCity.CityName} for next 24 hours:\n\n"
-                + string.Join("\n\n", weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
-                $"""
-                Time: {weatherData.Date[^8..]}: 
-                Temperature: {weatherData.WeatherForecastTemperatureData.Temperature:N2} °C.
-                Feels like {weatherData.WeatherForecastTemperatureData.FeelsLike:N2} °C.
-                Humidity {weatherData.WeatherForecastTemperatureData.Humidity}. 
-                Type of weather: {weatherData.WeatherForecastCurrentWeather.First().TypeOfWeather}.
-                """)) + "`",
-                ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+        
+        var res = WeatherMapGenerator.GenerateWeatherForecastImage(weatherForecastResult.WeatherForecastHoursData.Select(weatherData => 
+            new WeatherToPrint
+            {
+                CityName = weatherForecastResult.WeatherForecastCity.CityName,
+                Temperature = weatherData.WeatherForecastTemperatureData.Temperature,
+                FeelsLike = weatherData.WeatherForecastTemperatureData.FeelsLike,
+                IconType = weatherData.WeatherForecastCurrentWeather.First().IconType
+            }).ToList());
+        
+        
+        await _botClient.SendPhotoAsync(_update.Message!.Chat.Id, new InputOnlineFile(new MemoryStream(res)),
+            null, ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
     }
 
     /// <summary>
@@ -409,9 +417,5 @@ public sealed class UpdateHandler
             $"{DateTime.Parse(region.Value.EnabledAt):MM/dd/yyyy HH:mm}")) + "`",
             ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
     }
-
-    private async Task HandleWeatherMap()
-    {
-        
-    }
+    
 }

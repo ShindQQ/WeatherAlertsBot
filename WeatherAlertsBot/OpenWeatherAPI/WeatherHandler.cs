@@ -98,9 +98,9 @@ public static class WeatherHandler
             CityName = coordinatesInfo.CityName,
             Temperature = temperatureInfo.TemperatureInfo.Temperature,
             FeelsLike = temperatureInfo.TemperatureInfo.FeelsLike,
-            Longitude = coordinatesInfoFirst.Longitude,
-            Lattitude = coordinatesInfoFirst.Lattitude,
-            WeatherInfo = temperatureInfo.WeatherInfo.First().TypeOfWeather,
+            Longitude = coordinatesInfo.Longitude,
+            Lattitude = coordinatesInfo.Lattitude,
+            TypeOfWeather = temperatureInfo.WeatherInfo.First().TypeOfWeather,
             IconType = temperatureInfo.WeatherInfo.First().IconType
         };
     }
