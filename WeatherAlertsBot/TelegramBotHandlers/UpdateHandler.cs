@@ -305,17 +305,17 @@ public sealed class UpdateHandler
     {
         return HandleTextMessageAsync(chatId,
             $"""
-            `Hello!
-            To receive weather by city name send me the message in format: {BotCommands.WeatherCommand} [city_name]!
-            To receive weather forecast by city name send me the message in format: {BotCommands.WeatherForecastCommand} [city_name]!
+            Hello!
+            To receive weather by city name send me the message in format: `{BotCommands.WeatherCommand}` [city_name]!
+            To receive weather forecast by city name send me the message in format: `{BotCommands.WeatherForecastCommand}` [city_name]!
             Or just send me your location for receiving current weather!
-            For map of alerts use {BotCommands.AlertsLostCommand}!
-            To see russian losses use {BotCommands.AlertsMapCommand}!
-            For subscribing on alerts_lost command {BotCommands.SubscribeOnAlertsLostCommand}!
-            For unsubscribing from alerts_lost command {BotCommands.UnsubscribeFromAlertsLostCommand}!
-            For subscribing on weather_forecast command {BotCommands.SubscribeOnWeatherForecastCommand} [city_name]!
-            For unsubscribing from weather_forecast command {BotCommands.UnsubscribeFromWeatherForecastCommand} [city_name]!
-            For receiving list of all your subscriptions send me {BotCommands.GetListOfSubscriptionsCommand}!`
+            For map of alerts use `{BotCommands.AlertsLostCommand}`!
+            To see russian losses use `{BotCommands.AlertsMapCommand}`!
+            For subscribing on alerts_lost command `{BotCommands.SubscribeOnAlertsLostCommand}`!
+            For unsubscribing from alerts_lost command `{BotCommands.UnsubscribeFromAlertsLostCommand}`!
+            For subscribing on weather_forecast command `{BotCommands.SubscribeOnWeatherForecastCommand}` [city_name]!
+            For unsubscribing from weather_forecast command `{BotCommands.UnsubscribeFromWeatherForecastCommand}` [city_name]!
+            For receiving list of all your subscriptions send me `{BotCommands.GetListOfSubscriptionsCommand}`!
             """);
     }
 
