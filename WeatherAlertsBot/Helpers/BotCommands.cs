@@ -10,20 +10,56 @@ public static class BotCommands
     /// <summary>
     ///     String for weather command
     /// </summary>
-    public const string WeatherCommand = "/weather";
+    public static readonly string WeatherCommand = "/weather";
 
     /// <summary>
-    ///     String for alerts_map command
+    ///     String for wf command
     /// </summary>
-    public const string AlertsMapCommand = "/alerts_map";
+    public static readonly string WeatherForecastCommand = "/wf";
 
     /// <summary>
-    ///     String for alerts_lost command
+    ///     String for al_map command
     /// </summary>
-    public const string AlertsLostCommand = "/alerts_lost";
+    public static readonly string AlertsMapCommand = "/al_map";
 
     /// <summary>
-    ///     Subscription on alerts_lost command
+    ///     String for al_lost command
     /// </summary>
-    public const string SubscribeOnAlertsCommand = "/subscribe_on_alerts_lost";
+    public static readonly string AlertsLostCommand = "/al_lost";
+
+    /// <summary>
+    ///     Subscription command 
+    /// </summary>
+    public static readonly string SubscribeCommand = "/sub";
+
+    /// <summary>
+    ///     Unsubscription command 
+    /// </summary>
+    public static readonly string UnsubscribeCommand = "/unsub";
+
+    /// <summary>
+    ///     Subscription al_lost command
+    /// </summary>
+    public static readonly string SubscribeOnAlertsLostCommand = "/sub_al_lost";
+
+    /// <summary>
+    ///     Subscription on wf command
+    /// </summary>
+    public static readonly string SubscribeOnWeatherForecastCommand = "/sub_wf";
+
+    /// <summary>
+    ///     Unsubscription from al_lost command
+    /// </summary>
+    public static readonly string UnsubscribeFromAlertsLostCommand = "/unsub_al_lost";
+
+    /// <summary>
+    ///     Unsubscription from wf command
+    /// </summary>
+    public static readonly string UnsubscribeFromWeatherForecastCommand = "/unsub_wf";
+
+    /// <summary>
+    ///     Receiving list of subscriptions for selected user command
+    /// </summary>
+    public static readonly string GetListOfSubscriptionsCommand = "/sub_list";
+
 }

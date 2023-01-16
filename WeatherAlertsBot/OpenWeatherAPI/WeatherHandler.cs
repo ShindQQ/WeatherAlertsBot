@@ -1,8 +1,9 @@
 ﻿using Telegram.Bot.Types;
-using WeatherAlertsBot.Commands;
 using WeatherAlertsBot.Configuration;
 using WeatherAlertsBot.Helpers;
-using WeatherAlertsBot.OpenWeatherAPI.Models;
+using WeatherAlertsBot.OpenWeatherAPI.Models.CurrentWeather;
+using WeatherAlertsBot.OpenWeatherAPI.Models.GeocodingAPI;
+using WeatherAlertsBot.OpenWeatherAPI.Models.WeatherForecast;
 using WeatherAlertsBot.Requesthandlers;
 
 namespace WeatherAlertsBot.OpenWeatherAPI;
@@ -13,27 +14,29 @@ namespace WeatherAlertsBot.OpenWeatherAPI;
 public static class WeatherHandler
 {
     /// <summary>
-    ///     Our Api Key
-    /// </summary>
-    private static string OpenWeatherApiKey { get; set; }
-
-    /// <summary>
-    ///     Constructor for api key inicializing 
-    /// </summary>
-    static WeatherHandler()
-    {
-        OpenWeatherApiKey = BotConfiguration.OpenWeatherApiKey;
-    }
-
-    /// <summary>
     ///     Receiving current weather info by lattitude and longitude
     /// </summary>
     /// <param name="lattitude">Location lattitude</param>
     /// <param name="longitude">Location longitude</param>
-    /// <returns>WeatherForecastResult</returns>
-    public static async Task<WeatherForecastResult?> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
+    /// <returns>WeatherResult</returns>
+    public static async Task<WeatherResult?> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
     {
-        string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.CurrentWeatherUrl + $"?lat={lattitude}&lon={longitude}&appid={OpenWeatherApiKey}";
+        string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.CurrentWeatherUrl
+            + $"?units=metric&lat={lattitude}&lon={longitude}&appid={BotConfiguration.OpenWeatherApiKey}";
+
+        return await APIsRequestsHandler.GetResponseFromAPIAsync<WeatherResult>(url);
+    }
+
+    /// <summary>
+    ///     Receiving current weather forecast info by lattitude and longitude
+    /// </summary>
+    /// <param name="lattitude">Location lattitude</param>
+    /// <param name="longitude">Location longitude</param>
+    /// <returns>WeatherForecastResult</returns>
+    public static async Task<WeatherForecastResult?> GetWeatherForecastByCoordinatesAsync(float lattitude, float longitude)
+    {
+        string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.WeatherForecastUrl
+            + $"?units=metric&cnt=8&lat={lattitude}&lon={longitude}&appid={BotConfiguration.OpenWeatherApiKey}";
 
         return await APIsRequestsHandler.GetResponseFromAPIAsync<WeatherForecastResult>(url);
     }
@@ -45,56 +48,78 @@ public static class WeatherHandler
     /// <returns>CoordinatesInfo</returns>
     private static async Task<IEnumerable<CoordinatesInfo>?> GetLattitudeAndLongitudeByCityNameAsync(string cityName)
     {
-        string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.GeoAPIUrl + $"?q={cityName}&appid={OpenWeatherApiKey}";
+        string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.GeoAPIUrl + $"?q={cityName}&appid={BotConfiguration.OpenWeatherApiKey}";
 
         return await APIsRequestsHandler.GetResponseFromAPIAsync<IEnumerable<CoordinatesInfo>>(url);
     }
 
     /// <summary>
-    ///     Generating data for response for the user
+    ///     Receiving coordinates for user request
     /// </summary>
-    /// <param name="userMessage">Message sent by the user</param>
-    /// <returns>WeatherResponseForUser</returns>
-    public static async Task<WeatherResponseForUser> SendWeatherByUserMessageAsync(string userMessage)
+    /// <param name="userMessage">UserMessage including command and city name</param>
+    /// <returns>Coordinates with longitude and latitude</returns>
+    private static async Task<CoordinatesInfo?> GetUserCoordinatesAsync(string userMessage)
     {
-        if (userMessage.Equals(BotCommands.WeatherCommand))
-        {
-            return new WeatherResponseForUser { ErrorMessage = "Format of the input is wrong!" };
-        }
-
         var splittedUserMessage = userMessage.Trim().Split(' ', 2);
 
         if (splittedUserMessage.Length != 2)
         {
-            return new WeatherResponseForUser { ErrorMessage = "Format of the input is wrong!" };
+            return null;
         }
 
         var coordinatesInfo = await GetLattitudeAndLongitudeByCityNameAsync(splittedUserMessage[1]);
 
         if (coordinatesInfo == null || !coordinatesInfo.Any())
         {
-            return new WeatherResponseForUser { ErrorMessage = "No data was found for your request!" };
+            return null;
         }
 
-        var coordinatesInfoFirst = coordinatesInfo.First();
+        return coordinatesInfo.First();
+    }
 
-        var temperatureInfo = await GetCurrentWeatherByCoordinatesAsync(coordinatesInfoFirst.Lattitude, coordinatesInfoFirst.Longitude);
+    /// <summary>
+    ///     Generating data for response for the user by current weather requset
+    /// </summary>
+    /// <param name="userMessage">Message sent by the user</param>
+    /// <returns>WeatherResponseForUser</returns>
+    public static async Task<WeatherResponseForUser> SendWeatherByUserMessageAsync(string userMessage)
+    {
+        var coordinatesInfo = await GetUserCoordinatesAsync(userMessage);
 
-        if (temperatureInfo == null)
+        if (coordinatesInfo == null)
         {
-            return new WeatherResponseForUser { ErrorMessage = "No data was found for your request!" };
+            return new WeatherResponseForUser { ErrorMessage = "Check correctness of your input!" };
         }
+
+        var temperatureInfo = await GetCurrentWeatherByCoordinatesAsync(coordinatesInfo.Lattitude, coordinatesInfo.Longitude);
 
         return new WeatherResponseForUser
         {
-            CityName = coordinatesInfoFirst.CityName,
-            Temperature = temperatureInfo.TemperatureInfo.Temperature,
+            CityName = coordinatesInfo.CityName,
+            Temperature = temperatureInfo!.TemperatureInfo.Temperature,
             FeelsLike = temperatureInfo.TemperatureInfo.FeelsLike,
-            Longitude = coordinatesInfoFirst.Longitude,
-            Lattitude = coordinatesInfoFirst.Lattitude,
-            WeatherInfo = temperatureInfo.WeatherInfo.First().TypeOfWeather,
+            Longitude = coordinatesInfo.Longitude,
+            Lattitude = coordinatesInfo.Lattitude,
+            TypeOfWeather = temperatureInfo.WeatherInfo.First().TypeOfWeather,
             IconType = temperatureInfo.WeatherInfo.First().IconType
         };
+    }
+
+    /// <summary>
+    ///     Generating data for response for the user by weather forecast requset
+    /// </summary>
+    /// <param name="userMessage">Message sent by the user</param>
+    /// <returns>WeatherForecastResult</returns>
+    public static async Task<WeatherForecastResult> SendWeatherForecastByUserMessageAsync(string userMessage)
+    {
+        var coordinatesInfo = await GetUserCoordinatesAsync(userMessage);
+
+        if (coordinatesInfo == null)
+        {
+            return new WeatherForecastResult { ErrorMessage = "No data was found for your request!" };
+        }
+
+        return await GetWeatherForecastByCoordinatesAsync(coordinatesInfo.Lattitude, coordinatesInfo.Longitude);
     }
 
     /// <summary>
@@ -116,7 +141,7 @@ public static class WeatherHandler
             CityName = temperatureInfo.Name,
             Temperature = temperatureInfo.TemperatureInfo.Temperature,
             FeelsLike = temperatureInfo.TemperatureInfo.FeelsLike,
-            WeatherInfo = temperatureInfo.WeatherInfo.First().TypeOfWeather
+            TypeOfWeather = temperatureInfo.WeatherInfo.First().TypeOfWeather
         };
     }
 }

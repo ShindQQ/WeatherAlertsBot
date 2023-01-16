@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WeatherAlertsBot.OpenWeatherAPI.Models;
+namespace WeatherAlertsBot.OpenWeatherAPI.Models.CurrentWeather;
 
 /// <summary>
 ///     Class which represents current weather from OpenWeatherAPI Current Weather

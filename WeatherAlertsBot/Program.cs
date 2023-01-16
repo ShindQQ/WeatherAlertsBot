@@ -1,35 +1,41 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
-using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 using WeatherAlertsBot.BackgroundServices;
 using WeatherAlertsBot.Configuration;
+using WeatherAlertsBot.DAL.Context;
 using WeatherAlertsBot.TelegramBotHandlers;
+using WeatherAlertsBot.UserServices;
 
 var botClient = new TelegramBotClient(BotConfiguration.BotAccessToken);
 
 using CancellationTokenSource cancellationTokenSource = new();
 
-ReceiverOptions receiverOptions = new()
-{
-    AllowedUpdates = Array.Empty<UpdateType>()
-};
+var host = Host.CreateDefaultBuilder(args)
+   .ConfigureServices((hostContext, services) =>
+   {
+       services.AddHostedService<BotHostedService>();
+       services.AddSingleton<ITelegramBotClient>(botClient);
+       services.AddScoped<UpdateHandler>();
+       services.AddSingleton(cancellationTokenSource);
+       services.AddScoped<SubscriberService>().AddDbContext<BotContext>(options =>
+            options.UseMySql(hostContext.Configuration.GetConnectionString("DbConnection"),
+            new MySqlServerVersion(new Version(8, 0, 30))));
+   }).Build();
+
 
 botClient.StartReceiving(
     HandleUpdateAsync,
     HandlePollingErrorAsync,
-    receiverOptions,
+    new(),
     cancellationTokenSource.Token
     );
 
-await Host.CreateDefaultBuilder(args)
-    .ConfigureServices((hostContext, services) =>
-{
-    services.AddHostedService<BotHostedService>();
-}).StartAsync();
+await host.RunAsync();
 
 // Wait for eternity
 await Task.Delay(-1);
@@ -38,9 +44,9 @@ cancellationTokenSource.Cancel();
 
 async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
 {
-    UpdateHandler updateHandler = new(botClient, update, cancellationToken);
+    var updateHandler = host.Services.GetRequiredService<UpdateHandler>();
 
-    await updateHandler.HandleMessageAsync();
+    await updateHandler.HandleMessageAsync(update);
 }
 
 async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
