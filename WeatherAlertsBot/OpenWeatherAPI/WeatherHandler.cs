@@ -119,7 +119,11 @@ public static class WeatherHandler
             return new WeatherForecastResult { ErrorMessage = "No data was found for your request!" };
         }
 
-        return await GetWeatherForecastByCoordinatesAsync(coordinatesInfo.Lattitude, coordinatesInfo.Longitude);
+        var result = await GetWeatherForecastByCoordinatesAsync(coordinatesInfo.Lattitude, coordinatesInfo.Longitude);
+
+        result!.WeatherForecastCity.CityName = coordinatesInfo.CityName;
+
+        return result;
     }
 
     /// <summary>

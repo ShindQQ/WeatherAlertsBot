@@ -1,22 +1,11 @@
 using CoreHtmlToImage;
-using WeatherAlertsBot.OpenWeatherAPI.WeatherForecast;
+using WeatherAlertsBot.OpenWeatherAPI;
 
 namespace WeatherAlertsBot.RussianWarship;
 
-public class WeatherToPrint
+public static class WeatherImageGenerator
 {
-    public string IconType { get; set; }
-    public string CityName { get; set; }
-    public float Temperature { get; set; }
-    public float FeelsLike { get; set; }
-    public string? DateTime { get; set; }
-}
-
-
-public static class WeatherMapGenerator
-{
-    
-    public static byte[] GenerateCurrentWeatherImage (WeatherToPrint weatherToPrint)
+    public static byte[] GenerateCurrentWeatherImage (WeatherResponseForUser weatherToPrint)
     {
         var weatherForecastImage = $"""
                             <div style="margin-left:5%;height:250px;width:250px;display:inline">
@@ -24,18 +13,14 @@ public static class WeatherMapGenerator
                             src = "http://openweathermap.org/img/wn/{weatherToPrint.IconType}@4x.png" 
                               >
                             <h1>Weather in {weatherToPrint.CityName}</h1>
-                            <h1>Temperature {weatherToPrint.Temperature:N1}°C</h1>
+                            <h1>Temperature {weatherToPrint.Temperature:N1} &degC</h1>
                             </div>
                         """;
+
         return new HtmlConverter().FromHtmlString(weatherForecastImage);
     } 
     
-    /// <summary>
-    /// need to do something with margins
-    /// </summary>
-    /// <param name="weatherToPrint"></param>
-    /// <returns></returns>
-    public static byte[] GenerateWeatherForecastImage (List<WeatherToPrint> weatherToPrint)
+    public static byte[] GenerateWeatherForecastImage (List<WeatherResponseForUser> weatherToPrint)
     {
         string result =""" <div style="width:2000px">""";
         weatherToPrint.ForEach(weather => result += $"""
@@ -45,10 +30,11 @@ public static class WeatherMapGenerator
                             src = "http://openweathermap.org/img/wn/{weather.IconType}@4x.png" 
                               >
                             <h1>Weather in {weather.CityName}</h1>
-                            <h1>Temperature {weather.Temperature:N1}°C</h1>
+                            <h1>Temperature {weather.Temperature:N1} &degC</h1>
                             </div>
                             </div>
                         """);
+
         return new HtmlConverter().FromHtmlString(result + "</div>");
     }
 }

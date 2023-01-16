@@ -221,7 +221,7 @@ public sealed class UpdateHandler
     /// </summary>
     /// <param name="chatId">User chat id</param>
     /// <param name="userMessageText">Message sent by user</param>
-    /// <returns>True if user`s message starts with /weather and there were no troubles with request, false if there was troubleshooting</returns>
+    /// <returns>Task</returns>
     private async Task HandleWeatherMessageAsync(long chatId, string userMessageText)
     {
         var weatherResponseForUser = await WeatherHandler.SendWeatherByUserMessageAsync(userMessageText);
@@ -234,18 +234,13 @@ public sealed class UpdateHandler
             return;
         }
         
-        var weatherPrintData = new WeatherToPrint
-        {
-            CityName = weatherResponseForUser.CityName,
-            Temperature = weatherResponseForUser.Temperature,
-            FeelsLike = weatherResponseForUser.FeelsLike,
-            IconType  = weatherResponseForUser.IconType
-        };
-        
-        var result = WeatherMapGenerator.GenerateCurrentWeatherImage(weatherPrintData);
-        
-        await _botClient.SendPhotoAsync(_update.Message!.Chat.Id, new InputOnlineFile(new MemoryStream(result)),
-            null, ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+        var result = WeatherImageGenerator.GenerateCurrentWeatherImage(weatherResponseForUser);
+
+        await HandlePhotoMessageAsync(chatId, result,
+            $"""
+            `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature}.
+            Feels like {weatherResponseForUser.FeelsLike} °C. Type of weather: {weatherResponseForUser.TypeOfWeather}.`
+            """);
     }
 
     /// <summary>
@@ -253,7 +248,7 @@ public sealed class UpdateHandler
     /// </summary>
     /// <param name="chatId">User chat id</param>
     /// <param name="userMessageText">Message sent by user</param>
-    /// <returns>True if user`s message starts with /weather_forecast and there were no troubles with request, false if there was troubleshooting</returns>
+    /// <returns>Task</returns>
     private async Task HandleWeatherForecastMessageAsync(long chatId, string userMessageText)
     {
         var weatherForecastResult = await WeatherHandler.SendWeatherForecastByUserMessageAsync(userMessageText);
@@ -266,18 +261,26 @@ public sealed class UpdateHandler
             return;
         }
         
-        var res = WeatherMapGenerator.GenerateWeatherForecastImage(weatherForecastResult.WeatherForecastHoursData.Select(weatherData => 
-            new WeatherToPrint
+        var res = WeatherImageGenerator.GenerateWeatherForecastImage(weatherForecastResult.WeatherForecastHoursData.Select(weatherData => 
+            new WeatherResponseForUser
             {
                 CityName = weatherForecastResult.WeatherForecastCity.CityName,
                 Temperature = weatherData.WeatherForecastTemperatureData.Temperature,
                 FeelsLike = weatherData.WeatherForecastTemperatureData.FeelsLike,
                 IconType = weatherData.WeatherForecastCurrentWeather.First().IconType
             }).ToList());
-        
-        
-        await _botClient.SendPhotoAsync(_update.Message!.Chat.Id, new InputOnlineFile(new MemoryStream(res)),
-            null, ParseMode.MarkdownV2, cancellationToken: _cancellationToken);
+
+
+        await HandlePhotoMessageAsync(chatId, res,
+           $"`Current weather in {weatherForecastResult.WeatherForecastCity.CityName} for next 24 hours:\n\n"
+                + string.Join("\n\n", weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
+                $"""
+                Time: {weatherData.Date[^8..]}: 
+                Temperature: {weatherData.WeatherForecastTemperatureData.Temperature:N2} °C.
+                Feels like {weatherData.WeatherForecastTemperatureData.FeelsLike:N2} °C.
+                Humidity {weatherData.WeatherForecastTemperatureData.Humidity}. 
+                Type of weather: {weatherData.WeatherForecastCurrentWeather.First().TypeOfWeather}.
+                """)) + "`");
     }
 
     /// <summary>
@@ -337,8 +340,7 @@ public sealed class UpdateHandler
     ///     Receiving info about alerts in Ukraine regions
     /// </summary>
     /// <param name="chatId">User chat id</param>
-    /// <returns>True if user`s message equals with /alerts_map and there were 
-    /// no troubles with request, false if there was troubleshooting</returns>
+    /// <returns>Task</returns>
     private async Task HandleAlertsInfo(long chatId)
     {
         string messageForUser = $"`Current alerts in Ukraine:\n";
