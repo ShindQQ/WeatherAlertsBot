@@ -103,7 +103,7 @@ public sealed class UpdateHandler
     {
         Task command = userMessage switch
         {
-            BotCommands.StartCommand => HandleStartMessage(chatId),
+            BotCommands.StartCommand => HandleErrorMessage(chatId),
             _ when userMessage.StartsWith(BotCommands.WeatherForecastCommand) => HandleWeatherForecastMessageAsync(chatId, userMessage),
             _ when userMessage.StartsWith(BotCommands.WeatherCommand) => HandleWeatherMessageAsync(chatId, userMessage),
             _ when userMessage.StartsWith(BotCommands.AlertsMapCommand) => HandleAlertsInfo(chatId),
@@ -207,16 +207,6 @@ public sealed class UpdateHandler
         => affectedRows == 0 ? "Operation unsuccessful!" : "Operation successful!";
 
     /// <summary>
-    ///     Handling /start message
-    /// </summary>
-    /// <param name="chatId">User chat id</param>
-    /// <returns>Returns user start message</returns>
-    private Task HandleStartMessage(long chatId)
-    {
-        return HandleErrorMessage(chatId);
-    }
-
-    /// <summary>
     ///     Handling /weather [city_name] message
     /// </summary>
     /// <param name="chatId">User chat id</param>
@@ -305,17 +295,17 @@ public sealed class UpdateHandler
     {
         return HandleTextMessageAsync(chatId,
             $"""
-            Hello!
-            To receive weather by city name send me the message in format: `{BotCommands.WeatherCommand}` [city_name]!
-            To receive weather forecast by city name send me the message in format: `{BotCommands.WeatherForecastCommand}` [city_name]!
-            Or just send me your location for receiving current weather!
-            For map of alerts use `{BotCommands.AlertsLostCommand}`!
-            To see russian losses use `{BotCommands.AlertsMapCommand}`!
-            For subscribing on alerts_lost command `{BotCommands.SubscribeOnAlertsLostCommand}`!
-            For unsubscribing from alerts_lost command `{BotCommands.UnsubscribeFromAlertsLostCommand}`!
-            For subscribing on weather_forecast command `{BotCommands.SubscribeOnWeatherForecastCommand}` [city_name]!
-            For unsubscribing from weather_forecast command `{BotCommands.UnsubscribeFromWeatherForecastCommand}` [city_name]!
-            For receiving list of all your subscriptions send me `{BotCommands.GetListOfSubscriptionsCommand}`!
+            Hello\!
+            To receive weather by city name send me: `{BotCommands.WeatherCommand}` \[city\_name\]\!
+            To receive weather forecast by city name send me: `{BotCommands.WeatherForecastCommand}` \[city\_name\]\!
+            Or just send me your location for receiving current weather\!
+            For map of alerts use `{BotCommands.AlertsLostCommand}`\!
+            To see russian losses use `{BotCommands.AlertsMapCommand}`\!
+            For subscribing on `{BotCommands.AlertsLostCommand}` command `{BotCommands.SubscribeOnAlertsLostCommand}`\!
+            For unsubscribing from `{BotCommands.AlertsLostCommand}` command `{BotCommands.UnsubscribeFromAlertsLostCommand}`\!
+            For subscribing on `{BotCommands.WeatherForecastCommand}` command `{BotCommands.SubscribeOnWeatherForecastCommand}` \[city\_name\]\!
+            For unsubscribing from `{BotCommands.WeatherForecastCommand}` command `{BotCommands.UnsubscribeFromWeatherForecastCommand}` \[city\_name\]\!
+            For receiving list of all your subscriptions send me `{BotCommands.GetListOfSubscriptionsCommand}`\!
             """);
     }
 
