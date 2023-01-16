@@ -145,7 +145,7 @@ public sealed class UpdateHandler
     private async Task HandleSubscriptionListInfoAsync(long chatId)
     {
         var subscriber = await _subscriberService.FindSubscriberAsync(chatId);
-        var message = "You aren`t subscribed to any services yet!";
+        var message = "You are not subscribed to any services yet!";
 
         if (subscriber != null)
         {
@@ -153,7 +153,7 @@ public sealed class UpdateHandler
                 string.Join("\n", subscriber.Commands.Select(command => $"{command.CommandName}"));
         }
 
-        await HandleTextMessageAsync(chatId, $"`{message}`");
+        await HandleTextMessageAsync(chatId, $"""`{message}`""");
     }
 
     /// <summary>
@@ -234,12 +234,10 @@ public sealed class UpdateHandler
             return;
         }
         
-        var result = WeatherImageGenerator.GenerateCurrentWeatherImage(weatherResponseForUser);
-
-        await HandlePhotoMessageAsync(chatId, result,
+        await HandlePhotoMessageAsync(chatId, WeatherImageGenerator.GenerateCurrentWeatherImage(weatherResponseForUser),
             $"""
             `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature}.
-            Feels like {weatherResponseForUser.FeelsLike} °C. Type of weather: {weatherResponseForUser.TypeOfWeather}.`
+            Feels like {weatherResponseForUser.FeelsLike} °C. {weatherResponseForUser.TypeOfWeather}.`
             """);
     }
 
@@ -261,17 +259,15 @@ public sealed class UpdateHandler
             return;
         }
         
-        var res = WeatherImageGenerator.GenerateWeatherForecastImage(weatherForecastResult.WeatherForecastHoursData.Select(weatherData => 
+        await HandlePhotoMessageAsync(chatId, WeatherImageGenerator.GenerateWeatherForecastImage(
+            weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
             new WeatherResponseForUser
             {
                 CityName = weatherForecastResult.WeatherForecastCity.CityName,
                 Temperature = weatherData.WeatherForecastTemperatureData.Temperature,
                 FeelsLike = weatherData.WeatherForecastTemperatureData.FeelsLike,
                 IconType = weatherData.WeatherForecastCurrentWeather.First().IconType
-            }).ToList());
-
-
-        await HandlePhotoMessageAsync(chatId, res,
+            }).ToList()),
            $"`Current weather in {weatherForecastResult.WeatherForecastCity.CityName} for next 24 hours:\n\n"
                 + string.Join("\n\n", weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
                 $"""
@@ -279,7 +275,7 @@ public sealed class UpdateHandler
                 Temperature: {weatherData.WeatherForecastTemperatureData.Temperature:N2} °C.
                 Feels like {weatherData.WeatherForecastTemperatureData.FeelsLike:N2} °C.
                 Humidity {weatherData.WeatherForecastTemperatureData.Humidity}. 
-                Type of weather: {weatherData.WeatherForecastCurrentWeather.First().TypeOfWeather}.
+                {weatherData.WeatherForecastCurrentWeather.First().TypeOfWeather}.
                 """)) + "`");
     }
 
@@ -296,7 +292,7 @@ public sealed class UpdateHandler
         await HandleTextMessageAsync(chatId,
            $"""
            `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
-           Feels like {weatherResponseForUser.FeelsLike:N2} °C. Type of weather: {weatherResponseForUser.TypeOfWeather}.`
+           Feels like {weatherResponseForUser.FeelsLike:N2} °C. {weatherResponseForUser.TypeOfWeather}.`
            """);
     }
 
@@ -348,7 +344,6 @@ public sealed class UpdateHandler
         var regions = await APIsRequestsHandler.GetResponseForAlertsCachedAsync();
 
         var bytes = AlarmsMapGenerator.DrawAlertsMap(regions);
-
 
         await HandlePhotoMessageAsync(chatId, bytes,
             messageForUser + string.Join("\n",
