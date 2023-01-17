@@ -104,6 +104,7 @@ public sealed class UpdateHandler
         Task command = userMessage switch
         {
             BotCommands.StartCommand => HandleErrorMessage(chatId),
+            BotCommands.HelpCommand => HandleErrorMessage(chatId),
             _ when userMessage.StartsWith(BotCommands.WeatherForecastCommand) => HandleWeatherForecastMessageAsync(chatId, userMessage),
             _ when userMessage.StartsWith(BotCommands.WeatherCommand) => HandleWeatherMessageAsync(chatId, userMessage),
             _ when userMessage.StartsWith(BotCommands.AlertsMapCommand) => HandleAlertsInfo(chatId),
@@ -111,7 +112,7 @@ public sealed class UpdateHandler
             _ when userMessage.StartsWith(BotCommands.GetListOfSubscriptionsCommand) => HandleSubscriptionListInfoAsync(chatId),
             _ when userMessage.StartsWith(BotCommands.SubscribeCommand) => HandleSubscribeMessageAsync(chatId, userMessage),
             _ when userMessage.StartsWith(BotCommands.UnsubscribeCommand) => HandleUnSubscribeMessageAsync(chatId, userMessage),
-            _ => HandleErrorMessage(chatId)
+            _ => Task.CompletedTask
         };
 
         return command;
@@ -226,7 +227,7 @@ public sealed class UpdateHandler
         
         await HandlePhotoMessageAsync(chatId, WeatherImageGenerator.GenerateCurrentWeatherImage(weatherResponseForUser),
             $"""
-            `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature}.
+            `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature} °C.
             Feels like {weatherResponseForUser.FeelsLike} °C. {weatherResponseForUser.TypeOfWeather}.`
             """);
     }
@@ -250,21 +251,14 @@ public sealed class UpdateHandler
         }
         
         await HandlePhotoMessageAsync(chatId, WeatherImageGenerator.GenerateWeatherForecastImage(
-            weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
-            new WeatherResponseForUser
-            {
-                CityName = weatherForecastResult.WeatherForecastCity.CityName,
-                Temperature = weatherData.WeatherForecastTemperatureData.Temperature,
-                FeelsLike = weatherData.WeatherForecastTemperatureData.FeelsLike,
-                IconType = weatherData.WeatherForecastCurrentWeather.First().IconType
-            }).ToList()),
+            weatherForecastResult),
            $"`Current weather in {weatherForecastResult.WeatherForecastCity.CityName} for next 24 hours:\n\n"
                 + string.Join("\n\n", weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
                 $"""
-                Time: {weatherData.Date[^8..]}: 
+                Time: {weatherData.Date}: 
                 Temperature: {weatherData.WeatherForecastTemperatureData.Temperature:N2} °C.
                 Feels like {weatherData.WeatherForecastTemperatureData.FeelsLike:N2} °C.
-                Humidity {weatherData.WeatherForecastTemperatureData.Humidity}. 
+                Humidity {weatherData.WeatherForecastTemperatureData.Humidity}%. 
                 {weatherData.WeatherForecastCurrentWeather.First().TypeOfWeather}.
                 """)) + "`");
     }

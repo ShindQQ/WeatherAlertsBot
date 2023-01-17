@@ -15,7 +15,12 @@ public static class APIsLinks
     /// <summary>
     ///     Open Weather API url
     /// </summary>
-    public const string OpenWeatherAPIUrl = "https://api.openweathermap.org";
+    public const string OpenWeatherApiUrl = "https://api.openweathermap.org";
+
+    /// <summary>
+    ///     Open weather API icons
+    /// </summary>
+    public const string OpenWeatherApiIcons = "http://openweathermap.org/img/wn/";
 
     /// <summary>
     ///     Open Weather API`s Current weather url

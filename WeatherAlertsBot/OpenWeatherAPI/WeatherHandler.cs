@@ -21,7 +21,7 @@ public static class WeatherHandler
     /// <returns>WeatherResult</returns>
     public static async Task<WeatherResult?> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
     {
-        string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.CurrentWeatherUrl
+        string url = APIsLinks.OpenWeatherApiUrl + APIsLinks.CurrentWeatherUrl
             + $"?units=metric&lat={lattitude}&lon={longitude}&appid={BotConfiguration.OpenWeatherApiKey}";
 
         return await APIsRequestsHandler.GetResponseFromAPIAsync<WeatherResult>(url);
@@ -35,7 +35,7 @@ public static class WeatherHandler
     /// <returns>WeatherForecastResult</returns>
     public static async Task<WeatherForecastResult?> GetWeatherForecastByCoordinatesAsync(float lattitude, float longitude)
     {
-        string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.WeatherForecastUrl
+        string url = APIsLinks.OpenWeatherApiUrl + APIsLinks.WeatherForecastUrl
             + $"?units=metric&cnt=8&lat={lattitude}&lon={longitude}&appid={BotConfiguration.OpenWeatherApiKey}";
 
         return await APIsRequestsHandler.GetResponseFromAPIAsync<WeatherForecastResult>(url);
@@ -48,7 +48,7 @@ public static class WeatherHandler
     /// <returns>CoordinatesInfo</returns>
     private static async Task<IEnumerable<CoordinatesInfo>?> GetLattitudeAndLongitudeByCityNameAsync(string cityName)
     {
-        string url = APIsLinks.OpenWeatherAPIUrl + APIsLinks.GeoAPIUrl + $"?q={cityName}&appid={BotConfiguration.OpenWeatherApiKey}";
+        string url = APIsLinks.OpenWeatherApiUrl + APIsLinks.GeoAPIUrl + $"?q={cityName}&appid={BotConfiguration.OpenWeatherApiKey}";
 
         return await APIsRequestsHandler.GetResponseFromAPIAsync<IEnumerable<CoordinatesInfo>>(url);
     }

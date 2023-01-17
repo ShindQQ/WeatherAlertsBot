@@ -1,4 +1,6 @@
 using CoreHtmlToImage;
+using WeatherAlertsBot.OpenWeatherAPI.Models.WeatherForecast;
+using WeatherAlertsBot.Helpers;
 
 namespace WeatherAlertsBot.OpenWeatherAPI;
 
@@ -10,9 +12,9 @@ public static class WeatherImageGenerator
     /// <summary>
     ///     Generating image for current weather
     /// </summary>
-    /// <param name="weather">Weather which will be shown</param>
+    /// <param name="currentWeather">Weather which will be shown</param>
     /// <returns>Byte array of the image</returns>
-    public static byte[] GenerateCurrentWeatherImage(WeatherResponseForUser weather)
+    public static byte[] GenerateCurrentWeatherImage(WeatherResponseForUser currentWeather)
     {
         var weatherForecastImage = $"""
         <div style="height:220px;
@@ -20,35 +22,48 @@ public static class WeatherImageGenerator
         background-image:-webkit-linear-gradient(67deg, #151125 12%, #39278a 88%);
         text-align:center;
         position:absolute;top:0px;left:0px">
-            <div>
-                <img
-                src = "http://openweathermap.org/img/wn/{weather.IconType}@2x.png" 
-                  >
-                <h1 style="font-size:14px;color:white">Weather in {weather.CityName}</h1>
-                <h1 style="font-size:14px;color:white">Temperature {weather.Temperature:N2} &degC</h1>
-                <h1 style="font-size:14px;color:white">Feels like {weather.FeelsLike:N2} &degC</h1>
-            </div>
+            <img
+            src = "{APIsLinks.OpenWeatherApiIcons}{currentWeather.IconType}@2x.png" 
+              >
+            <h1 style="font-size:14px;color:white">Weather in {currentWeather.CityName}</h1>
+            <h1 style="font-size:14px;color:white">Temperature {currentWeather.Temperature:N2} &degC</h1>
+            <h1 style="font-size:14px;color:white">Feels like {currentWeather.FeelsLike:N2} &degC</h1>
         </div>
         """;
 
         return new HtmlConverter().FromHtmlString(weatherForecastImage, width: 500);
     }
 
-    public static byte[] GenerateWeatherForecastImage(List<WeatherResponseForUser> weatherToPrint)
+    /// <summary>
+    ///     Generating image for weather forecast
+    /// </summary>
+    /// <param name="weatherForecast">Weather forecast data</param>
+    /// <returns>Byte array of the image</returns>
+    public static byte[] GenerateWeatherForecastImage(WeatherForecastResult weatherForecast)
     {
-        string result = """ <div style="width:2000px">""";
-        weatherToPrint.ForEach(weather => result += $"""
-                            <div style="display:inline-block;margin-right:20px;">
-                            <div style="margin-left:5%;height:400px;width:250px;">
-                            <img
-                            src = "http://openweathermap.org/img/wn/{weather.IconType}@4x.png" 
-                              >
-                            <h1>Weather in {weather.CityName}</h1>
-                            <h1>Temperature {weather.Temperature:N1} &degC</h1>
-                            </div>
-                            </div>
-                        """);
+        string result = """
+            <div style="width:1300px;
+                background-image:-webkit-linear-gradient(67deg, #151125 12%, #39278a 88%);
+                text-align:center;
+                position: absolute; top: 0px; left: 0px">
+            """;
 
-        return new HtmlConverter().FromHtmlString(result + "</div>");
+        weatherForecast.WeatherForecastHoursData.ForEach(weatherData => result += 
+        $"""
+            <div style="display:inline-block;">
+                <div style="height:430px;width:310px;">
+                    <img
+                    src =  "{APIsLinks.OpenWeatherApiIcons}{weatherData.WeatherForecastCurrentWeather.First().IconType}@4x.png" 
+                      >
+                    <h1 style="font-size:20px;color:white">Weather in {weatherForecast.WeatherForecastCity.CityName}</h1>
+                    <h1 style="font-size:20px;color:white">On {weatherData.Date}</h1>
+                    <h1 style="font-size:20px;color:white">Temperature {weatherData.WeatherForecastTemperatureData.Temperature:N2} &degC</h1>
+                    <h1 style="font-size:20px;color:white">Feels like {weatherData.WeatherForecastTemperatureData.FeelsLike:N2} &degC</h1>
+                    <h1 style="font-size:20px;color:white">Humidity {weatherData.WeatherForecastTemperatureData.Humidity} &degC</h1>
+                </div>
+            </div>
+        """);
+
+        return new HtmlConverter().FromHtmlString(result + "</div>", width: 1300);
     }
 }

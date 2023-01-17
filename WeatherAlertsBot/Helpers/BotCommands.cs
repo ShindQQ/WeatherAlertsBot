@@ -8,6 +8,11 @@ public static class BotCommands
     public const string StartCommand = "/start";
 
     /// <summary>
+    ///     String for help command
+    /// </summary>
+    public const string HelpCommand = "/help";
+
+    /// <summary>
     ///     String for weather command
     /// </summary>
     public static readonly string WeatherCommand = "/weather";

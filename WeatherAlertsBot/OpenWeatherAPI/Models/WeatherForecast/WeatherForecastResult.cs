@@ -13,7 +13,7 @@ public sealed class WeatherForecastResult
     ///     Data for selected city by hours
     /// </summary>
     [JsonPropertyName("list")]
-    public List<WeatherForecastDataForEveryThreeHours> WeatherForecastHoursData { get; set; }
+    public List<WeatherForecastHoursData> WeatherForecastHoursData { get; set; }
 
     /// <summary>
     ///     Name of the specified city
