@@ -51,15 +51,15 @@ public static class WeatherImageGenerator
         weatherForecast.WeatherForecastHoursData.ForEach(weatherData => result += 
         $"""
             <div style="display:inline-block;">
-                <div style="height:430px;width:310px;">
+                <div style="height:430px;width:320px;">
                     <img
                     src =  "{APIsLinks.OpenWeatherApiIcons}{weatherData.WeatherForecastCurrentWeather.First().IconType}@4x.png" 
                       >
-                    <h1 style="font-size:20px;color:white">Weather in {weatherForecast.WeatherForecastCity.CityName}</h1>
-                    <h1 style="font-size:20px;color:white">On {weatherData.Date}</h1>
-                    <h1 style="font-size:20px;color:white">Temperature {weatherData.WeatherForecastTemperatureData.Temperature:N2} &degC</h1>
-                    <h1 style="font-size:20px;color:white">Feels like {weatherData.WeatherForecastTemperatureData.FeelsLike:N2} &degC</h1>
-                    <h1 style="font-size:20px;color:white">Humidity {weatherData.WeatherForecastTemperatureData.Humidity} &degC</h1>
+                    <h1 style="font-size:22px;color:white">Weather in {weatherForecast.WeatherForecastCity.CityName}</h1>
+                    <h1 style="font-size:22px;color:white">On {weatherData.Date}</h1>
+                    <h1 style="font-size:22px;color:white">Temperature {weatherData.WeatherForecastTemperatureData.Temperature:N2} &degC</h1>
+                    <h1 style="font-size:22px;color:white">Feels like {weatherData.WeatherForecastTemperatureData.FeelsLike:N2} &degC</h1>
+                    <h1 style="font-size:22px;color:white">Humidity {weatherData.WeatherForecastTemperatureData.Humidity}%</h1>
                 </div>
             </div>
         """);
