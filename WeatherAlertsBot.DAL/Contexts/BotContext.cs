@@ -29,7 +29,7 @@ public class BotContext : DbContext
     ///     Constructor for di
     /// </summary>
     /// <param name="options">Configuring db context</param>
-    public BotContext(DbContextOptions<BotContext> options) : base(options) 
+    public BotContext(DbContextOptions<BotContext> options) : base(options)
     {
     }
 }

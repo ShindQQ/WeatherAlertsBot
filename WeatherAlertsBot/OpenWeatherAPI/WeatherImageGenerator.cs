@@ -1,6 +1,6 @@
 using CoreHtmlToImage;
-using WeatherAlertsBot.OpenWeatherAPI.Models.WeatherForecast;
 using WeatherAlertsBot.Helpers;
+using WeatherAlertsBot.OpenWeatherAPI.Models.WeatherForecast;
 
 namespace WeatherAlertsBot.OpenWeatherAPI;
 
@@ -48,7 +48,7 @@ public static class WeatherImageGenerator
                 position: absolute; top: 0px; left: 0px">
             """;
 
-        weatherForecast.WeatherForecastHoursData.ForEach(weatherData => result += 
+        weatherForecast.WeatherForecastHoursData.ForEach(weatherData => result +=
         $"""
             <div style="display:inline-block;">
                 <div style="height:430px;width:320px;">
@@ -56,7 +56,7 @@ public static class WeatherImageGenerator
                     src =  "{APIsLinks.OpenWeatherApiIcons}{weatherData.WeatherForecastCurrentWeather.First().IconType}@4x.png" 
                       >
                     <h1 style="font-size:22px;color:white">Weather in {weatherForecast.WeatherForecastCity.CityName}</h1>
-                    <h1 style="font-size:22px;color:white">On {weatherData.Date}</h1>
+                    <h1 style="font-size:22px;color:white">On {weatherData.Date[..^3]}</h1>
                     <h1 style="font-size:22px;color:white">Temperature {weatherData.WeatherForecastTemperatureData.Temperature:N2} &degC</h1>
                     <h1 style="font-size:22px;color:white">Feels like {weatherData.WeatherForecastTemperatureData.FeelsLike:N2} &degC</h1>
                     <h1 style="font-size:22px;color:white">Humidity {weatherData.WeatherForecastTemperatureData.Humidity}%</h1>

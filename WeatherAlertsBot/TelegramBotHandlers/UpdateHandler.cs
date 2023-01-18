@@ -40,7 +40,7 @@ public sealed class UpdateHandler
     /// <param name="telegramBotClient">A client interface to use Telegram Bot API</param>
     /// <param name="subscriberService">Service for work with db context</param>
     /// <param name="cancellationTokenSource">Cancellation Token Source</param>
-    public UpdateHandler(ITelegramBotClient telegramBotClient, SubscriberService subscriberService, 
+    public UpdateHandler(ITelegramBotClient telegramBotClient, SubscriberService subscriberService,
         CancellationTokenSource cancellationTokenSource)
     {
         _botClient = telegramBotClient;
@@ -224,7 +224,7 @@ public sealed class UpdateHandler
 
             return;
         }
-        
+
         await HandlePhotoMessageAsync(chatId, WeatherImageGenerator.GenerateCurrentWeatherImage(weatherResponseForUser),
             $"""
             `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature} °C.
@@ -249,13 +249,13 @@ public sealed class UpdateHandler
 
             return;
         }
-        
+
         await HandlePhotoMessageAsync(chatId, WeatherImageGenerator.GenerateWeatherForecastImage(
             weatherForecastResult),
            $"`Current weather in {weatherForecastResult.WeatherForecastCity.CityName} for next 24 hours:\n\n"
                 + string.Join("\n\n", weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
                 $"""
-                Time: {weatherData.Date}: 
+                Time: {weatherData.Date[..^3]}: 
                 Temperature: {weatherData.WeatherForecastTemperatureData.Temperature:N2} °C.
                 Feels like {weatherData.WeatherForecastTemperatureData.FeelsLike:N2} °C.
                 Humidity {weatherData.WeatherForecastTemperatureData.Humidity}%. 
@@ -365,7 +365,7 @@ public sealed class UpdateHandler
     {
         try
         {
-            await _botClient.SendTextMessageAsync(chatId, messageForUser, 
+            await _botClient.SendTextMessageAsync(chatId, messageForUser,
                 ParseMode.MarkdownV2, cancellationToken: _cancellationTokenSource.Token);
         }
         catch (ApiRequestException)

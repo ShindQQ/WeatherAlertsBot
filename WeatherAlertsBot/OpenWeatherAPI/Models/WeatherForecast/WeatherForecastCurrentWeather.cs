@@ -12,7 +12,7 @@ public class WeatherForecastCurrentWeather
     /// </summary>
     [JsonPropertyName("main")]
     public string TypeOfWeather { get; set; }
-    
+
     /// <summary>
     ///     Type of received icon for weather
     /// </summary>
