@@ -332,8 +332,7 @@ public sealed class UpdateHandler
         await HandlePhotoMessageAsync(chatId, bytes,
             messageForUser + string.Join("\n",
                 regions.Where(region => region.Value.Enabled)
-                .Select(region => $"🚨 {region.Key.Trim('\'')}; Enabled at: " +
-                $"{DateTime.Parse(region.Value.EnabledAt):MM/dd/yyyy HH:mm}")) + "`");
+                .Select(region => $"🚨 {region.Key.Trim('\'')};")) + "`");
     }
 
     /// <summary>
