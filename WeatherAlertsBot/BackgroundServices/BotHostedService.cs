@@ -13,10 +13,10 @@ public sealed class BotHostedService : BackgroundService
     /// </summary>
     private readonly UpdateHandler _updateHandler;
 
-    /// <summary>
+    /// <summary> 
     ///     Periodic timer for delay
     /// </summary>
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(10));
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromDays(1));
 
     /// <summary>
     ///     Constructor for di
