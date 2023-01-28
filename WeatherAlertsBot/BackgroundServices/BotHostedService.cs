@@ -13,6 +13,8 @@ public sealed class BotHostedService : BackgroundService
     /// </summary>
     private readonly UpdateHandler _updateHandler;
 
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(10));
+
     /// <summary>
     ///     Constructor for di
     /// </summary>
@@ -29,11 +31,9 @@ public sealed class BotHostedService : BackgroundService
     /// <returns></returns>
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        while (!cancellationToken.IsCancellationRequested)
+        while (await _periodicTimer.WaitForNextTickAsync(cancellationToken) && !cancellationToken.IsCancellationRequested)
         {
             await _updateHandler.HandleSubscribersNotificationsAsync();
-
-            await Task.Delay(86400000, cancellationToken);
         }
     }
 }
