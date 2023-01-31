@@ -66,5 +66,4 @@ public static class BotCommands
     ///     Receiving list of subscriptions for selected user command
     /// </summary>
     public static readonly string GetListOfSubscriptionsCommand = "/sub_list";
-
 }

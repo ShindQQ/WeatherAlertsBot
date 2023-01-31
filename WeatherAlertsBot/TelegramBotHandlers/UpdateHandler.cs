@@ -212,7 +212,7 @@ public sealed class UpdateHandler
     /// </summary>
     /// <param name="chatId">User chat id</param>
     /// <param name="userMessageText">Message sent by user</param>
-    /// <returns>Task</returns>
+    /// <returns>Sent weather to the user</returns>
     private async Task HandleWeatherMessageAsync(long chatId, string userMessageText)
     {
         var weatherResponseForUser = await WeatherHandler.SendWeatherByUserMessageAsync(userMessageText);
@@ -237,7 +237,7 @@ public sealed class UpdateHandler
     /// </summary>
     /// <param name="chatId">User chat id</param>
     /// <param name="userMessageText">Message sent by user</param>
-    /// <returns>Task</returns>
+    /// <returns>Sent weather forecast to the user</returns>
     private async Task HandleWeatherForecastMessageAsync(long chatId, string userMessageText)
     {
         var weatherForecastResult = await WeatherHandler.SendWeatherForecastByUserMessageAsync(userMessageText);
@@ -320,7 +320,7 @@ public sealed class UpdateHandler
     ///     Receiving info about alerts in Ukraine regions
     /// </summary>
     /// <param name="chatId">User chat id</param>
-    /// <returns>Task</returns>
+    /// <returns>Map with alerts and list of regions to the user</returns>
     private async Task HandleAlertsInfo(long chatId)
     {
         string messageForUser = $"`Current alerts in Ukraine:\n";
@@ -359,7 +359,7 @@ public sealed class UpdateHandler
     /// </summary>
     /// <param name="chatId">Id of the chat to send to</param>
     /// <param name="messageForUser">Message which will be sent</param>
-    /// <returns>Sent message</returns>
+    /// <returns>Sent text message</returns>
     private async Task HandleTextMessageAsync(long chatId, string messageForUser)
     {
         try
