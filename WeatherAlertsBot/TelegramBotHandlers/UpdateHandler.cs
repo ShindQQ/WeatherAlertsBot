@@ -99,9 +99,8 @@ public sealed class UpdateHandler
     /// <param name="chatId">User chat id</param>
     /// <param name="userMessage">Command sent by user</param>
     /// <returns>Command for user`s request</returns>
-    public Task HandleCommandMessage(long chatId, string userMessage)
-    {
-        Task command = userMessage switch
+    public Task HandleCommandMessage(long chatId, string userMessage) => 
+        userMessage switch
         {
             BotCommands.StartCommand => HandleErrorMessage(chatId),
             BotCommands.HelpCommand => HandleErrorMessage(chatId),
@@ -114,20 +113,15 @@ public sealed class UpdateHandler
             _ when userMessage.StartsWith(BotCommands.UnsubscribeCommand) => HandleUnSubscribeMessageAsync(chatId, userMessage),
             _ => Task.CompletedTask
         };
-
-        return command;
-    }
+    
 
     /// <summary>
     ///     Handling subscription string results
     /// </summary>
     /// <param name="userMessage">Message sent by user</param>
     /// <returns>Command for editing db</returns>
-    private static string HandleSubscriptionMessage(string userMessage)
-    {
-        var splittedMessage = userMessage.Trim().Split(' ', 2);
-
-        return splittedMessage switch
+    private static string HandleSubscriptionMessage(string userMessage) =>
+        userMessage.Trim().Split(' ', 2) switch
         {
             _ when userMessage.Equals(BotCommands.SubscribeOnAlertsLostCommand) ||
                 userMessage.Equals(BotCommands.UnsubscribeFromAlertsLostCommand) => BotCommands.AlertsLostCommand,
@@ -136,7 +130,6 @@ public sealed class UpdateHandler
                 => BotCommands.WeatherForecastCommand + " " + userCityName,
             _ => string.Empty
         };
-    }
 
     /// <summary>
     ///     Handling receiving subscriber commands list
