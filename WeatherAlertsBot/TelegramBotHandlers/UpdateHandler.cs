@@ -99,7 +99,7 @@ public sealed class UpdateHandler
     /// <param name="chatId">User chat id</param>
     /// <param name="userMessage">Command sent by user</param>
     /// <returns>Command for user`s request</returns>
-    public Task HandleCommandMessage(long chatId, string userMessage) => 
+    public Task HandleCommandMessage(long chatId, string userMessage) =>
         userMessage switch
         {
             BotCommands.StartCommand => HandleErrorMessage(chatId),
@@ -113,7 +113,7 @@ public sealed class UpdateHandler
             _ when userMessage.StartsWith(BotCommands.UnsubscribeCommand) => HandleUnSubscribeMessageAsync(chatId, userMessage),
             _ => Task.CompletedTask
         };
-    
+
 
     /// <summary>
     ///     Handling subscription string results
@@ -302,12 +302,9 @@ public sealed class UpdateHandler
     /// <param name="chatId">User chat id</param>
     /// no troubles with request, false if there was troubleshooting</returns>
     private async Task HandleRussianInvasionInfo(long chatId)
-    {
-        var russianInvasion = (await APIsRequestsHandler.GetResponseFromAPIAsync<RussianInvasion>(APIsLinks.RussianWarshipUrl))!.RussianWarshipInfo;
-
-        await HandleTextMessageAsync(chatId,
-            russianInvasion.ToString());
-    }
+    => await HandleTextMessageAsync(chatId,
+        (await APIsRequestsHandler.GetResponseFromAPIAsync<RussianInvasion>(APIsLinks.RussianWarshipUrl))
+        !.RussianWarshipInfo.ToString());
 
     /// <summary>
     ///     Receiving info about alerts in Ukraine regions
@@ -316,14 +313,12 @@ public sealed class UpdateHandler
     /// <returns>Map with alerts and list of regions to the user</returns>
     private async Task HandleAlertsInfo(long chatId)
     {
-        string messageForUser = $"`Current alerts in Ukraine:\n";
-
         var regions = await APIsRequestsHandler.GetResponseForAlertsCachedAsync();
 
         var bytes = AlarmsMapGenerator.DrawAlertsMap(regions);
 
         await HandlePhotoMessageAsync(chatId, bytes,
-            messageForUser + string.Join("\n",
+            $"`Current alerts in Ukraine:\n" + string.Join("\n",
                 regions.Where(region => region.Value.Enabled)
                 .Select(region => $"🚨 {region.Key.Trim('\'')};")) + "`");
     }

@@ -133,7 +133,7 @@ public static class WeatherHandler
     /// <returns>WeatherResponseForUser</returns>
     public static async Task<WeatherResponseForUser> SendWeatherByUserLocationAsync(Location userLocation)
     {
-        var temperatureInfo = await GetCurrentWeatherByCoordinatesAsync((float)userLocation.Latitude, (float)userLocation.Longitude); ;
+        var temperatureInfo = await GetCurrentWeatherByCoordinatesAsync((float)userLocation.Latitude, (float)userLocation.Longitude);
 
         if (temperatureInfo == null)
         {
