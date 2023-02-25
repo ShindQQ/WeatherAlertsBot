@@ -5,7 +5,7 @@ namespace WeatherAlertsBot.OpenWeatherAPI.Models.WeatherForecast;
 /// <summary>
 ///     Data about temperature for weather forecast
 /// </summary>
-public class WeatherForecastTemperatureData
+public sealed class WeatherForecastTemperatureData
 {
     /// <summary>
     ///     Current weather for selected time

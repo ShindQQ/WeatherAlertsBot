@@ -5,7 +5,7 @@ namespace WeatherAlertsBot.OpenWeatherAPI.Models.WeatherForecast;
 /// <summary>
 ///     Information about type of weather 
 /// </summary>
-public class WeatherForecastCurrentWeather
+public sealed class WeatherForecastCurrentWeather
 {
     /// <summary>
     ///     Type of weather e.g. (sunny, rainy)...

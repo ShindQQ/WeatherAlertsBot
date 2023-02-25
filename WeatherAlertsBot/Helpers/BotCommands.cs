@@ -1,5 +1,8 @@
 ﻿namespace WeatherAlertsBot.Commands;
 
+/// <summary>
+///     Static class with list of available commands
+/// </summary>
 public static class BotCommands
 {
     /// <summary>

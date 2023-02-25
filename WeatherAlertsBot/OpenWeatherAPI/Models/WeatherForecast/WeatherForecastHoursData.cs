@@ -5,7 +5,7 @@ namespace WeatherAlertsBot.OpenWeatherAPI.Models.WeatherForecast;
 /// <summary>
 ///     Weather data for each 3 hours
 /// </summary>
-public class WeatherForecastHoursData
+public sealed class WeatherForecastHoursData
 {
     /// <summary>
     ///     Temperature data for weather forecast
