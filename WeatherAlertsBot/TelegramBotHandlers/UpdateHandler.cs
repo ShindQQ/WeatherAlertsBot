@@ -106,7 +106,8 @@ public sealed class UpdateHandler
             BotCommands.HelpCommand => HandleErrorMessage(chatId),
             _ when userMessage.StartsWith(BotCommands.WeatherForecastCommand) => HandleWeatherForecastMessageAsync(chatId, userMessage),
             _ when userMessage.StartsWith(BotCommands.WeatherCommand) => HandleWeatherMessageAsync(chatId, userMessage),
-            _ when userMessage.StartsWith(BotCommands.AlertsMapCommand) => HandleAlertsInfo(chatId),
+            _ when userMessage.StartsWith(BotCommands.AlertsMapStickerCommand) => HandleAlertsStickerInfo(chatId),
+            _ when userMessage.StartsWith(BotCommands.AlertsMapCommand) => HandleAlertsPhotoInfo(chatId),
             _ when userMessage.StartsWith(BotCommands.AlertsLostCommand) => HandleRussianInvasionInfo(chatId),
             _ when userMessage.StartsWith(BotCommands.GetListOfSubscriptionsCommand) => HandleSubscriptionListInfoAsync(chatId),
             _ when userMessage.StartsWith(BotCommands.SubscribeCommand) => HandleSubscribeMessageAsync(chatId, userMessage),
@@ -311,7 +312,7 @@ public sealed class UpdateHandler
     /// </summary>
     /// <param name="chatId">User chat id</param>
     /// <returns>Map with alerts and list of regions to the user</returns>
-    private async Task HandleAlertsInfo(long chatId)
+    private async Task HandleAlertsPhotoInfo(long chatId)
     {
         var regions = await APIsRequestsHandler.GetResponseForAlertsCachedAsync();
 
@@ -321,6 +322,20 @@ public sealed class UpdateHandler
             $"`Current alerts in Ukraine:\n" + string.Join("\n",
                 regions.Where(region => region.Value.Enabled)
                 .Select(region => $"🚨 {region.Key.Trim('\'')};")) + "`");
+    }
+
+    /// <summary>
+    ///     Receiving info about alerts in Ukraine regions with sticker
+    /// </summary>
+    /// <param name="chatId">User chat id</param>
+    /// <returns>Map with alerts and list of regions to the user</returns>
+    private async Task HandleAlertsStickerInfo(long chatId)
+    {
+        var regions = await APIsRequestsHandler.GetResponseForAlertsCachedAsync();
+
+        var bytes = AlarmsMapGenerator.DrawAlertsMap(regions, false);
+
+        await HandleStickerAsync(chatId, bytes);
     }
 
     /// <summary>
@@ -354,6 +369,24 @@ public sealed class UpdateHandler
         {
             await _botClient.SendTextMessageAsync(chatId, messageForUser,
                 ParseMode.MarkdownV2, cancellationToken: _cancellationTokenSource.Token);
+        }
+        catch (ApiRequestException)
+        {
+        }
+    }
+
+    /// <summary>
+    ///     Handling sending sticker messages because of Telegram.Bot.Exceptions
+    /// </summary>
+    /// <param name="chatId">Id of the chat to send to</param>
+    /// <param name="bytes">Bytes array (photo)</param>
+    /// <returns>Sent text message</returns>
+    private async Task HandleStickerAsync(long chatId, byte[] bytes)
+    {
+        try
+        {
+            await _botClient.SendStickerAsync(chatId, new InputOnlineFile(new MemoryStream(bytes)),
+                cancellationToken: _cancellationTokenSource.Token);
         }
         catch (ApiRequestException)
         {

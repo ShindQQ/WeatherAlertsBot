@@ -31,6 +31,11 @@ public static class BotCommands
     public static readonly string AlertsMapCommand = "/al_map";
 
     /// <summary>
+    ///     String for al_map_stick command
+    /// </summary>
+    public static readonly string AlertsMapStickerCommand = "/al_map_stick";
+
+    /// <summary>
     ///     String for al_lost command
     /// </summary>
     public static readonly string AlertsLostCommand = "/al_lost";
