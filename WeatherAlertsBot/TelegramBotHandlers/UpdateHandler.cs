@@ -316,7 +316,7 @@ public sealed class UpdateHandler
     {
         var regions = await APIsRequestsHandler.GetResponseForAlertsCachedAsync();
 
-        var bytes = AlarmsMapGenerator.DrawAlertsMap(regions);
+        var bytes = AlarmsMapGenerator.DrawAlertsMap(regions, false);
 
         await HandlePhotoMessageAsync(chatId, bytes,
             $"`Current alerts in Ukraine:\n" + string.Join("\n",
@@ -333,7 +333,7 @@ public sealed class UpdateHandler
     {
         var regions = await APIsRequestsHandler.GetResponseForAlertsCachedAsync();
 
-        var bytes = AlarmsMapGenerator.DrawAlertsMap(regions, false);
+        var bytes = AlarmsMapGenerator.DrawAlertsMap(regions);
 
         await HandleStickerAsync(chatId, bytes);
     }

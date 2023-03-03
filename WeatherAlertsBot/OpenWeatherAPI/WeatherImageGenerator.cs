@@ -1,5 +1,5 @@
-using CoreHtmlToImage;
 using WeatherAlertsBot.Helpers;
+using WeatherAlertsBot.HtmlConvertor;
 using WeatherAlertsBot.OpenWeatherAPI.Models.WeatherForecast;
 
 namespace WeatherAlertsBot.OpenWeatherAPI;
@@ -23,7 +23,7 @@ public static class WeatherImageGenerator
         text-align:center;
         position:absolute;top:0px;left:0px">
             <img
-            src = "{APIsLinks.OpenWeatherApiIcons}{currentWeather.IconType}@2x.png" 
+            src="{APIsLinks.OpenWeatherApiIcons}{currentWeather.IconType}@2x.png" 
               >
             <h1 style="font-size:14px;color:white">Weather in {currentWeather.CityName}</h1>
             <h1 style="font-size:14px;color:white">Temperature {currentWeather.Temperature:N2} &degC</h1>
@@ -31,7 +31,7 @@ public static class WeatherImageGenerator
         </div>
         """;
 
-        return new HtmlConverter().FromHtmlString(weatherForecastImage, width: 500);
+        return HtmlConverter.FromHtmlString(weatherForecastImage, width: 500);
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ public static class WeatherImageGenerator
             <div style="display:inline-block;">
                 <div style="height:430px;width:320px;">
                     <img
-                    src =  "{APIsLinks.OpenWeatherApiIcons}{weatherData.WeatherForecastCurrentWeather.First().IconType}@4x.png" 
+                    src="{APIsLinks.OpenWeatherApiIcons}{weatherData.WeatherForecastCurrentWeather.First().IconType}@4x.png" 
                       >
                     <h1 style="font-size:22px;color:white">Weather in {weatherForecast.WeatherForecastCity.CityName}</h1>
                     <h1 style="font-size:22px;color:white">On {weatherData.Date[..^3]}</h1>
@@ -64,6 +64,6 @@ public static class WeatherImageGenerator
             </div>
         """);
 
-        return new HtmlConverter().FromHtmlString(result + "</div>", width: 1300);
+        return HtmlConverter.FromHtmlString(result + "</div>", width: 1300);
     }
 }
