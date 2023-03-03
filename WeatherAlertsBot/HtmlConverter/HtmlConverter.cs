@@ -58,7 +58,6 @@ public static class HtmlConverter
                 RedirectStandardError = true,
                 FileName = "/bin/bash",
                 Arguments = "which wkhtmltoimage"
-
             });
 
             var answer = process?.StandardOutput?.ReadToEnd();
@@ -86,13 +85,15 @@ public static class HtmlConverter
     /// <param name="width">Output document width</param>
     /// <param name="format">Output image format</param>
     /// <param name="quality">Output image quality 1-100</param>
-    /// <returns></returns>
+    /// <returns>Converted html string in byte array</returns>
     public static byte[] FromHtmlString(string html, int width = 1024, ImageFormat format = ImageFormat.Jpg, int quality = 100)
     {
         var filename = Path.Combine(directory, $"{Guid.NewGuid()}.html");
         File.WriteAllText(filename, html);
+
         var bytes = FromUrl(filename, width, format, quality);
         File.Delete(filename);
+
         return bytes;
     }
 
@@ -103,7 +104,7 @@ public static class HtmlConverter
     /// <param name="width">Output document width</param>
     /// <param name="format">Output image format</param>
     /// <param name="quality">Output image quality 1-100</param>
-    /// <returns></returns>
+    /// <returns>Converted url in byte array</returns>
     public static byte[] FromUrl(string url, int width = 1024, ImageFormat format = ImageFormat.Jpg, int quality = 100)
     {
         var imageFormat = format.ToString().ToLower();
@@ -132,6 +133,7 @@ public static class HtmlConverter
         {
             var bytes = File.ReadAllBytes(filename);
             File.Delete(filename);
+
             return bytes;
         }
 
