@@ -14,10 +14,8 @@ public static class AlarmsMapGenerator
     /// <param name="regions">List of regions in Ukraine</param>
     /// <param name="regionName">Name of the region</param>
     /// <returns>True if there is an alarm, false if not</returns>
-    private static string CheckRegionAlarm(Dictionary<string, StateObject> regions, string regionName)
-    {
-        return regions.Any(region => region.Key.Equals(regionName) && region.Value.Enabled) ? "#911e3d" : "";
-    }
+    private static string CheckRegionAlarm(Dictionary<string, StateObject> regions, string regionName) =>
+        regions.Any(region => region.Key.Equals(regionName) && region.Value.Enabled) ? "#911e3d" : "";
 
     /// <summary>
     ///     Generating html string for creating map of alerts
@@ -25,9 +23,7 @@ public static class AlarmsMapGenerator
     /// <param name="regions">List of regions in Ukraine</param>
     /// <param name="isSticker">Is it sticker or not, </param>
     /// <returns>String with generated html for convertation</returns>
-    private static string GenerateAlertsMap(Dictionary<string, StateObject> regions, bool isSticker)
-    {
-        return
+    private static string GenerateAlertsMap(Dictionary<string, StateObject> regions, bool isSticker) =>
        $"""
          <html lang="ua">
             <head>
@@ -99,7 +95,6 @@ public static class AlarmsMapGenerator
         </body>
         </html"">
         """;
-    }
 
     /// <summary>
     ///     Drawing map of alerts in Ukraine
@@ -107,10 +102,6 @@ public static class AlarmsMapGenerator
     /// <param name="regions">Regions of Ukraine</param>
     /// <param name="isSticker">Is it sticker or not, default is true</param>
     /// <returns>Task, sendind user a message with map</returns>
-    public static byte[] DrawAlertsMap(Dictionary<string, StateObject> regions, bool isSticker = true)
-    {
-        var htmlString = GenerateAlertsMap(regions, isSticker);
-
-        return HtmlConverter.FromHtmlString(htmlString, quality: 75, format: ImageFormat.Png);
-    }
+    public static byte[] DrawAlertsMap(Dictionary<string, StateObject> regions, bool isSticker = true) =>
+        HtmlConverter.FromHtmlString(GenerateAlertsMap(regions, isSticker), quality: 75, format: ImageFormat.Png);
 }

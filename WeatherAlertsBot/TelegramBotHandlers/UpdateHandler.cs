@@ -279,31 +279,29 @@ public sealed class UpdateHandler
     /// </summary>
     /// <param name="chatId">User chat id</param>
     /// <returns>Task with error message</returns>
-    private Task HandleErrorMessage(long chatId)
-    {
-        return HandleTextMessageAsync(chatId,
-            $"""
-            Hello\!
-            To receive weather by city name send me: `{BotCommands.WeatherCommand}` \[city\_name\]\!
-            To receive weather forecast by city name send me: `{BotCommands.WeatherForecastCommand}` \[city\_name\]\!
-            Or just send me your location for receiving current weather\!
-            For map of alerts use `{BotCommands.AlertsLostCommand}`\!
-            To see russian losses use `{BotCommands.AlertsMapCommand}`\!
-            For subscribing on `{BotCommands.AlertsLostCommand}` command `{BotCommands.SubscribeOnAlertsLostCommand}`\!
-            For unsubscribing from `{BotCommands.AlertsLostCommand}` command `{BotCommands.UnsubscribeFromAlertsLostCommand}`\!
-            For subscribing on `{BotCommands.WeatherForecastCommand}` command `{BotCommands.SubscribeOnWeatherForecastCommand}` \[city\_name\]\!
-            For unsubscribing from `{BotCommands.WeatherForecastCommand}` command `{BotCommands.UnsubscribeFromWeatherForecastCommand}` \[city\_name\]\!
-            For receiving list of all your subscriptions send me `{BotCommands.GetListOfSubscriptionsCommand}`\!
-            """);
-    }
+    private Task HandleErrorMessage(long chatId) =>
+        HandleTextMessageAsync(chatId,
+        $"""
+        Hello\!
+        To receive weather by city name send me: `{BotCommands.WeatherCommand}` \[city\_name\]\!
+        To receive weather forecast by city name send me: `{BotCommands.WeatherForecastCommand}` \[city\_name\]\!
+        Or just send me your location for receiving current weather\!
+        For map of alerts use `{BotCommands.AlertsLostCommand}`\!
+        To see russian losses use `{BotCommands.AlertsMapCommand}`\!
+        For subscribing on `{BotCommands.AlertsLostCommand}` command `{BotCommands.SubscribeOnAlertsLostCommand}`\!
+        For unsubscribing from `{BotCommands.AlertsLostCommand}` command `{BotCommands.UnsubscribeFromAlertsLostCommand}`\!
+        For subscribing on `{BotCommands.WeatherForecastCommand}` command `{BotCommands.SubscribeOnWeatherForecastCommand}` \[city\_name\]\!
+        For unsubscribing from `{BotCommands.WeatherForecastCommand}` command `{BotCommands.UnsubscribeFromWeatherForecastCommand}` \[city\_name\]\!
+        For receiving list of all your subscriptions send me `{BotCommands.GetListOfSubscriptionsCommand}`\!
+        """);
 
     /// <summary>
     ///     Receiving info about liquidations in russian invasion
     /// </summary>
     /// <param name="chatId">User chat id</param>
     /// no troubles with request, false if there was troubleshooting</returns>
-    private async Task HandleRussianInvasionInfo(long chatId)
-    => await HandleTextMessageAsync(chatId,
+    private async Task HandleRussianInvasionInfo(long chatId) =>
+        await HandleTextMessageAsync(chatId,
         (await APIsRequestsHandler.GetResponseFromAPIAsync<RussianInvasion>(APIsLinks.RussianWarshipUrl))
         !.RussianWarshipInfo.ToString());
 
@@ -316,9 +314,7 @@ public sealed class UpdateHandler
     {
         var regions = await APIsRequestsHandler.GetResponseForAlertsCachedAsync();
 
-        var bytes = AlarmsMapGenerator.DrawAlertsMap(regions, false);
-
-        await HandlePhotoMessageAsync(chatId, bytes,
+        await HandlePhotoMessageAsync(chatId, AlarmsMapGenerator.DrawAlertsMap(regions, false),
             $"`Current alerts in Ukraine:\n" + string.Join("\n",
                 regions.Where(region => region.Value.Enabled)
                 .Select(region => $"🚨 {region.Key.Trim('\'')};")) + "`");
@@ -333,9 +329,7 @@ public sealed class UpdateHandler
     {
         var regions = await APIsRequestsHandler.GetResponseForAlertsCachedAsync();
 
-        var bytes = AlarmsMapGenerator.DrawAlertsMap(regions);
-
-        await HandleStickerAsync(chatId, bytes);
+        await HandleStickerAsync(chatId, AlarmsMapGenerator.DrawAlertsMap(regions));
     }
 
     /// <summary>

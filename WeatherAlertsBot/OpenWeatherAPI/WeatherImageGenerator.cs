@@ -41,7 +41,7 @@ public static class WeatherImageGenerator
     /// <returns>Byte array of the image</returns>
     public static byte[] GenerateWeatherForecastImage(WeatherForecastResult weatherForecast)
     {
-        string result = """
+        var result = """
             <div style="width:1300px;
                 background-image:-webkit-linear-gradient(67deg, #151125 12%, #39278a 88%);
                 text-align:center;
