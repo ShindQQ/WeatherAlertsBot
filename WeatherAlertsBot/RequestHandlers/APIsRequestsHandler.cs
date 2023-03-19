@@ -30,12 +30,12 @@ public sealed class APIsRequestsHandler
     /// <returns>Dictionary where key represents name of the region and value which is data about alerts</returns>
     public static async Task<Dictionary<string, StateObject>> GetResponseForAlertsCachedAsync()
     {
-        var states = (await GetResponseFromAPIAsync<AlarmsStateInfo>(APIsLinks.AlarmsInUkraineInfoUrl))!.States;
+        var states = (await GetResponseFromAPIAsync<AlarmsStateInfo>(APIsLinks.AlarmsInUkraineInfoUrl)).States;
 
         if ((DateTime.UtcNow - LastAlertsRequest).TotalMinutes >= 1)
         {
             LastAlertsRequest = DateTime.UtcNow;
-            LastAlertsValue = states != null ? states : new();
+            LastAlertsValue = states;
         }
 
         return LastAlertsValue;
