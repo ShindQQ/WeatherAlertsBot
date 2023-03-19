@@ -11,6 +11,6 @@ public sealed class AlarmsStateInfo
     ///     States of Ukraine
     /// </summary>
     [JsonPropertyName("states")]
-    public Dictionary<string, StateObject> States { get; set; }
+    public Dictionary<string, StateObject> States { get; set; } = null!;
 }
 

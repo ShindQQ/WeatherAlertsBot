@@ -8,7 +8,7 @@ public static class APIsLinks
     /// <summary>
     ///     Url for receiving list of alarms in Ukraine
     /// </summary>
-    public const string AlarmsInUkraineInfoUrl = "https://vadimklimenko.com/map/statuses.json";
+    public const string AlarmsInUkraineInfoUrl = "https://ubilling.net.ua/aerialalerts/?map";
 
     /// <summary>
     ///     Url for receiving list of enemy looses
