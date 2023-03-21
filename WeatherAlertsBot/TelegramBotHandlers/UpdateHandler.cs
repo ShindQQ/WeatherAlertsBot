@@ -286,8 +286,8 @@ public sealed class UpdateHandler
         To receive weather by city name send me: `{BotCommands.WeatherCommand}` \[city\_name\]\!
         To receive weather forecast by city name send me: `{BotCommands.WeatherForecastCommand}` \[city\_name\]\!
         Or just send me your location for receiving current weather\!
-        For map of alerts use `{BotCommands.AlertsLostCommand}`\!
-        To see russian losses use `{BotCommands.AlertsMapCommand}`\!
+        For map of alerts use `{BotCommands.AlertsMapCommand}`\!
+        To see russian losses use `{BotCommands.AlertsLostCommand}`\!
         For subscribing on `{BotCommands.AlertsLostCommand}` command `{BotCommands.SubscribeOnAlertsLostCommand}`\!
         For unsubscribing from `{BotCommands.AlertsLostCommand}` command `{BotCommands.UnsubscribeFromAlertsLostCommand}`\!
         For subscribing on `{BotCommands.WeatherForecastCommand}` command `{BotCommands.SubscribeOnWeatherForecastCommand}` \[city\_name\]\!
