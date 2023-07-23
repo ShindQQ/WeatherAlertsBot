@@ -57,24 +57,24 @@ public sealed class UpdateHandler
     {
         var userMessage = update.Message;
 
-        if (userMessage != null)
+        if (userMessage is not null)
         {
             var userMessageText = userMessage.Text;
             var chatId = userMessage!.Chat.Id;
 
-            if (userMessageText != null)
+            if (userMessageText is not null)
             {
                 await HandleCommandMessage(chatId, userMessageText);
             }
 
             var userMessageLocation = userMessage.Location;
 
-            if (userMessageLocation != null)
+            if (userMessageLocation is not null)
             {
                 await HandleLocationMessageAsync(chatId, userMessageLocation);
             }
 
-            if (userMessageText == null && userMessageLocation == null)
+            if (userMessageText is null && userMessageLocation is null)
             {
                 await HandleErrorMessage(chatId);
             }
@@ -99,8 +99,8 @@ public sealed class UpdateHandler
     /// <param name="chatId">User chat id</param>
     /// <param name="userMessage">Command sent by user</param>
     /// <returns>Command for user`s request</returns>
-    public Task HandleCommandMessage(long chatId, string userMessage) =>
-        userMessage switch
+    public Task HandleCommandMessage(long chatId, string userMessage)
+        => userMessage switch
         {
             BotCommands.StartCommand => HandleErrorMessage(chatId),
             BotCommands.HelpCommand => HandleErrorMessage(chatId),
@@ -114,7 +114,6 @@ public sealed class UpdateHandler
             _ when userMessage.StartsWith(BotCommands.UnsubscribeCommand) => HandleUnSubscribeMessageAsync(chatId, userMessage),
             _ => Task.CompletedTask
         };
-
 
     /// <summary>
     ///     Handling subscription string results
@@ -142,7 +141,7 @@ public sealed class UpdateHandler
         var subscriber = await _subscriberService.FindSubscriberAsync(chatId);
         var message = "You are not subscribed to any services yet!";
 
-        if (subscriber != null)
+        if (subscriber is not null)
         {
             message = $"Your subscription list:\n" +
                 string.Join("\n", subscriber.Commands.Select(command => $"{command.CommandName}"));

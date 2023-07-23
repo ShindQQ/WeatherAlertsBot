@@ -11,7 +11,7 @@ public sealed class CoordinatesInfo
     ///     Name of the city
     /// </summary>
     [JsonPropertyName("name")]
-    public string CityName { get; set; }
+    public string CityName { get; set; } = string.Empty;
 
     /// <summary>
     ///     Lattitude of the city
@@ -29,11 +29,11 @@ public sealed class CoordinatesInfo
     ///     Country in which city is located
     /// </summary>
     [JsonPropertyName("country")]
-    public string Country { get; set; }
+    public string Country { get; set; } = string.Empty;
 
     /// <summary>
     ///     State in which city is located
     /// </summary>
     [JsonPropertyName("state")]
-    public string State { get; set; }
+    public string State { get; set; } = string.Empty;
 }

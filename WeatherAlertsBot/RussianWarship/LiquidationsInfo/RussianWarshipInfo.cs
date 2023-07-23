@@ -11,7 +11,7 @@ public sealed class RussianWarshipInfo
     ///     Date of update
     /// </summary>
     [JsonPropertyName("date")]
-    public string Date { get; set; }
+    public string Date { get; set; } = string.Empty;
 
     /// <summary>
     ///     Day of the war
@@ -23,13 +23,13 @@ public sealed class RussianWarshipInfo
     ///     Enemies looses info
     /// </summary>
     [JsonPropertyName("stats")]
-    public LiquidatedStats LiquidatedStats { get; set; }
+    public LiquidatedStats LiquidatedStats { get; set; } = null!;
 
     /// <summary>
     ///     Enemies looses change 
     /// </summary>
     [JsonPropertyName("increase")]
-    public LiquidatedStats IncreaseLiquidatedStats { get; set; }
+    public LiquidatedStats IncreaseLiquidatedStats { get; set; } = null!;
 
     /// <summary>
     ///     Generating string with information about enemy losses

@@ -13,13 +13,13 @@ public sealed class WeatherForecastResult
     ///     Data for selected city by hours
     /// </summary>
     [JsonPropertyName("list")]
-    public List<WeatherForecastHoursData> WeatherForecastHoursData { get; set; }
+    public List<WeatherForecastHoursData> WeatherForecastHoursData { get; set; } = new();
 
     /// <summary>
     ///     Name of the specified city
     /// </summary>
     [JsonPropertyName("city")]
-    public WeatherForecastCity WeatherForecastCity { get; set; }
+    public WeatherForecastCity WeatherForecastCity { get; set; } = null!;
 
     /// <summary>
     ///     Error message for user if something went wrong for specified request

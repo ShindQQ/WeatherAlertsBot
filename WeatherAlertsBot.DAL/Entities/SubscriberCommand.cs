@@ -18,10 +18,10 @@ public class SubscriberCommand
     /// <summary>
     ///     Name of the command
     /// </summary>
-    public string CommandName { get; set; }
+    public string CommandName { get; set; } = string.Empty;
 
     /// <summary>
     ///     Users subscribed on this command
     /// </summary>
-    public List<Subscriber> Subsrcibers { get; set; }
+    public List<Subscriber> Subsrcibers { get; set; } = new();
 }

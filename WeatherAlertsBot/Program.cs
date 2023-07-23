@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Quartz;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
@@ -18,15 +19,50 @@ using CancellationTokenSource cancellationTokenSource = new();
 var host = Host.CreateDefaultBuilder(args)
    .ConfigureServices((hostContext, services) =>
    {
-       services.AddHostedService<BotHostedService>();
        services.AddSingleton<ITelegramBotClient>(botClient);
        services.AddScoped<UpdateHandler>();
        services.AddSingleton(cancellationTokenSource);
        services.AddScoped<SubscriberService>().AddDbContext<BotContext>(options =>
             options.UseMySql(hostContext.Configuration.GetConnectionString("DbConnection"),
             new MySqlServerVersion(new Version(8, 0, 30))));
-   }).Build();
 
+       services.Configure<QuartzOptions>(options =>
+       {
+           options.Scheduling.IgnoreDuplicates = true;
+           options.Scheduling.OverWriteExistingData = true;
+       });
+
+       services.AddQuartz(q =>
+       {
+           q.SchedulerId = "Bot-Id";
+
+           q.UseSimpleTypeLoader();
+           q.UseInMemoryStore();
+           q.UseDefaultThreadPool(tp =>
+           {
+               tp.MaxConcurrency = 10;
+           });
+
+           var jobKey = new JobKey("notify job", "notify group");
+
+           q.UseMicrosoftDependencyInjectionJobFactory();
+
+           q.AddJob<NotifySubscribersJob>(j => j
+               .StoreDurably()
+               .WithIdentity(jobKey)
+           );
+
+           q.AddTrigger(t => t
+               .ForJob(jobKey)
+               .WithCronSchedule("0 0 0 1/1 * ? *")
+               .StartAt(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 23, 59, 59))
+           );
+       });
+       services.AddQuartzHostedService(options =>
+       {
+           options.WaitForJobsToComplete = true;
+       });
+   }).Build();
 
 botClient.StartReceiving(
     HandleUpdateAsync,

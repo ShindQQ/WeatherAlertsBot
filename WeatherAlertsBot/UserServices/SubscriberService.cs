@@ -38,12 +38,17 @@ public class SubscriberService
 
         var foundSubscriber = await FindSubscriberAsync(subscriber.ChatId);
 
-        if (foundSubscriber != null)
+        if (foundSubscriber is not null)
         {
             return await AddCommandToSubscriberAsync(foundSubscriber, commandName);
         }
 
-        subscriber.Commands.Add(await FindCommandAsync(subscriberCommandDto));
+        var command = await FindCommandAsync(subscriberCommandDto);
+
+        if (command is null)
+            return 0;
+
+        subscriber.Commands.Add(command);
         await _botContext.Subscribers.AddAsync(subscriber);
 
         return await _botContext.SaveChangesAsync();
@@ -61,9 +66,14 @@ public class SubscriberService
 
         var foundSubscriberCommand = FindSubscriberCommand(subscriber, commandName);
 
-        if (foundSubscriberCommand == null)
+        if (foundSubscriberCommand is null)
         {
-            subscriber.Commands.Add(await FindCommandAsync(new SubscriberCommandDto { CommandName = commandName }));
+            var command = await FindCommandAsync(new SubscriberCommandDto { CommandName = commandName });
+
+            if (command is null)
+                return 0;
+
+            subscriber.Commands.Add(command);
         }
 
         return await _botContext.SaveChangesAsync();
@@ -79,14 +89,14 @@ public class SubscriberService
     {
         var foundSubscriber = await FindSubscriberAsync(subscriberChatId);
 
-        if (foundSubscriber == null)
+        if (foundSubscriber is null)
         {
             return 0;
         }
 
         var foundSubscriberCommand = FindSubscriberCommand(foundSubscriber, commandName);
 
-        if (foundSubscriberCommand == null)
+        if (foundSubscriberCommand is null)
         {
             return 0;
         }
@@ -240,6 +250,6 @@ public class SubscriberService
          await _botContext.SubscriberCommands
             .Where(command => !subscriberCommand.Id.HasValue || command.Id == subscriberCommand.Id)
             .Where(command => string.IsNullOrEmpty(subscriberCommand.CommandName) ||
-            command.CommandName.Equals(subscriberCommand.CommandName))
+                command.CommandName.Equals(subscriberCommand.CommandName))
             .FirstOrDefaultAsync();
 }

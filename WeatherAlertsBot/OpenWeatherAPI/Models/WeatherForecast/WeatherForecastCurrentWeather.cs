@@ -11,11 +11,11 @@ public sealed class WeatherForecastCurrentWeather
     ///     Type of weather e.g. (sunny, rainy)...
     /// </summary>
     [JsonPropertyName("main")]
-    public string TypeOfWeather { get; set; }
+    public string TypeOfWeather { get; set; } = string.Empty;
 
     /// <summary>
     ///     Type of received icon for weather
     /// </summary>
     [JsonPropertyName("icon")]
-    public string IconType { get; set; }
+    public string IconType { get; set; } = string.Empty;
 }

@@ -11,5 +11,5 @@ public sealed class RussianInvasion
     ///     Data about enemies looses
     /// </summary>
     [JsonPropertyName("data")]
-    public RussianWarshipInfo RussianWarshipInfo { get; set; }
+    public RussianWarshipInfo RussianWarshipInfo { get; set; } = null!;
 }

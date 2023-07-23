@@ -11,5 +11,5 @@ public sealed class WeatherForecastCity
     ///     Name of the city
     /// </summary>
     [JsonPropertyName("name")]
-    public string CityName { get; set; }
+    public string CityName { get; set; } = string.Empty;
 }

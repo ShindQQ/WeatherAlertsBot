@@ -11,17 +11,17 @@ public sealed class WeatherResult
     ///     List(?) of weather by coordinates
     /// </summary>
     [JsonPropertyName("weather")]
-    public List<WeatherInfo> WeatherInfo { get; set; }
+    public List<WeatherInfo> WeatherInfo { get; set; } = new();
 
     /// <summary>
     ///     Current temperature by coordinates
     /// </summary>
     [JsonPropertyName("main")]
-    public TemperatureInfo TemperatureInfo { get; set; }
+    public TemperatureInfo TemperatureInfo { get; set; } = null!;
 
     /// <summary>
     ///     Name of the location
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 }

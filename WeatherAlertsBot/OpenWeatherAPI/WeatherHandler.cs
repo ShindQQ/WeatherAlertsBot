@@ -69,7 +69,7 @@ public static class WeatherHandler
 
         var coordinatesInfo = await GetLattitudeAndLongitudeByCityNameAsync(splittedUserMessage[1]);
 
-        if (coordinatesInfo == null || !coordinatesInfo.Any())
+        if (coordinatesInfo is null || !coordinatesInfo.Any())
         {
             return null;
         }
@@ -86,7 +86,7 @@ public static class WeatherHandler
     {
         var coordinatesInfo = await GetUserCoordinatesAsync(userMessage);
 
-        if (coordinatesInfo == null)
+        if (coordinatesInfo is null)
         {
             return new WeatherResponseForUser { ErrorMessage = "Check correctness of your input!" };
         }
@@ -114,7 +114,7 @@ public static class WeatherHandler
     {
         var coordinatesInfo = await GetUserCoordinatesAsync(userMessage);
 
-        if (coordinatesInfo == null)
+        if (coordinatesInfo is null)
         {
             return new WeatherForecastResult { ErrorMessage = "No data was found for your request!" };
         }
@@ -135,7 +135,7 @@ public static class WeatherHandler
     {
         var temperatureInfo = await GetCurrentWeatherByCoordinatesAsync((float)userLocation.Latitude, (float)userLocation.Longitude);
 
-        if (temperatureInfo == null)
+        if (temperatureInfo is null)
         {
             return new WeatherResponseForUser { ErrorMessage = "No data was found for your request!" };
         }

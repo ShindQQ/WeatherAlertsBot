@@ -11,13 +11,13 @@ public sealed class WeatherForecastHoursData
     ///     Temperature data for weather forecast
     /// </summary>
     [JsonPropertyName("main")]
-    public WeatherForecastTemperatureData WeatherForecastTemperatureData { get; set; }
+    public WeatherForecastTemperatureData WeatherForecastTemperatureData { get; set; } = null!;
 
     /// <summary>
     ///     Current weather for selected time
     /// </summary>
     [JsonPropertyName("weather")]
-    public List<WeatherForecastCurrentWeather> WeatherForecastCurrentWeather { get; set; }
+    public List<WeatherForecastCurrentWeather> WeatherForecastCurrentWeather { get; set; } = new();
 
     /// <summary>
     ///     Probability of precipitation for selected time
@@ -29,5 +29,5 @@ public sealed class WeatherForecastHoursData
     ///     Time of selected request
     /// </summary>
     [JsonPropertyName("dt_txt")]
-    public string Date { get; set; }
+    public string Date { get; set; } = string.Empty;
 }

@@ -34,7 +34,7 @@ public sealed class APIsRequestsHandler
         if ((datetime - LastAlertsRequest).TotalMinutes >= 1)
         {
             LastAlertsRequest = DateTime.UtcNow;
-            LastAlertsValue = (await GetResponseFromAPIAsync<AlarmsStateInfo>(APIsLinks.AlarmsInUkraineInfoUrl 
+            LastAlertsValue = (await GetResponseFromAPIAsync<AlarmsStateInfo>(APIsLinks.AlarmsInUkraineInfoUrl
                 + $"&dt{datetime.Day}{datetime.Month}{datetime.Year}"))!.States;
         }
 
