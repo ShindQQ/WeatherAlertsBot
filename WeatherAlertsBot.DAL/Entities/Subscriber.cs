@@ -6,7 +6,7 @@ namespace WeatherAlertsBot.DAL.Entities;
 /// <summary>
 ///     Subscriber on the user
 /// </summary>
-public class Subscriber
+public sealed class Subscriber
 {
     /// <summary>
     ///     Id of the chat for the user

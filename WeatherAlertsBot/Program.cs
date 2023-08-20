@@ -20,9 +20,9 @@ var host = Host.CreateDefaultBuilder(args)
    .ConfigureServices((hostContext, services) =>
    {
        services.AddSingleton<ITelegramBotClient>(botClient);
-       services.AddScoped<UpdateHandler>();
+       services.AddScoped<IUpdateHandler, UpdateHandler>();
        services.AddSingleton(cancellationTokenSource);
-       services.AddScoped<SubscriberService>().AddDbContext<BotContext>(options =>
+       services.AddScoped<ISubscriberRepository, SubscriberRepository>().AddDbContext<BotContext>(options =>
             options.UseMySql(hostContext.Configuration.GetConnectionString("DbConnection"),
             new MySqlServerVersion(new Version(8, 0, 30))));
 
@@ -55,7 +55,7 @@ var host = Host.CreateDefaultBuilder(args)
            q.AddTrigger(t => t
                .ForJob(jobKey)
                .WithCronSchedule("0 0 0 1/1 * ? *")
-               .StartAt(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 23, 59, 59))
+               .StartAt(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 20, 59, 59))
            );
        });
        services.AddQuartzHostedService(options =>
@@ -80,7 +80,7 @@ cancellationTokenSource.Cancel();
 
 async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
 {
-    var updateHandler = host.Services.GetRequiredService<UpdateHandler>();
+    var updateHandler = host.Services.GetRequiredService<IUpdateHandler>();
 
     await updateHandler.HandleMessageAsync(update);
 }

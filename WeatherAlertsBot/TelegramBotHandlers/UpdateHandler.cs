@@ -17,7 +17,7 @@ namespace WeatherAlertsBot.TelegramBotHandlers;
 /// <summary>
 ///     Telegram Bot Update Handler
 /// </summary>
-public sealed class UpdateHandler
+public sealed class UpdateHandler : IUpdateHandler
 {
     /// <summary>
     ///     A client interface to use Telegram Bot API
@@ -32,7 +32,7 @@ public sealed class UpdateHandler
     /// <summary>
     ///     Subscriber survice to work with db
     /// </summary>
-    private readonly SubscriberService _subscriberService;
+    private readonly ISubscriberRepository _subscriberRepository;
 
     /// <summary>
     ///     Constructor
@@ -40,11 +40,13 @@ public sealed class UpdateHandler
     /// <param name="telegramBotClient">A client interface to use Telegram Bot API</param>
     /// <param name="subscriberService">Service for work with db context</param>
     /// <param name="cancellationTokenSource">Cancellation Token Source</param>
-    public UpdateHandler(ITelegramBotClient telegramBotClient, SubscriberService subscriberService,
+    public UpdateHandler(
+        ITelegramBotClient telegramBotClient,
+        ISubscriberRepository subscriberRepository,
         CancellationTokenSource cancellationTokenSource)
     {
         _botClient = telegramBotClient;
-        _subscriberService = subscriberService;
+        _subscriberRepository = subscriberRepository;
         _cancellationTokenSource = cancellationTokenSource;
     }
 
@@ -57,28 +59,22 @@ public sealed class UpdateHandler
     {
         var userMessage = update.Message;
 
-        if (userMessage is not null)
-        {
-            var userMessageText = userMessage.Text;
-            var chatId = userMessage!.Chat.Id;
+        if (userMessage is null)
+            return;
 
-            if (userMessageText is not null)
-            {
-                await HandleCommandMessage(chatId, userMessageText);
-            }
+        var userMessageText = userMessage.Text;
+        var chatId = userMessage.Chat.Id;
 
-            var userMessageLocation = userMessage.Location;
+        if (userMessageText is not null)
+            await HandleCommandMessage(chatId, userMessageText);
 
-            if (userMessageLocation is not null)
-            {
-                await HandleLocationMessageAsync(chatId, userMessageLocation);
-            }
+        var userMessageLocation = userMessage.Location;
 
-            if (userMessageText is null && userMessageLocation is null)
-            {
-                await HandleErrorMessage(chatId);
-            }
-        }
+        if (userMessageLocation is not null)
+            await HandleLocationMessageAsync(chatId, userMessageLocation);
+
+        if (userMessageText is null && userMessageLocation is null)
+            await HandleErrorMessage(chatId);
     }
 
     /// <summary>
@@ -87,7 +83,7 @@ public sealed class UpdateHandler
     /// <returns>Task</returns>
     public async Task HandleSubscribersNotificationsAsync()
     {
-        var subscribers = await _subscriberService.GetSubscribersAsync();
+        var subscribers = await _subscriberRepository.GetSubscribersAsync();
 
         subscribers.ForEach(subscriber => subscriber.Commands
             .ForEach(async command => await HandleCommandMessage(subscriber.ChatId, command.CommandName)));
@@ -138,7 +134,7 @@ public sealed class UpdateHandler
     /// <returns>List of user`s commands</returns>
     private async Task HandleSubscriptionListInfoAsync(long chatId)
     {
-        var subscriber = await _subscriberService.FindSubscriberAsync(chatId);
+        var subscriber = await _subscriberRepository.FindSubscriberAsync(chatId);
         var message = "You are not subscribed to any services yet!";
 
         if (subscriber is not null)
@@ -168,7 +164,7 @@ public sealed class UpdateHandler
 
         await HandleTextMessageAsync(chatId,
             $"`{GenerateMessageForSubscriptionResult(
-            await _subscriberService.AddSubscriberAsync(new Subscriber { ChatId = chatId }, command))}`");
+            await _subscriberRepository.AddSubscriberAsync(new Subscriber { ChatId = chatId }, command))}`");
     }
 
     /// <summary>
@@ -189,7 +185,7 @@ public sealed class UpdateHandler
 
         await HandleTextMessageAsync(chatId,
             $"`{GenerateMessageForSubscriptionResult(
-            await _subscriberService.RemoveCommandFromSubscriberAsync(chatId, command))}`");
+            await _subscriberRepository.RemoveCommandFromSubscriberAsync(chatId, command))}`");
     }
 
     /// <summary>
@@ -214,7 +210,6 @@ public sealed class UpdateHandler
         if (!string.IsNullOrEmpty(errorMessage))
         {
             await HandleTextMessageAsync(chatId, $"`{errorMessage}`");
-
             return;
         }
 
@@ -292,6 +287,7 @@ public sealed class UpdateHandler
         For subscribing on `{BotCommands.WeatherForecastCommand}` command `{BotCommands.SubscribeOnWeatherForecastCommand}` \[city\_name\]\!
         For unsubscribing from `{BotCommands.WeatherForecastCommand}` command `{BotCommands.UnsubscribeFromWeatherForecastCommand}` \[city\_name\]\!
         For receiving list of all your subscriptions send me `{BotCommands.GetListOfSubscriptionsCommand}`\!
+        My GitHub: `https://github.com/ShindQQ/WeatherAlertsBot`
         """);
 
     /// <summary>

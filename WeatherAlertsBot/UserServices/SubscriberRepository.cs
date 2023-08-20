@@ -8,7 +8,7 @@ namespace WeatherAlertsBot.UserServices;
 /// <summary>
 ///     Service for working with subscribers db
 /// </summary>
-public class SubscriberService
+public sealed class SubscriberRepository : ISubscriberRepository
 {
     /// <summary>
     ///     EF Core DB context
@@ -19,7 +19,7 @@ public class SubscriberService
     ///     Constructor for di
     /// </summary>
     /// <param name="botContext">Bot db context</param>
-    public SubscriberService(BotContext botContext)
+    public SubscriberRepository(BotContext botContext)
     {
         _botContext = botContext;
     }
@@ -39,9 +39,7 @@ public class SubscriberService
         var foundSubscriber = await FindSubscriberAsync(subscriber.ChatId);
 
         if (foundSubscriber is not null)
-        {
             return await AddCommandToSubscriberAsync(foundSubscriber, commandName);
-        }
 
         var command = await FindCommandAsync(subscriberCommandDto);
 
@@ -90,16 +88,12 @@ public class SubscriberService
         var foundSubscriber = await FindSubscriberAsync(subscriberChatId);
 
         if (foundSubscriber is null)
-        {
             return 0;
-        }
 
         var foundSubscriberCommand = FindSubscriberCommand(foundSubscriber, commandName);
 
         if (foundSubscriberCommand is null)
-        {
             return 0;
-        }
 
         foundSubscriber.Commands.Remove(foundSubscriberCommand);
 
@@ -107,49 +101,11 @@ public class SubscriberService
     }
 
     /// <summary>
-    ///     Removing subscriber entity
-    /// </summary>
-    /// <param name="subscriber">Subscriber which will be removed</param>
-    /// <returns>Ammount of removed entities</returns>
-    public async ValueTask<int> RemoveSubscriberAsync(Subscriber subscriber)
-    {
-        if (!await IsSubscriberExistAsync(subscriber.ChatId))
-        {
-            return 0;
-        }
-
-        _botContext.Subscribers.Remove(subscriber);
-
-
-        return await _botContext.SaveChangesAsync();
-    }
-
-    /// <summary>
-    ///     Updating subscriber
-    /// </summary>
-    /// <param name="subscriber">Subscriber for update</param>
-    /// <returns>Updated subscriber</returns>
-    public async Task<Subscriber?> UpdateSubscriberAsync(Subscriber subscriber)
-    {
-        if (!await IsSubscriberExistAsync(subscriber.ChatId))
-        {
-            return null;
-        }
-
-        _botContext.Subscribers.Update(subscriber);
-        await _botContext.SaveChangesAsync();
-
-        return await FindSubscriberAsync(subscriber.ChatId);
-    }
-
-    /// <summary>
     ///     Receiving list of subscribers
     /// </summary>
     /// <returns>List of subscribers</returns>
-    public async Task<List<Subscriber>> GetSubscribersAsync()
-    {
-        return await _botContext.Subscribers.Include(subscriber => subscriber.Commands).ToListAsync();
-    }
+    public async Task<List<Subscriber>> GetSubscribersAsync() =>
+        await _botContext.Subscribers.Include(subscriber => subscriber.Commands).ToListAsync();
 
     /// <summary>
     ///     Adding command
@@ -159,57 +115,12 @@ public class SubscriberService
     public async ValueTask<int> AddCommandAsync(SubscriberCommand command)
     {
         if (await IsCommandExistAsync(new SubscriberCommandDto { CommandName = command.CommandName }))
-        {
             return 0;
-        }
 
         await _botContext.SubscriberCommands.AddAsync(command);
 
         return await _botContext.SaveChangesAsync();
     }
-
-    /// <summary>
-    ///     Removing command entity
-    /// </summary>
-    /// <param name="command">Command which will be removed</param>
-    /// <returns>Ammount of removed entities</returns>
-    public async ValueTask<int> RemoveCommandAsync(SubscriberCommand command)
-    {
-        if (!await IsCommandExistAsync(new SubscriberCommandDto { CommandName = command.CommandName }))
-        {
-            return 0;
-        }
-
-        _botContext.SubscriberCommands.Remove(command);
-
-        return await _botContext.SaveChangesAsync();
-    }
-
-    /// <summary>
-    ///     Updating command
-    /// </summary>
-    /// <param name="command">Command for update</param>
-    /// <returns>Updated command</returns>
-    public async Task<SubscriberCommand?> UpdateCommandAsync(SubscriberCommand command)
-    {
-        if (!await IsCommandExistAsync(new SubscriberCommandDto { CommandName = command.CommandName }))
-        {
-            return null;
-        }
-
-        _botContext.SubscriberCommands.Update(command);
-        await _botContext.SaveChangesAsync();
-
-        return await FindCommandAsync(new SubscriberCommandDto { Id = command.Id, CommandName = command.CommandName });
-    }
-
-    /// <summary>
-    ///     Checking if subscriber exists
-    /// </summary>
-    /// <param name="subscriberChatId">Id of the subscriber chat</param>
-    /// <returns>True if subscriber exists, false if not</returns>
-    public async ValueTask<bool> IsSubscriberExistAsync(long subscriberChatId) =>
-        await _botContext.Subscribers.AnyAsync(subscriber => subscriber.ChatId == subscriberChatId);
 
     /// <summary>
     ///     Finding if subscriber
@@ -234,7 +145,7 @@ public class SubscriberService
     /// </summary>
     /// <param name="subscriberCommand">Subscriber command for looking for</param>
     /// <returns>True if command exists, false if not</returns>
-    public async Task<bool> IsCommandExistAsync(SubscriberCommandDto subscriberCommand) =>
+    public async ValueTask<bool> IsCommandExistAsync(SubscriberCommandDto subscriberCommand) =>
         await _botContext.SubscriberCommands
              .Where(command => !subscriberCommand.Id.HasValue || command.Id == subscriberCommand.Id)
              .Where(command => string.IsNullOrEmpty(subscriberCommand.CommandName) ||
