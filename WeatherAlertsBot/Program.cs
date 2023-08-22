@@ -55,7 +55,7 @@ var host = Host.CreateDefaultBuilder(args)
            q.AddTrigger(t => t
                .ForJob(jobKey)
                .WithCronSchedule("0 0 0 1/1 * ? *")
-               .StartAt(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 20, 59, 59))
+               .StartAt(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 21, 59, 59))
            );
        });
        services.AddQuartzHostedService(options =>

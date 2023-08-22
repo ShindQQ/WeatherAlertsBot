@@ -11,13 +11,13 @@ public sealed class NotifySubscribersJob : IJob
     /// <summary>
     ///     Handler for sending messages to users
     /// </summary>
-    private readonly UpdateHandler _updateHandler;
+    private readonly IUpdateHandler _updateHandler;
 
     /// <summary>
     ///     Constructor for di
     /// </summary>
     /// <param name="updateHandler">Handler of messages</param>
-    public NotifySubscribersJob(UpdateHandler updateHandler)
+    public NotifySubscribersJob(IUpdateHandler updateHandler)
     {
         _updateHandler = updateHandler;
     }

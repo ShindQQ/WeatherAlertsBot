@@ -13,4 +13,10 @@ public interface IUpdateHandler
     /// <param name="update">Variable for handling user chat info and messages</param>
     /// <returns>Task</returns>
     Task HandleMessageAsync(Update update);
+
+    /// <summary>
+    ///     Handling sending notifications to users
+    /// </summary>
+    /// <returns>Task</returns>
+    Task HandleSubscribersNotificationsAsync();
 }
