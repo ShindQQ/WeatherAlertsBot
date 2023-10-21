@@ -3,7 +3,7 @@
 namespace WeatherAlertsBot.RussianWarship.AlarmsInfo;
 
 /// <summary>
-///     Alarms in Ukraien data
+///     Alarms in Ukraine data
 /// </summary>
 public sealed class AlarmsStateInfo
 {

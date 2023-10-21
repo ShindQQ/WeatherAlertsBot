@@ -4,7 +4,7 @@ using WeatherAlertsBot.TelegramBotHandlers;
 namespace WeatherAlertsBot.BackgroundServices;
 
 /// <summary>
-///     Backgorund job for sending notifications to subscribed users
+///     Background job for sending notifications to subscribed users
 /// </summary>
 public sealed class NotifySubscribersJob : IJob
 {

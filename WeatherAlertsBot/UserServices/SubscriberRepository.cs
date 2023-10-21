@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WeatherAlertsBot.DAL.Context;
+using WeatherAlertsBot.DAL.Contexts;
 using WeatherAlertsBot.DAL.Entities;
 using WeatherAlertsBot.UserServices.Models;
 
@@ -29,7 +29,7 @@ public sealed class SubscriberRepository : ISubscriberRepository
     /// </summary>
     /// <param name="subscriber">Subscriber which will be added</param>
     /// <param name="commandName">Command name which will be added</param>
-    /// <returns>Ammount of added entities</returns>
+    /// <returns>Amount of added entities</returns>
     public async ValueTask<int> AddSubscriberAsync(Subscriber subscriber, string commandName)
     {
         var subscriberCommandDto = new SubscriberCommandDto { CommandName = commandName };
@@ -55,10 +55,10 @@ public sealed class SubscriberRepository : ISubscriberRepository
     /// <summary>
     ///     Adding command for subscriber
     /// </summary>
-    /// <param name="subscriber">Subsriber for adding</param>
+    /// <param name="subscriber">Subscriber for adding</param>
     /// <param name="commandName">Command name which will be added</param>
-    /// <returns>Ammount of added entities</returns>
-    public async ValueTask<int> AddCommandToSubscriberAsync(Subscriber subscriber, string commandName)
+    /// <returns>Amount of added entities</returns>
+    private async ValueTask<int> AddCommandToSubscriberAsync(Subscriber subscriber, string commandName)
     {
         await AddCommandAsync(new SubscriberCommand { CommandName = commandName });
 
@@ -80,9 +80,9 @@ public sealed class SubscriberRepository : ISubscriberRepository
     /// <summary>
     ///     Removing command for subscriber
     /// </summary>
-    /// <param name="subscriberChatId">Id of the subsriber chat</param>
+    /// <param name="subscriberChatId">Id of the subscriber chat</param>
     /// <param name="commandName">Command name which will be removed</param>
-    /// <returns>Ammount of removed entities</returns>
+    /// <returns>Amount of removed entities</returns>
     public async ValueTask<int> RemoveCommandFromSubscriberAsync(long subscriberChatId, string commandName)
     {
         var foundSubscriber = await FindSubscriberAsync(subscriberChatId);
@@ -111,8 +111,8 @@ public sealed class SubscriberRepository : ISubscriberRepository
     ///     Adding command
     /// </summary>
     /// <param name="command">Command which will be added</param>
-    /// <returns>Ammount of added entities</returns>
-    public async ValueTask<int> AddCommandAsync(SubscriberCommand command)
+    /// <returns>Amount of added entities</returns>
+    private async ValueTask<int> AddCommandAsync(SubscriberCommand command)
     {
         if (await IsCommandExistAsync(new SubscriberCommandDto { CommandName = command.CommandName }))
             return 0;
@@ -126,7 +126,7 @@ public sealed class SubscriberRepository : ISubscriberRepository
     ///     Finding if subscriber
     /// </summary>
     /// <param name="subscriberChatId">Id of the subscriber chat</param>
-    /// <returns>Found subsriber</returns>
+    /// <returns>Found subscriber</returns>
     public async Task<Subscriber?> FindSubscriberAsync(long subscriberChatId) =>
         await _botContext.Subscribers.Include(subscriber => subscriber.Commands)
             .FirstOrDefaultAsync(subscriber => subscriber.ChatId == subscriberChatId);
@@ -145,7 +145,7 @@ public sealed class SubscriberRepository : ISubscriberRepository
     /// </summary>
     /// <param name="subscriberCommand">Subscriber command for looking for</param>
     /// <returns>True if command exists, false if not</returns>
-    public async ValueTask<bool> IsCommandExistAsync(SubscriberCommandDto subscriberCommand) =>
+    private async ValueTask<bool> IsCommandExistAsync(SubscriberCommandDto subscriberCommand) =>
         await _botContext.SubscriberCommands
              .Where(command => !subscriberCommand.Id.HasValue || command.Id == subscriberCommand.Id)
              .Where(command => string.IsNullOrEmpty(subscriberCommand.CommandName) ||
@@ -157,7 +157,7 @@ public sealed class SubscriberRepository : ISubscriberRepository
     /// </summary>
     /// <param name="subscriberCommand">Subscriber command for looking for</param>
     /// <returns>Found subscriber command</returns>
-    public async Task<SubscriberCommand?> FindCommandAsync(SubscriberCommandDto subscriberCommand) =>
+    private async Task<SubscriberCommand?> FindCommandAsync(SubscriberCommandDto subscriberCommand) =>
          await _botContext.SubscriberCommands
             .Where(command => !subscriberCommand.Id.HasValue || command.Id == subscriberCommand.Id)
             .Where(command => string.IsNullOrEmpty(subscriberCommand.CommandName) ||

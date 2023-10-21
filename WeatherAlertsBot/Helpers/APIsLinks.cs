@@ -3,7 +3,7 @@
 /// <summary>
 ///     Static class for links on different API`s which will be used further
 /// </summary>
-public static class APIsLinks
+public static class ApIsLinks
 {
     /// <summary>
     ///     Url for receiving list of alarms in Ukraine

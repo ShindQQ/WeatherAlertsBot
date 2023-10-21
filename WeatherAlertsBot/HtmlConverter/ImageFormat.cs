@@ -1,4 +1,4 @@
-﻿namespace WeatherAlertsBot.HtmlConvertor;
+﻿namespace WeatherAlertsBot.HtmlConverter;
 
 /// <summary>
 ///     Image jpg and png enum

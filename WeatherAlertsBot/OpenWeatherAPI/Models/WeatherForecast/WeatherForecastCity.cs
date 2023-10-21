@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WeatherAlertsBot.OpenWeatherAPI.Models.WeatherForecast;
+namespace WeatherAlertsBot.OpenWeatherApi.Models.WeatherForecast;
 
 /// <summary>
 ///     City info for weather forecast result

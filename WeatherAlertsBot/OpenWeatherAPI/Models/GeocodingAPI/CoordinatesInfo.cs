@@ -1,9 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WeatherAlertsBot.OpenWeatherAPI.Models.GeocodingAPI;
+namespace WeatherAlertsBot.OpenWeatherApi.Models.GeoCodingAPI;
 
 /// <summary>
-///     Class which represents response from Geocoding API
+///     Class which represents response from GeoCoding API
 /// </summary>
 public sealed class CoordinatesInfo
 {
@@ -14,10 +14,10 @@ public sealed class CoordinatesInfo
     public string CityName { get; set; } = string.Empty;
 
     /// <summary>
-    ///     Lattitude of the city
+    ///     Latitude of the city
     /// </summary>
     [JsonPropertyName("lat")]
-    public float Lattitude { get; set; }
+    public float Latitude { get; set; }
 
     /// <summary>
     ///     Longitude of the city

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 
-namespace WeatherAlertsBot.OpenWeatherAPI.Models.WeatherForecast;
+namespace WeatherAlertsBot.OpenWeatherApi.Models.WeatherForecast;
 
 /// <summary>
 ///     Class to represent weather forecast 

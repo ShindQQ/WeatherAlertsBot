@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WeatherAlertsBot.DAL.Entities;
 
-namespace WeatherAlertsBot.DAL.Context;
+namespace WeatherAlertsBot.DAL.Contexts;
 
 /// <summary>
 ///     Db context for MySQL

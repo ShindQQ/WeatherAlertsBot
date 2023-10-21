@@ -5,12 +5,14 @@ using Microsoft.Extensions.Hosting;
 using Quartz;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
+using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using WeatherAlertsBot.BackgroundServices;
 using WeatherAlertsBot.Configuration;
-using WeatherAlertsBot.DAL.Context;
+using WeatherAlertsBot.DAL.Contexts;
 using WeatherAlertsBot.TelegramBotHandlers;
 using WeatherAlertsBot.UserServices;
+using IUpdateHandler = WeatherAlertsBot.TelegramBotHandlers.IUpdateHandler;
 
 var botClient = new TelegramBotClient(BotConfiguration.BotAccessToken);
 
@@ -67,7 +69,7 @@ var host = Host.CreateDefaultBuilder(args)
 botClient.StartReceiving(
     HandleUpdateAsync,
     HandlePollingErrorAsync,
-    new(),
+    new ReceiverOptions(),
     cancellationTokenSource.Token
     );
 
@@ -77,6 +79,7 @@ await host.RunAsync();
 await Task.Delay(-1);
 
 cancellationTokenSource.Cancel();
+return;
 
 async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
 {
@@ -87,13 +90,13 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
 
 async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
 {
-    var ErrorMessage = exception switch
+    var errorMessage = exception switch
     {
         ApiRequestException apiRequestException
             => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
         _ => exception.ToString()
     };
 
-    Console.WriteLine(ErrorMessage);
+    Console.WriteLine(errorMessage);
     await Task.CompletedTask;
 }

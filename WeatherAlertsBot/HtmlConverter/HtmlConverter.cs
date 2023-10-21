@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace WeatherAlertsBot.HtmlConvertor;
+namespace WeatherAlertsBot.HtmlConverter;
 
 /// <summary>
 /// Html Converter. Converts HTML string and URLs to image bytes
@@ -12,40 +12,40 @@ public static class HtmlConverter
     /// <summary>
     ///     Tool file name
     /// </summary>
-    private const string toolFilename = "wkhtmltoimage";
+    private const string ToolFilename = "wkhtmltoimage";
 
     /// <summary>
-    ///     Tool directory
+    ///     Tool Directory
     /// </summary>
-    private static readonly string directory;
+    private static readonly string Directory;
 
     /// <summary>
     ///  Tool`s path to file
     /// </summary>
-    private static readonly string toolFilepath;
+    private static readonly string ToolFilepath;
 
     /// <summary>
     ///     Static constructor
     /// </summary>
-    /// <exception cref="Exception">OSX is not impelemented</exception>
+    /// <exception cref="Exception">OSX is not implemented</exception>
     static HtmlConverter()
     {
-        directory = AppContext.BaseDirectory;
+        Directory = AppContext.BaseDirectory;
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            toolFilepath = Path.Combine(directory, toolFilename + ".exe");
+            ToolFilepath = Path.Combine(Directory, ToolFilename + ".exe");
 
-            if (!File.Exists(toolFilepath))
-            {
-                var assembly = typeof(HtmlConverter).GetTypeInfo().Assembly;
-                var type = typeof(HtmlConverter);
-                var ns = type.Namespace;
+            if (File.Exists(ToolFilepath)) 
+                return;
 
-                using var resourceStream = assembly.GetManifestResourceStream($"{ns}.{toolFilename}.exe");
-                using var fileStream = File.OpenWrite(toolFilepath);
-                resourceStream?.CopyTo(fileStream);
-            }
+            var assembly = typeof(HtmlConverter).GetTypeInfo().Assembly;
+            var type = typeof(HtmlConverter);
+            var ns = type.Namespace;
+
+            using var resourceStream = assembly.GetManifestResourceStream($"{ns}.{ToolFilename}.exe");
+            using var fileStream = File.OpenWrite(ToolFilepath);
+            resourceStream?.CopyTo(fileStream);
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
@@ -60,12 +60,12 @@ public static class HtmlConverter
                 Arguments = "which wkhtmltoimage"
             });
 
-            var answer = process?.StandardOutput?.ReadToEnd();
+            var answer = process?.StandardOutput.ReadToEnd();
             process?.WaitForExit();
 
             if (!string.IsNullOrEmpty(answer) && answer.Contains("wkhtmltoimage"))
             {
-                toolFilepath = "wkhtmltoimage";
+                ToolFilepath = "wkhtmltoimage";
             }
             else
             {
@@ -88,7 +88,7 @@ public static class HtmlConverter
     /// <returns>Converted html string in byte array</returns>
     public static byte[] FromHtmlString(string html, int width = 1024, ImageFormat format = ImageFormat.Jpg, int quality = 100)
     {
-        var filename = Path.Combine(directory, $"{Guid.NewGuid()}.html");
+        var filename = Path.Combine(Directory, $"{Guid.NewGuid()}.html");
         File.WriteAllText(filename, html);
 
         var bytes = FromUrl(filename, width, format, quality);
@@ -108,7 +108,7 @@ public static class HtmlConverter
     public static byte[] FromUrl(string url, int width = 1024, ImageFormat format = ImageFormat.Jpg, int quality = 100)
     {
         var imageFormat = format.ToString().ToLower();
-        var filename = Path.Combine(directory, $"{Guid.NewGuid()}.{imageFormat}");
+        var filename = Path.Combine(Directory, $"{Guid.NewGuid()}.{imageFormat}");
 
         var args = $"--transparent --quality {quality} --width {width} -f {imageFormat} {url} \"{filename}\"";
 
@@ -117,27 +117,26 @@ public static class HtmlConverter
             args = $"--transparent --quality {quality} --width {width} -f {imageFormat} \"{url}\" \"{filename}\"";
         }
 
-        var process = Process.Start(new ProcessStartInfo(toolFilepath, args)
+        var process = Process.Start(new ProcessStartInfo(ToolFilepath, args)
         {
             WindowStyle = ProcessWindowStyle.Hidden,
             CreateNoWindow = true,
             UseShellExecute = false,
-            WorkingDirectory = directory,
+            WorkingDirectory = Directory,
             RedirectStandardError = true
         });
 
         process!.ErrorDataReceived += Process_ErrorDataReceived;
         process?.WaitForExit();
 
-        if (File.Exists(filename))
-        {
-            var bytes = File.ReadAllBytes(filename);
-            File.Delete(filename);
+        if (!File.Exists(filename)) 
+            throw new Exception("Something went wrong. Please check input parameters");
 
-            return bytes;
-        }
+        var bytes = File.ReadAllBytes(filename);
+        File.Delete(filename);
 
-        throw new Exception("Something went wrong. Please check input parameters");
+        return bytes;
+
     }
 
     /// <summary>
@@ -145,18 +144,9 @@ public static class HtmlConverter
     /// </summary>
     /// <param name="path">Path</param>
     /// <returns>True if it is path, false if url</returns>
-    private static bool IsLocalPath(string path)
-    {
-        if (path.StartsWith("http"))
-        {
-            return false;
-        }
+    private static bool IsLocalPath(string path) =>
+        !path.StartsWith("http") && new Uri(path).IsFile;
 
-        return new Uri(path).IsFile;
-    }
-
-    private static void Process_ErrorDataReceived(object sender, DataReceivedEventArgs e)
-    {
+    private static void Process_ErrorDataReceived(object sender, DataReceivedEventArgs e) =>
         throw new Exception(e.Data);
-    }
 }

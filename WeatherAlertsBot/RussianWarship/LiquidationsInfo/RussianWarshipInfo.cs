@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace WeatherAlertsBot.RussianWarship;
+namespace WeatherAlertsBot.RussianWarship.LiquidationsInfo;
 
 /// <summary>
 ///     Info about looses

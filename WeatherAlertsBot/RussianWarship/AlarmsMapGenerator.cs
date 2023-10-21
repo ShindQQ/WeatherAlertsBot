@@ -1,4 +1,4 @@
-﻿using WeatherAlertsBot.HtmlConvertor;
+﻿using WeatherAlertsBot.HtmlConverter;
 using WeatherAlertsBot.RussianWarship.AlarmsInfo;
 
 namespace WeatherAlertsBot.RussianWarship;
@@ -103,5 +103,5 @@ public static class AlarmsMapGenerator
     /// <param name="isSticker">Is it sticker or not, default is true</param>
     /// <returns>Task, sendind user a message with map</returns>
     public static byte[] DrawAlertsMap(Dictionary<string, StateObject> regions, bool isSticker = true) =>
-        HtmlConverter.FromHtmlString(GenerateAlertsMap(regions, isSticker), quality: 75, format: ImageFormat.Png);
+        HtmlConverter.HtmlConverter.FromHtmlString(GenerateAlertsMap(regions, isSticker), quality: 75, format: ImageFormat.Png);
 }

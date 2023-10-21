@@ -2,12 +2,12 @@
 using WeatherAlertsBot.Helpers;
 using WeatherAlertsBot.RussianWarship.AlarmsInfo;
 
-namespace WeatherAlertsBot.Requesthandlers;
+namespace WeatherAlertsBot.RequestHandlers;
 
 /// <summary>
 ///     Class for logic of calling APIs
 /// </summary>
-public sealed class APIsRequestsHandler
+public sealed class ApisRequestsHandler
 {
     /// <summary>
     ///     HttpClient 
@@ -34,7 +34,7 @@ public sealed class APIsRequestsHandler
         if ((datetime - LastAlertsRequest).TotalMinutes >= 1)
         {
             LastAlertsRequest = DateTime.UtcNow;
-            LastAlertsValue = (await GetResponseFromAPIAsync<AlarmsStateInfo>(APIsLinks.AlarmsInUkraineInfoUrl
+            LastAlertsValue = (await GetResponseFromApiAsync<AlarmsStateInfo>(ApIsLinks.AlarmsInUkraineInfoUrl
                 + $"&dt{datetime.Day}{datetime.Month}{datetime.Year}"))!.States;
         }
 
@@ -48,7 +48,7 @@ public sealed class APIsRequestsHandler
     /// <param name="url">Url for request</param>
     /// <returns>T as deserialized response from request</returns>
     /// <exception cref="HttpRequestException">If response`s status code isn`t 200</exception>
-    public static async Task<T?> GetResponseFromAPIAsync<T>(string url)
+    public static async Task<T?> GetResponseFromApiAsync<T>(string url)
     {
         var response = await HttpClient.GetAsync(url);
 

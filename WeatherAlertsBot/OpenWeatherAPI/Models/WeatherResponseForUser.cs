@@ -1,4 +1,4 @@
-﻿namespace WeatherAlertsBot.OpenWeatherAPI;
+﻿namespace WeatherAlertsBot.OpenWeatherApi.Models;
 
 /// <summary>
 ///     Class which represents response for user searching for weather
@@ -11,9 +11,9 @@ public sealed class WeatherResponseForUser
     public string CityName { get; set; } = string.Empty;
 
     /// <summary>
-    ///     Lattitude of selected city/ given location
+    ///     Latitude of selected city/ given location
     /// </summary>
-    public float Lattitude { get; set; }
+    public float Latitude { get; set; }
 
     /// <summary>
     ///     Longitude of selected city/ given location

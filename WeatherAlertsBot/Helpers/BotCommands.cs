@@ -1,4 +1,4 @@
-﻿namespace WeatherAlertsBot.Commands;
+﻿namespace WeatherAlertsBot.Helpers;
 
 /// <summary>
 ///     Static class with list of available commands
@@ -46,7 +46,7 @@ public static class BotCommands
     public static readonly string SubscribeCommand = "/sub";
 
     /// <summary>
-    ///     Unsubscription command 
+    ///     UnSubscription command 
     /// </summary>
     public static readonly string UnsubscribeCommand = "/unsub";
 
@@ -61,12 +61,12 @@ public static class BotCommands
     public static readonly string SubscribeOnWeatherForecastCommand = "/sub_wf";
 
     /// <summary>
-    ///     Unsubscription from al_lost command
+    ///     UnSubscription from al_lost command
     /// </summary>
     public static readonly string UnsubscribeFromAlertsLostCommand = "/unsub_al_lost";
 
     /// <summary>
-    ///     Unsubscription from wf command
+    ///     UnSubscription from wf command
     /// </summary>
     public static readonly string UnsubscribeFromWeatherForecastCommand = "/unsub_wf";
 

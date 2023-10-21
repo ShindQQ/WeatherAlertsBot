@@ -1,15 +1,14 @@
-﻿using System.Data;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
-using WeatherAlertsBot.Commands;
 using WeatherAlertsBot.DAL.Entities;
 using WeatherAlertsBot.Helpers;
-using WeatherAlertsBot.OpenWeatherAPI;
-using WeatherAlertsBot.Requesthandlers;
+using WeatherAlertsBot.OpenWeatherApi;
+using WeatherAlertsBot.RequestHandlers;
 using WeatherAlertsBot.RussianWarship;
+using WeatherAlertsBot.RussianWarship.LiquidationsInfo;
 using WeatherAlertsBot.UserServices;
 
 namespace WeatherAlertsBot.TelegramBotHandlers;
@@ -30,7 +29,7 @@ public sealed class UpdateHandler : IUpdateHandler
     private readonly CancellationTokenSource _cancellationTokenSource;
 
     /// <summary>
-    ///     Subscriber survice to work with db
+    ///     Subscriber service to work with db
     /// </summary>
     private readonly ISubscriberRepository _subscriberRepository;
 
@@ -38,7 +37,7 @@ public sealed class UpdateHandler : IUpdateHandler
     ///     Constructor
     /// </summary>
     /// <param name="telegramBotClient">A client interface to use Telegram Bot API</param>
-    /// <param name="subscriberService">Service for work with db context</param>
+    /// <param name="subscriberRepository">Service for work with db context</param>
     /// <param name="cancellationTokenSource">Cancellation Token Source</param>
     public UpdateHandler(
         ITelegramBotClient telegramBotClient,
@@ -121,8 +120,8 @@ public sealed class UpdateHandler : IUpdateHandler
         {
             _ when userMessage.Equals(BotCommands.SubscribeOnAlertsLostCommand) ||
                 userMessage.Equals(BotCommands.UnsubscribeFromAlertsLostCommand) => BotCommands.AlertsLostCommand,
-            [string userCommand, string userCityName] when userCommand.StartsWith(BotCommands.SubscribeOnWeatherForecastCommand) ||
-                userCommand.StartsWith(BotCommands.UnsubscribeFromWeatherForecastCommand)
+            [{ } userCommand, { } userCityName] when userCommand.StartsWith(BotCommands.SubscribeOnWeatherForecastCommand) ||
+                                                     userCommand.StartsWith(BotCommands.UnsubscribeFromWeatherForecastCommand)
                 => BotCommands.WeatherForecastCommand + " " + userCityName,
             _ => string.Empty
         };
@@ -139,11 +138,11 @@ public sealed class UpdateHandler : IUpdateHandler
 
         if (subscriber is not null)
         {
-            message = $"Your subscription list:\n" +
+            message = "Your subscription list:\n" +
                 string.Join("\n", subscriber.Commands.Select(command => $"{command.CommandName}"));
         }
 
-        await HandleTextMessageAsync(chatId, $"""`{message}`""");
+        await HandleTextMessageAsync(chatId, $"`{message}`");
     }
 
     /// <summary>
@@ -191,7 +190,7 @@ public sealed class UpdateHandler : IUpdateHandler
     /// <summary>
     ///     Generating message response for user on result of affected rows in table
     /// </summary>
-    /// <param name="affectedRows">Ammount of affected rows</param>
+    /// <param name="affectedRows">Amount of affected rows</param>
     /// <returns>String with message for user</returns>
     public static string GenerateMessageForSubscriptionResult(int affectedRows)
         => affectedRows == 0 ? "Operation unsuccessful!" : "Operation successful!";
@@ -294,10 +293,9 @@ public sealed class UpdateHandler : IUpdateHandler
     ///     Receiving info about liquidations in russian invasion
     /// </summary>
     /// <param name="chatId">User chat id</param>
-    /// no troubles with request, false if there was troubleshooting</returns>
     private async Task HandleRussianInvasionInfo(long chatId) =>
         await HandleTextMessageAsync(chatId,
-        (await APIsRequestsHandler.GetResponseFromAPIAsync<RussianInvasion>(APIsLinks.RussianWarshipUrl))
+        (await ApisRequestsHandler.GetResponseFromApiAsync<RussianInvasion>(ApIsLinks.RussianWarshipUrl))
         !.RussianWarshipInfo.ToString());
 
     /// <summary>
@@ -307,10 +305,10 @@ public sealed class UpdateHandler : IUpdateHandler
     /// <returns>Map with alerts and list of regions to the user</returns>
     private async Task HandleAlertsPhotoInfo(long chatId)
     {
-        var regions = await APIsRequestsHandler.GetResponseForAlertsCachedAsync();
+        var regions = await ApisRequestsHandler.GetResponseForAlertsCachedAsync();
 
         await HandlePhotoMessageAsync(chatId, AlarmsMapGenerator.DrawAlertsMap(regions, false),
-            $"`Current alerts in Ukraine:\n" + string.Join("\n",
+            "`Current alerts in Ukraine:\n" + string.Join("\n",
                 regions.Where(region => region.Value.Enabled)
                 .Select(region => $"🚨 {region.Key.Trim('\'')};")) + "`");
     }
@@ -322,7 +320,7 @@ public sealed class UpdateHandler : IUpdateHandler
     /// <returns>Map with alerts and list of regions to the user</returns>
     private async Task HandleAlertsStickerInfo(long chatId)
     {
-        var regions = await APIsRequestsHandler.GetResponseForAlertsCachedAsync();
+        var regions = await ApisRequestsHandler.GetResponseForAlertsCachedAsync();
 
         await HandleStickerAsync(chatId, AlarmsMapGenerator.DrawAlertsMap(regions));
     }

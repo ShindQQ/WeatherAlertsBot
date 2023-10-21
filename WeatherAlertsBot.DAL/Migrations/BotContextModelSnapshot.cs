@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using WeatherAlertsBot.DAL.Context;
+using WeatherAlertsBot.DAL.Contexts;
 
 #nullable disable
 
