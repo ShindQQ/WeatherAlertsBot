@@ -26,7 +26,7 @@ public sealed class RussianWarshipInfo
     public LiquidatedStats LiquidatedStats { get; set; } = null!;
 
     /// <summary>
-    ///     Enemies looses change 
+    ///     Enemies looses change
     /// </summary>
     [JsonPropertyName("increase")]
     public LiquidatedStats IncreaseLiquidatedStats { get; set; } = null!;
@@ -38,7 +38,7 @@ public sealed class RussianWarshipInfo
     public override string ToString()
     {
         return $"""
-                `Enemy losses on {Date}, day {Day}: 
+                `Enemy losses on {Date}, day {Day}:
                 Personnel units: {LiquidatedStats.PersonnelUnits} (+{IncreaseLiquidatedStats.PersonnelUnits})
                 Tanks: {LiquidatedStats.Tanks} (+{IncreaseLiquidatedStats.Tanks})
                 Armoured fighting vehicles: {LiquidatedStats.ArmouredFightingVehicles} (+{IncreaseLiquidatedStats.ArmouredFightingVehicles})

@@ -41,12 +41,12 @@ public static class BotCommands
     public static readonly string AlertsLostCommand = "/al_lost";
 
     /// <summary>
-    ///     Subscription command 
+    ///     Subscription command
     /// </summary>
     public static readonly string SubscribeCommand = "/sub";
 
     /// <summary>
-    ///     UnSubscription command 
+    ///     UnSubscription command
     /// </summary>
     public static readonly string UnsubscribeCommand = "/unsub";
 

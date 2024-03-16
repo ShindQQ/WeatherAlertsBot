@@ -19,59 +19,53 @@ var botClient = new TelegramBotClient(BotConfiguration.BotAccessToken);
 using CancellationTokenSource cancellationTokenSource = new();
 
 var host = Host.CreateDefaultBuilder(args)
-   .ConfigureServices((hostContext, services) =>
-   {
-       services.AddSingleton<ITelegramBotClient>(botClient);
-       services.AddScoped<IUpdateHandler, UpdateHandler>();
-       services.AddSingleton(cancellationTokenSource);
-       services.AddScoped<ISubscriberRepository, SubscriberRepository>().AddDbContext<BotContext>(options =>
+    .ConfigureServices((hostContext, services) =>
+    {
+        services.AddSingleton<ITelegramBotClient>(botClient);
+        services.AddScoped<IUpdateHandler, UpdateHandler>();
+        services.AddSingleton(cancellationTokenSource);
+        services.AddScoped<ISubscriberRepository, SubscriberRepository>().AddDbContext<BotContext>(options =>
             options.UseMySql(hostContext.Configuration.GetConnectionString("DbConnection"),
-            new MySqlServerVersion(new Version(8, 0, 30))));
+                new MySqlServerVersion(new Version(8, 0, 30))));
 
-       services.Configure<QuartzOptions>(options =>
-       {
-           options.Scheduling.IgnoreDuplicates = true;
-           options.Scheduling.OverWriteExistingData = true;
-       });
+        services.Configure<QuartzOptions>(options =>
+        {
+            options.Scheduling.IgnoreDuplicates = true;
+            options.Scheduling.OverWriteExistingData = true;
+        });
 
-       services.AddQuartz(q =>
-       {
-           q.SchedulerId = "Bot-Id";
+        services.AddQuartz(q =>
+        {
+            q.SchedulerId = "Bot-Id";
 
-           q.UseSimpleTypeLoader();
-           q.UseInMemoryStore();
-           q.UseDefaultThreadPool(tp =>
-           {
-               tp.MaxConcurrency = 10;
-           });
+            q.UseSimpleTypeLoader();
+            q.UseInMemoryStore();
+            q.UseDefaultThreadPool(tp => { tp.MaxConcurrency = 10; });
 
-           var jobKey = new JobKey("notify job", "notify group");
+            var jobKey = new JobKey("notify job", "notify group");
 
-           q.UseMicrosoftDependencyInjectionJobFactory();
+            q.UseMicrosoftDependencyInjectionJobFactory();
 
-           q.AddJob<NotifySubscribersJob>(j => j
-               .StoreDurably()
-               .WithIdentity(jobKey)
-           );
+            q.AddJob<NotifySubscribersJob>(j => j
+                .StoreDurably()
+                .WithIdentity(jobKey)
+            );
 
-           q.AddTrigger(t => t
-               .ForJob(jobKey)
-               .WithCronSchedule("0 0 0 1/1 * ? *")
-               .StartAt(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 21, 59, 59))
-           );
-       });
-       services.AddQuartzHostedService(options =>
-       {
-           options.WaitForJobsToComplete = true;
-       });
-   }).Build();
+            q.AddTrigger(t => t
+                .ForJob(jobKey)
+                .WithCronSchedule("0 0 0 1/1 * ? *")
+                .StartAt(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 21, 59, 59))
+            );
+        });
+        services.AddQuartzHostedService(options => { options.WaitForJobsToComplete = true; });
+    }).Build();
 
 botClient.StartReceiving(
     HandleUpdateAsync,
     HandlePollingErrorAsync,
     new ReceiverOptions(),
     cancellationTokenSource.Token
-    );
+);
 
 await host.RunAsync();
 
@@ -88,7 +82,8 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
     await updateHandler.HandleMessageAsync(update);
 }
 
-async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception,
+    CancellationToken cancellationToken)
 {
     var errorMessage = exception switch
     {

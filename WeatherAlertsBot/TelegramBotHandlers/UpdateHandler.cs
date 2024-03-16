@@ -94,36 +94,46 @@ public sealed class UpdateHandler : IUpdateHandler
     /// <param name="userMessage">Command sent by user</param>
     /// <returns>Command for user`s request</returns>
     private Task HandleCommandMessage(long chatId, string userMessage)
-        => userMessage switch
+    {
+        return userMessage switch
         {
             BotCommands.StartCommand => HandleErrorMessage(chatId),
             BotCommands.HelpCommand => HandleErrorMessage(chatId),
-            _ when userMessage.StartsWith(BotCommands.WeatherForecastCommand) => HandleWeatherForecastMessageAsync(chatId, userMessage),
+            _ when userMessage.StartsWith(BotCommands.WeatherForecastCommand) => HandleWeatherForecastMessageAsync(
+                chatId, userMessage),
             _ when userMessage.StartsWith(BotCommands.WeatherCommand) => HandleWeatherMessageAsync(chatId, userMessage),
             _ when userMessage.StartsWith(BotCommands.AlertsMapStickerCommand) => HandleAlertsStickerInfo(chatId),
             _ when userMessage.StartsWith(BotCommands.AlertsMapCommand) => HandleAlertsPhotoInfo(chatId),
             _ when userMessage.StartsWith(BotCommands.AlertsLostCommand) => HandleRussianInvasionInfo(chatId),
-            _ when userMessage.StartsWith(BotCommands.GetListOfSubscriptionsCommand) => HandleSubscriptionListInfoAsync(chatId),
-            _ when userMessage.StartsWith(BotCommands.SubscribeCommand) => HandleSubscribeMessageAsync(chatId, userMessage),
-            _ when userMessage.StartsWith(BotCommands.UnsubscribeCommand) => HandleUnSubscribeMessageAsync(chatId, userMessage),
+            _ when userMessage.StartsWith(BotCommands.GetListOfSubscriptionsCommand) =>
+                HandleSubscriptionListInfoAsync(chatId),
+            _ when userMessage.StartsWith(BotCommands.SubscribeCommand) => HandleSubscribeMessageAsync(chatId,
+                userMessage),
+            _ when userMessage.StartsWith(BotCommands.UnsubscribeCommand) => HandleUnSubscribeMessageAsync(chatId,
+                userMessage),
             _ => Task.CompletedTask
         };
+    }
 
     /// <summary>
     ///     Handling subscription string results
     /// </summary>
     /// <param name="userMessage">Message sent by user</param>
     /// <returns>Command for editing db</returns>
-    private static string HandleSubscriptionMessage(string userMessage) =>
-        userMessage.Trim().Split(' ', 2) switch
+    private static string HandleSubscriptionMessage(string userMessage)
+    {
+        return userMessage.Trim().Split(' ', 2) switch
         {
             _ when userMessage.Equals(BotCommands.SubscribeOnAlertsLostCommand) ||
-                userMessage.Equals(BotCommands.UnsubscribeFromAlertsLostCommand) => BotCommands.AlertsLostCommand,
-            [{ } userCommand, { } userCityName] when userCommand.StartsWith(BotCommands.SubscribeOnWeatherForecastCommand) ||
-                                                     userCommand.StartsWith(BotCommands.UnsubscribeFromWeatherForecastCommand)
+                   userMessage.Equals(BotCommands.UnsubscribeFromAlertsLostCommand) => BotCommands.AlertsLostCommand,
+            [{ } userCommand, { } userCityName] when userCommand.StartsWith(BotCommands
+                                                         .SubscribeOnWeatherForecastCommand) ||
+                                                     userCommand.StartsWith(BotCommands
+                                                         .UnsubscribeFromWeatherForecastCommand)
                 => BotCommands.WeatherForecastCommand + " " + userCityName,
             _ => string.Empty
         };
+    }
 
     /// <summary>
     ///     Handling receiving subscriber commands list
@@ -136,10 +146,8 @@ public sealed class UpdateHandler : IUpdateHandler
         var message = "You are not subscribed to any services yet!";
 
         if (subscriber is not null)
-        {
             message = "Your subscription list:\n" +
-                string.Join("\n", subscriber.Commands.Select(command => $"{command.CommandName}"));
-        }
+                      string.Join("\n", subscriber.Commands.Select(command => $"{command.CommandName}"));
 
         await HandleTextMessageAsync(chatId, $"`{message}`");
     }
@@ -162,7 +170,7 @@ public sealed class UpdateHandler : IUpdateHandler
 
         await HandleTextMessageAsync(chatId,
             $"`{GenerateMessageForSubscriptionResult(
-            await _subscriberRepository.AddSubscriberAsync(new Subscriber { ChatId = chatId }, command))}`");
+                await _subscriberRepository.AddSubscriberAsync(new Subscriber { ChatId = chatId }, command))}`");
     }
 
     /// <summary>
@@ -183,7 +191,7 @@ public sealed class UpdateHandler : IUpdateHandler
 
         await HandleTextMessageAsync(chatId,
             $"`{GenerateMessageForSubscriptionResult(
-            await _subscriberRepository.RemoveCommandFromSubscriberAsync(chatId, command))}`");
+                await _subscriberRepository.RemoveCommandFromSubscriberAsync(chatId, command))}`");
     }
 
     /// <summary>
@@ -192,7 +200,9 @@ public sealed class UpdateHandler : IUpdateHandler
     /// <param name="affectedRows">Amount of affected rows</param>
     /// <returns>String with message for user</returns>
     public static string GenerateMessageForSubscriptionResult(int affectedRows)
-        => affectedRows == 0 ? "Operation unsuccessful!" : "Operation successful!";
+    {
+        return affectedRows == 0 ? "Operation unsuccessful!" : "Operation successful!";
+    }
 
     /// <summary>
     ///     Handling /weather [city_name] message
@@ -213,9 +223,9 @@ public sealed class UpdateHandler : IUpdateHandler
 
         await HandlePhotoMessageAsync(chatId, WeatherImageGenerator.GenerateCurrentWeatherImage(weatherResponseForUser),
             $"""
-            `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature} °C.
-            Feels like {weatherResponseForUser.FeelsLike} °C. {weatherResponseForUser.TypeOfWeather}.`
-            """);
+             `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature} °C.
+             Feels like {weatherResponseForUser.FeelsLike} °C. {weatherResponseForUser.TypeOfWeather}.`
+             """);
     }
 
     /// <summary>
@@ -237,16 +247,16 @@ public sealed class UpdateHandler : IUpdateHandler
         }
 
         await HandlePhotoMessageAsync(chatId, WeatherImageGenerator.GenerateWeatherForecastImage(
-            weatherForecastResult),
-           $"`Current weather in {weatherForecastResult.WeatherForecastCity.CityName} for next 24 hours:\n\n"
-                + string.Join("\n\n", weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
+                weatherForecastResult),
+            $"`Current weather in {weatherForecastResult.WeatherForecastCity.CityName} for next 24 hours:\n\n"
+            + string.Join("\n\n", weatherForecastResult.WeatherForecastHoursData.Select(weatherData =>
                 $"""
-                Time: {weatherData.Date[..^3]}: 
-                Temperature: {weatherData.WeatherForecastTemperatureData.Temperature:N2} °C.
-                Feels like {weatherData.WeatherForecastTemperatureData.FeelsLike:N2} °C.
-                Humidity {weatherData.WeatherForecastTemperatureData.Humidity}%. 
-                {weatherData.WeatherForecastCurrentWeather.First().TypeOfWeather}.
-                """)) + "`");
+                 Time: {weatherData.Date[..^3]}:
+                 Temperature: {weatherData.WeatherForecastTemperatureData.Temperature:N2} °C.
+                 Feels like {weatherData.WeatherForecastTemperatureData.FeelsLike:N2} °C.
+                 Humidity {weatherData.WeatherForecastTemperatureData.Humidity}%.
+                 {weatherData.WeatherForecastCurrentWeather.First().TypeOfWeather}.
+                 """)) + "`");
     }
 
     /// <summary>
@@ -260,10 +270,10 @@ public sealed class UpdateHandler : IUpdateHandler
         var weatherResponseForUser = await WeatherHandler.SendWeatherByUserLocationAsync(userLocation);
 
         await HandleTextMessageAsync(chatId,
-           $"""
-           `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
-           Feels like {weatherResponseForUser.FeelsLike:N2} °C. {weatherResponseForUser.TypeOfWeather}.`
-           """);
+            $"""
+             `Current weather in {weatherResponseForUser.CityName} is {weatherResponseForUser.Temperature:N2} °C.
+             Feels like {weatherResponseForUser.FeelsLike:N2} °C. {weatherResponseForUser.TypeOfWeather}.`
+             """);
     }
 
     /// <summary>
@@ -271,31 +281,35 @@ public sealed class UpdateHandler : IUpdateHandler
     /// </summary>
     /// <param name="chatId">User chat id</param>
     /// <returns>Task with error message</returns>
-    private Task HandleErrorMessage(long chatId) =>
-        HandleTextMessageAsync(chatId,
-        $"""
-        Hello\!
-        To receive weather by city name send me: `{BotCommands.WeatherCommand}` \[city\_name\]\!
-        To receive weather forecast by city name send me: `{BotCommands.WeatherForecastCommand}` \[city\_name\]\!
-        Or just send me your location for receiving current weather\!
-        For map of alerts use `{BotCommands.AlertsMapCommand}`\!
-        To see russian losses use `{BotCommands.AlertsLostCommand}`\!
-        For subscribing on `{BotCommands.AlertsLostCommand}` command `{BotCommands.SubscribeOnAlertsLostCommand}`\!
-        For unsubscribing from `{BotCommands.AlertsLostCommand}` command `{BotCommands.UnsubscribeFromAlertsLostCommand}`\!
-        For subscribing on `{BotCommands.WeatherForecastCommand}` command `{BotCommands.SubscribeOnWeatherForecastCommand}` \[city\_name\]\!
-        For unsubscribing from `{BotCommands.WeatherForecastCommand}` command `{BotCommands.UnsubscribeFromWeatherForecastCommand}` \[city\_name\]\!
-        For receiving list of all your subscriptions send me `{BotCommands.GetListOfSubscriptionsCommand}`\!
-        My GitHub: `https://github.com/ShindQQ/WeatherAlertsBot`
-        """);
+    private Task HandleErrorMessage(long chatId)
+    {
+        return HandleTextMessageAsync(chatId,
+            $"""
+             Hello\!
+             To receive weather by city name send me: `{BotCommands.WeatherCommand}` \[city\_name\]\!
+             To receive weather forecast by city name send me: `{BotCommands.WeatherForecastCommand}` \[city\_name\]\!
+             Or just send me your location for receiving current weather\!
+             For map of alerts use `{BotCommands.AlertsMapCommand}`\!
+             To see russian losses use `{BotCommands.AlertsLostCommand}`\!
+             For subscribing on `{BotCommands.AlertsLostCommand}` command `{BotCommands.SubscribeOnAlertsLostCommand}`\!
+             For unsubscribing from `{BotCommands.AlertsLostCommand}` command `{BotCommands.UnsubscribeFromAlertsLostCommand}`\!
+             For subscribing on `{BotCommands.WeatherForecastCommand}` command `{BotCommands.SubscribeOnWeatherForecastCommand}` \[city\_name\]\!
+             For unsubscribing from `{BotCommands.WeatherForecastCommand}` command `{BotCommands.UnsubscribeFromWeatherForecastCommand}` \[city\_name\]\!
+             For receiving list of all your subscriptions send me `{BotCommands.GetListOfSubscriptionsCommand}`\!
+             My GitHub: `https://github.com/ShindQQ/WeatherAlertsBot`
+             """);
+    }
 
     /// <summary>
     ///     Receiving info about liquidations in russian invasion
     /// </summary>
     /// <param name="chatId">User chat id</param>
-    private async Task HandleRussianInvasionInfo(long chatId) =>
+    private async Task HandleRussianInvasionInfo(long chatId)
+    {
         await HandleTextMessageAsync(chatId,
-        (await ApisRequestsHandler.GetResponseFromApiAsync<RussianInvasion>(ApIsLinks.RussianWarshipUrl))
-        !.RussianWarshipInfo.ToString());
+            (await ApisRequestsHandler.GetResponseFromApiAsync<RussianInvasion>(ApIsLinks.RussianWarshipUrl))
+            !.RussianWarshipInfo.ToString());
+    }
 
     /// <summary>
     ///     Receiving info about alerts in Ukraine regions
@@ -309,7 +323,7 @@ public sealed class UpdateHandler : IUpdateHandler
         await HandlePhotoMessageAsync(chatId, AlarmsMapGenerator.DrawAlertsMap(regions, false),
             "`Current alerts in Ukraine:\n" + string.Join("\n",
                 regions.Where(region => region.Value.Enabled)
-                .Select(region => $"🚨 {region.Key.Trim('\'')};")) + "`");
+                    .Select(region => $"🚨 {region.Key.Trim('\'')};")) + "`");
     }
 
     /// <summary>
@@ -336,8 +350,8 @@ public sealed class UpdateHandler : IUpdateHandler
         try
         {
             await _botClient.SendPhotoAsync(chatId, InputFile.FromStream(new MemoryStream(bytes)),
-                caption: messageForUser, 
-                parseMode: ParseMode.MarkdownV2, 
+                caption: messageForUser,
+                parseMode: ParseMode.MarkdownV2,
                 cancellationToken: _cancellationTokenSource.Token);
         }
         catch (ApiRequestException)
@@ -356,7 +370,7 @@ public sealed class UpdateHandler : IUpdateHandler
         try
         {
             await _botClient.SendTextMessageAsync(chatId, messageForUser,
-                parseMode:ParseMode.MarkdownV2, 
+                parseMode: ParseMode.MarkdownV2,
                 cancellationToken: _cancellationTokenSource.Token);
         }
         catch (ApiRequestException)

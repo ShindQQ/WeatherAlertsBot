@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace WeatherAlertsBot.OpenWeatherApi.Models.WeatherForecast;
 
 /// <summary>
-///     Class to represent weather forecast 
+///     Class to represent weather forecast
 /// </summary>
 [JsonObject(MemberSerialization.OptIn)]
 public sealed class WeatherForecastResult

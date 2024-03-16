@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace WeatherAlertsBot.HtmlConverter;
 
 /// <summary>
-/// Html Converter. Converts HTML string and URLs to image bytes
+///     Html Converter. Converts HTML string and URLs to image bytes
 /// </summary>
 public static class HtmlConverter
 {
@@ -20,7 +20,7 @@ public static class HtmlConverter
     private static readonly string Directory;
 
     /// <summary>
-    ///  Tool`s path to file
+    ///     Tool`s path to file
     /// </summary>
     private static readonly string ToolFilepath;
 
@@ -36,7 +36,7 @@ public static class HtmlConverter
         {
             ToolFilepath = Path.Combine(Directory, ToolFilename + ".exe");
 
-            if (File.Exists(ToolFilepath)) 
+            if (File.Exists(ToolFilepath))
                 return;
 
             var assembly = typeof(HtmlConverter).GetTypeInfo().Assembly;
@@ -49,7 +49,7 @@ public static class HtmlConverter
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            var process = Process.Start(new ProcessStartInfo()
+            var process = Process.Start(new ProcessStartInfo
             {
                 CreateNoWindow = true,
                 UseShellExecute = false,
@@ -64,13 +64,10 @@ public static class HtmlConverter
             process?.WaitForExit();
 
             if (!string.IsNullOrEmpty(answer) && answer.Contains("wkhtmltoimage"))
-            {
                 ToolFilepath = "wkhtmltoimage";
-            }
             else
-            {
-                throw new Exception("wkhtmltoimage does not appear to be installed on this linux system according to which command; go to https://wkhtmltopdf.org/downloads.html");
-            }
+                throw new Exception(
+                    "wkhtmltoimage does not appear to be installed on this linux system according to which command; go to https://wkhtmltopdf.org/downloads.html");
         }
         else
         {
@@ -86,7 +83,8 @@ public static class HtmlConverter
     /// <param name="format">Output image format</param>
     /// <param name="quality">Output image quality 1-100</param>
     /// <returns>Converted html string in byte array</returns>
-    public static byte[] FromHtmlString(string html, int width = 1024, ImageFormat format = ImageFormat.Jpg, int quality = 100)
+    public static byte[] FromHtmlString(string html, int width = 1024, ImageFormat format = ImageFormat.Jpg,
+        int quality = 100)
     {
         var filename = Path.Combine(Directory, $"{Guid.NewGuid()}.html");
         File.WriteAllText(filename, html);
@@ -113,9 +111,7 @@ public static class HtmlConverter
         var args = $"--transparent --quality {quality} --width {width} -f {imageFormat} {url} \"{filename}\"";
 
         if (IsLocalPath(url))
-        {
             args = $"--transparent --quality {quality} --width {width} -f {imageFormat} \"{url}\" \"{filename}\"";
-        }
 
         var process = Process.Start(new ProcessStartInfo(ToolFilepath, args)
         {
@@ -129,14 +125,13 @@ public static class HtmlConverter
         process!.ErrorDataReceived += Process_ErrorDataReceived;
         process.WaitForExit();
 
-        if (!File.Exists(filename)) 
+        if (!File.Exists(filename))
             throw new Exception("Something went wrong. Please check input parameters");
 
         var bytes = File.ReadAllBytes(filename);
         File.Delete(filename);
 
         return bytes;
-
     }
 
     /// <summary>
@@ -144,9 +139,13 @@ public static class HtmlConverter
     /// </summary>
     /// <param name="path">Path</param>
     /// <returns>True if it is path, false if url</returns>
-    private static bool IsLocalPath(string path) =>
-        !path.StartsWith("http") && new Uri(path).IsFile;
+    private static bool IsLocalPath(string path)
+    {
+        return !path.StartsWith("http") && new Uri(path).IsFile;
+    }
 
-    private static void Process_ErrorDataReceived(object sender, DataReceivedEventArgs e) =>
+    private static void Process_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+    {
         throw new Exception(e.Data);
+    }
 }

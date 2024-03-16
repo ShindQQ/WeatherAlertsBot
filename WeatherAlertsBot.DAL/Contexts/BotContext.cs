@@ -9,16 +9,6 @@ namespace WeatherAlertsBot.DAL.Contexts;
 public class BotContext : DbContext
 {
     /// <summary>
-    ///     Table for commands of subscribers
-    /// </summary>
-    public DbSet<SubscriberCommand> SubscriberCommands { get; set; } = null!;
-
-    /// <summary>
-    ///     Table for subscribers, their commands and chat id
-    /// </summary>
-    public DbSet<Subscriber> Subscribers { get; set; } = null!;
-
-    /// <summary>
     ///     Empty db context constructor
     /// </summary>
     public BotContext()
@@ -32,4 +22,14 @@ public class BotContext : DbContext
     public BotContext(DbContextOptions<BotContext> options) : base(options)
     {
     }
+
+    /// <summary>
+    ///     Table for commands of subscribers
+    /// </summary>
+    public DbSet<SubscriberCommand> SubscriberCommands { get; set; } = null!;
+
+    /// <summary>
+    ///     Table for subscribers, their commands and chat id
+    /// </summary>
+    public DbSet<Subscriber> Subscribers { get; set; } = null!;
 }

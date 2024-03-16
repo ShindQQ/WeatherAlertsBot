@@ -53,31 +53,6 @@ public sealed class SubscriberRepository : ISubscriberRepository
     }
 
     /// <summary>
-    ///     Adding command for subscriber
-    /// </summary>
-    /// <param name="subscriber">Subscriber for adding</param>
-    /// <param name="commandName">Command name which will be added</param>
-    /// <returns>Amount of added entities</returns>
-    private async ValueTask<int> AddCommandToSubscriberAsync(Subscriber subscriber, string commandName)
-    {
-        await AddCommandAsync(new SubscriberCommand { CommandName = commandName });
-
-        var foundSubscriberCommand = FindSubscriberCommand(subscriber, commandName);
-
-        if (foundSubscriberCommand is null)
-        {
-            var command = await FindCommandAsync(new SubscriberCommandDto { CommandName = commandName });
-
-            if (command is null)
-                return 0;
-
-            subscriber.Commands.Add(command);
-        }
-
-        return await _botContext.SaveChangesAsync();
-    }
-
-    /// <summary>
     ///     Removing command for subscriber
     /// </summary>
     /// <param name="subscriberChatId">Id of the subscriber chat</param>
@@ -104,8 +79,46 @@ public sealed class SubscriberRepository : ISubscriberRepository
     ///     Receiving list of subscribers
     /// </summary>
     /// <returns>List of subscribers</returns>
-    public async Task<List<Subscriber>> GetSubscribersAsync() =>
-        await _botContext.Subscribers.Include(subscriber => subscriber.Commands).ToListAsync();
+    public async Task<List<Subscriber>> GetSubscribersAsync()
+    {
+        return await _botContext.Subscribers.Include(subscriber => subscriber.Commands).ToListAsync();
+    }
+
+    /// <summary>
+    ///     Finding if subscriber
+    /// </summary>
+    /// <param name="subscriberChatId">Id of the subscriber chat</param>
+    /// <returns>Found subscriber</returns>
+    public async Task<Subscriber?> FindSubscriberAsync(long subscriberChatId)
+    {
+        return await _botContext.Subscribers.Include(subscriber => subscriber.Commands)
+            .FirstOrDefaultAsync(subscriber => subscriber.ChatId == subscriberChatId);
+    }
+
+    /// <summary>
+    ///     Adding command for subscriber
+    /// </summary>
+    /// <param name="subscriber">Subscriber for adding</param>
+    /// <param name="commandName">Command name which will be added</param>
+    /// <returns>Amount of added entities</returns>
+    private async ValueTask<int> AddCommandToSubscriberAsync(Subscriber subscriber, string commandName)
+    {
+        await AddCommandAsync(new SubscriberCommand { CommandName = commandName });
+
+        var foundSubscriberCommand = FindSubscriberCommand(subscriber, commandName);
+
+        if (foundSubscriberCommand is null)
+        {
+            var command = await FindCommandAsync(new SubscriberCommandDto { CommandName = commandName });
+
+            if (command is null)
+                return 0;
+
+            subscriber.Commands.Add(command);
+        }
+
+        return await _botContext.SaveChangesAsync();
+    }
 
     /// <summary>
     ///     Adding command
@@ -123,44 +136,41 @@ public sealed class SubscriberRepository : ISubscriberRepository
     }
 
     /// <summary>
-    ///     Finding if subscriber
-    /// </summary>
-    /// <param name="subscriberChatId">Id of the subscriber chat</param>
-    /// <returns>Found subscriber</returns>
-    public async Task<Subscriber?> FindSubscriberAsync(long subscriberChatId) =>
-        await _botContext.Subscribers.Include(subscriber => subscriber.Commands)
-            .FirstOrDefaultAsync(subscriber => subscriber.ChatId == subscriberChatId);
-
-    /// <summary>
     ///     Checking if user has such command
     /// </summary>
     /// <param name="subscriber">Subscriber given for check</param>
     /// <param name="commandName">Name of the command to find</param>
     /// <returns>Found command for selected user</returns>
-    public static SubscriberCommand? FindSubscriberCommand(Subscriber subscriber, string commandName) =>
-        subscriber.Commands.FirstOrDefault(command => command.CommandName.Equals(commandName));
+    public static SubscriberCommand? FindSubscriberCommand(Subscriber subscriber, string commandName)
+    {
+        return subscriber.Commands.FirstOrDefault(command => command.CommandName.Equals(commandName));
+    }
 
     /// <summary>
     ///     Checking if command exists
     /// </summary>
     /// <param name="subscriberCommand">Subscriber command for looking for</param>
     /// <returns>True if command exists, false if not</returns>
-    private async ValueTask<bool> IsCommandExistAsync(SubscriberCommandDto subscriberCommand) =>
-        await _botContext.SubscriberCommands
-             .Where(command => !subscriberCommand.Id.HasValue || command.Id == subscriberCommand.Id)
-             .Where(command => string.IsNullOrEmpty(subscriberCommand.CommandName) ||
-             command.CommandName.Equals(subscriberCommand.CommandName))
-             .AnyAsync();
+    private async ValueTask<bool> IsCommandExistAsync(SubscriberCommandDto subscriberCommand)
+    {
+        return await _botContext.SubscriberCommands
+            .Where(command => !subscriberCommand.Id.HasValue || command.Id == subscriberCommand.Id)
+            .Where(command => string.IsNullOrEmpty(subscriberCommand.CommandName) ||
+                              command.CommandName.Equals(subscriberCommand.CommandName))
+            .AnyAsync();
+    }
 
     /// <summary>
     ///     Finding if subscriber command
     /// </summary>
     /// <param name="subscriberCommand">Subscriber command for looking for</param>
     /// <returns>Found subscriber command</returns>
-    private async Task<SubscriberCommand?> FindCommandAsync(SubscriberCommandDto subscriberCommand) =>
-         await _botContext.SubscriberCommands
+    private async Task<SubscriberCommand?> FindCommandAsync(SubscriberCommandDto subscriberCommand)
+    {
+        return await _botContext.SubscriberCommands
             .Where(command => !subscriberCommand.Id.HasValue || command.Id == subscriberCommand.Id)
             .Where(command => string.IsNullOrEmpty(subscriberCommand.CommandName) ||
-                command.CommandName.Equals(subscriberCommand.CommandName))
+                              command.CommandName.Equals(subscriberCommand.CommandName))
             .FirstOrDefaultAsync();
+    }
 }

@@ -10,7 +10,7 @@ namespace WeatherAlertsBot.RequestHandlers;
 public sealed class ApisRequestsHandler
 {
     /// <summary>
-    ///     HttpClient 
+    ///     HttpClient
     /// </summary>
     private static readonly HttpClient HttpClient = new();
 
@@ -35,7 +35,8 @@ public sealed class ApisRequestsHandler
         {
             LastAlertsRequest = DateTime.UtcNow;
             LastAlertsValue = (await GetResponseFromApiAsync<AlarmsStateInfo>(ApIsLinks.AlarmsInUkraineInfoUrl
-                + $"&dt{datetime.Day}{datetime.Month}{datetime.Year}"))!.States;
+                                                                              + $"&dt{datetime.Day}{datetime.Month}{datetime.Year}"))
+                !.States;
         }
 
         return LastAlertsValue;
@@ -52,10 +53,7 @@ public sealed class ApisRequestsHandler
     {
         var response = await HttpClient.GetAsync(url);
 
-        if (!response.IsSuccessStatusCode)
-        {
-            return default;
-        }
+        if (!response.IsSuccessStatusCode) return default;
 
         return await response.Content.ReadFromJsonAsync<T>();
     }

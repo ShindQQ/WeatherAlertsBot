@@ -13,4 +13,3 @@ public sealed class AlarmsStateInfo
     [JsonPropertyName("states")]
     public Dictionary<string, StateObject> States { get; set; } = null!;
 }
-

@@ -3,7 +3,7 @@
 namespace WeatherAlertsBot.OpenWeatherApi.Models.WeatherForecast;
 
 /// <summary>
-///     Information about type of weather 
+///     Information about type of weather
 /// </summary>
 public sealed class WeatherForecastCurrentWeather
 {
