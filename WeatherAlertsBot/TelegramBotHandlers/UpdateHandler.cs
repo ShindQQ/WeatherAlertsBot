@@ -2,7 +2,6 @@
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InputFiles;
 using WeatherAlertsBot.DAL.Entities;
 using WeatherAlertsBot.Helpers;
 using WeatherAlertsBot.OpenWeatherApi;
@@ -94,7 +93,7 @@ public sealed class UpdateHandler : IUpdateHandler
     /// <param name="chatId">User chat id</param>
     /// <param name="userMessage">Command sent by user</param>
     /// <returns>Command for user`s request</returns>
-    public Task HandleCommandMessage(long chatId, string userMessage)
+    private Task HandleCommandMessage(long chatId, string userMessage)
         => userMessage switch
         {
             BotCommands.StartCommand => HandleErrorMessage(chatId),
@@ -336,8 +335,10 @@ public sealed class UpdateHandler : IUpdateHandler
     {
         try
         {
-            await _botClient.SendPhotoAsync(chatId, new InputOnlineFile(new MemoryStream(bytes)),
-                messageForUser, ParseMode.MarkdownV2, cancellationToken: _cancellationTokenSource.Token);
+            await _botClient.SendPhotoAsync(chatId, InputFile.FromStream(new MemoryStream(bytes)),
+                caption: messageForUser, 
+                parseMode: ParseMode.MarkdownV2, 
+                cancellationToken: _cancellationTokenSource.Token);
         }
         catch (ApiRequestException)
         {
@@ -355,7 +356,8 @@ public sealed class UpdateHandler : IUpdateHandler
         try
         {
             await _botClient.SendTextMessageAsync(chatId, messageForUser,
-                ParseMode.MarkdownV2, cancellationToken: _cancellationTokenSource.Token);
+                parseMode:ParseMode.MarkdownV2, 
+                cancellationToken: _cancellationTokenSource.Token);
         }
         catch (ApiRequestException)
         {
@@ -372,7 +374,7 @@ public sealed class UpdateHandler : IUpdateHandler
     {
         try
         {
-            await _botClient.SendStickerAsync(chatId, new InputOnlineFile(new MemoryStream(bytes)),
+            await _botClient.SendStickerAsync(chatId, InputFile.FromStream(new MemoryStream(bytes)),
                 cancellationToken: _cancellationTokenSource.Token);
         }
         catch (ApiRequestException)

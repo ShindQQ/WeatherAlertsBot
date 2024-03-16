@@ -105,7 +105,7 @@ public static class HtmlConverter
     /// <param name="format">Output image format</param>
     /// <param name="quality">Output image quality 1-100</param>
     /// <returns>Converted url in byte array</returns>
-    public static byte[] FromUrl(string url, int width = 1024, ImageFormat format = ImageFormat.Jpg, int quality = 100)
+    private static byte[] FromUrl(string url, int width = 1024, ImageFormat format = ImageFormat.Jpg, int quality = 100)
     {
         var imageFormat = format.ToString().ToLower();
         var filename = Path.Combine(Directory, $"{Guid.NewGuid()}.{imageFormat}");
@@ -127,7 +127,7 @@ public static class HtmlConverter
         });
 
         process!.ErrorDataReceived += Process_ErrorDataReceived;
-        process?.WaitForExit();
+        process.WaitForExit();
 
         if (!File.Exists(filename)) 
             throw new Exception("Something went wrong. Please check input parameters");

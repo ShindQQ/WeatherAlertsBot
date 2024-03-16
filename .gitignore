@@ -362,7 +362,10 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# Hiding appsettings.json
+# Hiding 
 appsettings.json
+Dockerfile
+.dockerignore
+docker-compose.yml
 
 .idea/
