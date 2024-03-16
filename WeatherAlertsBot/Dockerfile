@@ -17,8 +17,7 @@ FROM base AS final
 WORKDIR /bin
 RUN apt-get update
 RUN apt-get install -y wget dpkg xfonts-75dpi
-RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.bullseye_arm64.deb
-RUN apt install -y ./wkhtmltox_0.12.6.1-2.bullseye_arm64.deb
+
 RUN apt-get -f install
 RUN apt-get install -y wkhtmltopdf
 WORKDIR /app
