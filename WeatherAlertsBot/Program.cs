@@ -32,7 +32,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<ISubscriberRepository, SubscriberRepository>().AddDbContext<BotContext>(options =>
             options.UseMySql(dbConnectionString,
                 new MySqlServerVersion(new Version(8, 0, 30))));
-
+        
         services.Configure<BackgroundJobOptions>(configuration.GetSection(BackgroundJobOptions.ConfigName));
         services.AddHostedService<NotifySubscribersJob>();
 
