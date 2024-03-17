@@ -4,7 +4,7 @@ public static class TimeHelper
 {
     public static TimeZoneInfo GetUkraineTimeZoneInfo()
     {
-        const string ukraineTimeId = "FLE Standard Time";
+        const string ukraineTimeId = "Europe/Kiev";
 
         return TimeZoneInfo.FindSystemTimeZoneById(ukraineTimeId);
     }
@@ -17,12 +17,12 @@ public static class TimeHelper
         return ukraineTime;
     }
 
-    public static TimeSpan CalculateOffset(string timeZoneName, DateTime executeAt)
+    public static TimeSpan CalculateOffset(TimeZoneInfo timeZoneInfo, DateTime executeAt)
     {
-        var dateTimeUtcNow = DateTime.Now;
-        var userLocalTime = dateTimeUtcNow.ConvertToUserLocalTime(timeZoneName);
+        var dateTimeUtcNow = DateTime.UtcNow;
+        var userLocalTime = dateTimeUtcNow.ConvertToTimeZone(timeZoneInfo);
 
-        var result = executeAt.ConvertToUserLocalTime(timeZoneName) - userLocalTime;
+        var result = executeAt.ConvertToTimeZone(timeZoneInfo) - userLocalTime;
         return result;
     }
 }

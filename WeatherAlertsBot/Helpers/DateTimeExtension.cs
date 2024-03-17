@@ -13,11 +13,6 @@ public static class DateTimeExtension
 
     public static DateTime ConvertToTimeZone(this DateTime utcDateTime, TimeZoneInfo timeZoneInfo)
     {
-        return TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, timeZoneInfo);
-    }
-
-    public static void CheckTimeZone(this string timeZone)
-    {
-        TimeZoneInfo.ConvertTime(DateTime.UtcNow, TZConvert.GetTimeZoneInfo(timeZone));
+        return TimeZoneInfo.ConvertTime(utcDateTime, timeZoneInfo);
     }
 }

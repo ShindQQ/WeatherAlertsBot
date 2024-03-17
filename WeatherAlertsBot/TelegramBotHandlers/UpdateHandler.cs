@@ -93,6 +93,7 @@ public sealed class UpdateHandler : IUpdateHandler
             await HandleCommandMessage(chatId, handledText);
         }
 
+        
         var userMessageLocation = userMessage.Location;
 
         if (userMessageLocation is not null)
@@ -267,21 +268,28 @@ public sealed class UpdateHandler : IUpdateHandler
     /// <returns>Sent weather to the user</returns>
     private async Task HandleReminderMessageSetupAsync(long chatId, string userMessageText)
     {
-        var parts = userMessageText.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
-
-        var time = DateTime.Parse(parts[1]);
-        var timeZone = TimeHelper.GetUkraineTimeZoneInfo().StandardName;
-        var offset = TimeHelper.CalculateOffset(timeZone, time);
-
-        var text = string.Join(" ", parts.Skip(2));
-
-        if (offset.TotalSeconds < 0)
+        try
         {
-            await HandleTextMessageAsync(chatId, "Time cannot be in the past");
-            return;
-        }
+            var parts = userMessageText.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
 
-        _backgroundJobClient.Enqueue(() => HandleReminderMessageAsync(chatId, text, offset));
+            var time = DateTime.Parse(parts[1]);
+            var timeZoneInfo = TimeHelper.GetUkraineTimeZoneInfo();
+            var offset = TimeHelper.CalculateOffset(timeZoneInfo, time);
+
+            var text = string.Join(" ", parts.Skip(2));
+
+            if (offset.TotalSeconds < 0)
+            {
+                await HandleTextMessageAsync(chatId, "Time cannot be in the past");
+                return;
+            }
+
+            _backgroundJobClient.Enqueue(() => HandleReminderMessageAsync(chatId, text, offset));
+        }
+        catch
+        {
+            await HandleErrorMessage(chatId);
+        }
     }
 
     /// <summary>
