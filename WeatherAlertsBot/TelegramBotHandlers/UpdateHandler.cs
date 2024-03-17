@@ -398,7 +398,7 @@ public sealed class UpdateHandler : IUpdateHandler
              For subscribing on `{BotCommands.WeatherForecastCommand}` command `{BotCommands.SubscribeOnWeatherForecastCommand}` \[city\_name\]\!
              For unsubscribing from `{BotCommands.WeatherForecastCommand}` command `{BotCommands.UnsubscribeFromWeatherForecastCommand}` \[city\_name\]\!
              For receiving list of all your subscriptions send me `{BotCommands.GetListOfSubscriptionsCommand}`\!
-             Setting up reminder: /remind [time as hours:minutes] [text]
+             Setting up reminder: `{BotCommands.Reminder}` \[time as hours\:minutes\] \[text\]
              My GitHub: `https://github.com/ShindQQ/WeatherAlertsBot`
              """);
     }
