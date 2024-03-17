@@ -19,7 +19,7 @@ public static class TimeHelper
 
     public static TimeSpan CalculateOffset(DateTime executeAt)
     {
-        var result = executeAt.ToUniversalTime() - DateTime.UtcNow;
+        var result = executeAt.ToUniversalTime().AddHours(-2) - DateTime.UtcNow;
         return result;
     }
 }
