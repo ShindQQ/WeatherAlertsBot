@@ -17,12 +17,9 @@ public static class TimeHelper
         return ukraineTime;
     }
 
-    public static TimeSpan CalculateOffset(TimeZoneInfo timeZoneInfo, DateTime executeAt)
+    public static TimeSpan CalculateOffset(DateTime executeAt)
     {
-        var dateTimeUtcNow = DateTime.UtcNow;
-        var userLocalTime = dateTimeUtcNow.ConvertToTimeZone(timeZoneInfo);
-
-        var result = executeAt.ConvertToTimeZone(timeZoneInfo) - userLocalTime;
+        var result = executeAt.ToUniversalTime() - DateTime.UtcNow;
         return result;
     }
 }

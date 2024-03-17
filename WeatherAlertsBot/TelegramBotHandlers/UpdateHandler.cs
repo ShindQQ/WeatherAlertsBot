@@ -274,7 +274,7 @@ public sealed class UpdateHandler : IUpdateHandler
 
             var time = DateTime.Parse(parts[1]);
             var timeZoneInfo = TimeHelper.GetUkraineTimeZoneInfo();
-            var offset = TimeHelper.CalculateOffset(timeZoneInfo, time);
+            var offset = TimeHelper.CalculateOffset(time);
 
             var text = string.Join(" ", parts.Skip(2));
 
@@ -283,7 +283,7 @@ public sealed class UpdateHandler : IUpdateHandler
                 await HandleTextMessageAsync(chatId, "Time cannot be in the past");
                 return;
             }
-
+            
             _backgroundJobClient.Enqueue(() => HandleReminderMessageAsync(chatId, text, offset));
         }
         catch
