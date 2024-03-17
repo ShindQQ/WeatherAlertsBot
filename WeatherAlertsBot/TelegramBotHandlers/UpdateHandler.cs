@@ -1,4 +1,5 @@
-﻿using Telegram.Bot;
+﻿using Hangfire;
+using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -17,6 +18,10 @@ namespace WeatherAlertsBot.TelegramBotHandlers;
 /// </summary>
 public sealed class UpdateHandler : IUpdateHandler
 {
+    private static readonly char[] Separators = [' '];
+
+    private readonly IBackgroundJobClient _backgroundJobClient;
+
     /// <summary>
     ///     A client interface to use Telegram Bot API
     /// </summary>
@@ -38,14 +43,17 @@ public sealed class UpdateHandler : IUpdateHandler
     /// <param name="telegramBotClient">A client interface to use Telegram Bot API</param>
     /// <param name="subscriberRepository">Service for work with db context</param>
     /// <param name="cancellationTokenSource">Cancellation Token Source</param>
+    /// <param name="backgroundJobClient">Hangfire job client</param>
     public UpdateHandler(
         ITelegramBotClient telegramBotClient,
         ISubscriberRepository subscriberRepository,
-        CancellationTokenSource cancellationTokenSource)
+        CancellationTokenSource cancellationTokenSource,
+        IBackgroundJobClient backgroundJobClient)
     {
         _botClient = telegramBotClient;
         _subscriberRepository = subscriberRepository;
         _cancellationTokenSource = cancellationTokenSource;
+        _backgroundJobClient = backgroundJobClient;
     }
 
     /// <summary>
@@ -64,14 +72,33 @@ public sealed class UpdateHandler : IUpdateHandler
         var chatId = userMessage.Chat.Id;
 
         if (userMessageText is not null)
-            await HandleCommandMessage(chatId, userMessageText);
+        {
+            var handledText = userMessageText
+                .Replace("*", @"\*")
+                .Replace(",", @"\,")
+                .Replace(",", @"\,")
+                .Replace("~", @"\~")
+                .Replace("`", @"\`")
+                .Replace(">", @"\>")
+                .Replace("<", @"\<")
+                .Replace("#", @"\#")
+                .Replace("+", @"\+")
+                .Replace("=", @"\=")
+                .Replace("|", @"\|")
+                .Replace("{", @"\}")
+                .Replace("{", @"\{")
+                .Replace("!", @"\!")
+                .Replace(".", @"\.")
+                .Replace("-", @"\-");
+            await HandleCommandMessage(chatId, handledText);
+        }
 
         var userMessageLocation = userMessage.Location;
 
         if (userMessageLocation is not null)
             await HandleLocationMessageAsync(chatId, userMessageLocation);
 
-        if (userMessageText is null && userMessageLocation is null)
+        if (userMessageText is null && userMessageLocation is null && userMessage.Type == MessageType.Text)
             await HandleErrorMessage(chatId);
     }
 
@@ -83,8 +110,9 @@ public sealed class UpdateHandler : IUpdateHandler
     {
         var subscribers = await _subscriberRepository.GetSubscribersAsync();
 
-        subscribers.ForEach(subscriber => subscriber.Commands
-            .ForEach(async command => await HandleCommandMessage(subscriber.ChatId, command.CommandName)));
+        foreach (var subscriber in subscribers)
+        foreach (var subscriberCommand in subscriber.Commands)
+            await HandleCommandMessage(subscriber.ChatId, subscriberCommand.CommandName);
     }
 
     /// <summary>
@@ -110,6 +138,8 @@ public sealed class UpdateHandler : IUpdateHandler
             _ when userMessage.StartsWith(BotCommands.SubscribeCommand) => HandleSubscribeMessageAsync(chatId,
                 userMessage),
             _ when userMessage.StartsWith(BotCommands.UnsubscribeCommand) => HandleUnSubscribeMessageAsync(chatId,
+                userMessage),
+            _ when userMessage.StartsWith(BotCommands.Reminder) => HandleReminderMessageSetupAsync(chatId,
                 userMessage),
             _ => Task.CompletedTask
         };
@@ -228,6 +258,78 @@ public sealed class UpdateHandler : IUpdateHandler
              """);
     }
 
+
+    /// <summary>
+    ///     Handling /remind [time as hours:minutes] [text] message setup
+    /// </summary>
+    /// <param name="chatId">User chat id</param>
+    /// <param name="userMessageText">Message sent by user</param>
+    /// <returns>Sent weather to the user</returns>
+    private async Task HandleReminderMessageSetupAsync(long chatId, string userMessageText)
+    {
+        var parts = userMessageText.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
+
+        var time = DateTime.Parse(parts[1]);
+        var timeZone = TimeHelper.GetUkraineTimeZoneInfo().StandardName;
+        var offset = TimeHelper.CalculateOffset(timeZone, time);
+
+        var text = string.Join(" ", parts.Skip(2));
+
+        if (offset.TotalSeconds < 0)
+        {
+            await HandleTextMessageAsync(chatId, "Time cannot be in the past");
+            return;
+        }
+
+        _backgroundJobClient.Enqueue(() => HandleReminderMessageAsync(chatId, text, offset));
+    }
+
+    /// <summary>
+    ///     Handling /remind [time as hours:minutes] [text] message
+    /// </summary>
+    /// <param name="chatId">User chat id</param>
+    /// <param name="userMessageText">Message sent by user</param>
+    /// <param name="offset">Offset</param>
+    /// <returns>Sent weather to the user</returns>
+    public async Task HandleReminderMessageAsync(long chatId, string userMessageText,
+        TimeSpan offset)
+    {
+        var shortenMessage = userMessageText[..Math.Min(userMessageText.Length, 30)];
+
+        var notificationText = $"""
+                                {shortenMessage}\.\.\.
+                                {offset.Hours:00}:{offset.Minutes:00}
+                                """;
+
+        var messageId = await HandleTextMessageAsync(chatId, notificationText, ParseMode.Html);
+
+        await _botClient.PinChatMessageAsync(chatId, messageId);
+
+        while (offset.Minutes > 0)
+        {
+            notificationText = $"""
+                                {shortenMessage}...
+                                {offset.Hours:00}:{offset.Minutes:00}
+                                """;
+
+            try
+            {
+                await _botClient.EditMessageTextAsync(chatId, messageId, notificationText);
+            }
+            catch
+            {
+                // ignored
+            }
+
+            await Task.Delay(60000);
+            offset += TimeSpan.FromMinutes(-1);
+        }
+
+        await _botClient.DeleteMessageAsync(chatId, messageId);
+
+        await HandleTextMessageAsync(chatId, userMessageText);
+    }
+
     /// <summary>
     ///     Handling /weather_forecast [city_name] message
     /// </summary>
@@ -296,6 +398,7 @@ public sealed class UpdateHandler : IUpdateHandler
              For subscribing on `{BotCommands.WeatherForecastCommand}` command `{BotCommands.SubscribeOnWeatherForecastCommand}` \[city\_name\]\!
              For unsubscribing from `{BotCommands.WeatherForecastCommand}` command `{BotCommands.UnsubscribeFromWeatherForecastCommand}` \[city\_name\]\!
              For receiving list of all your subscriptions send me `{BotCommands.GetListOfSubscriptionsCommand}`\!
+             Setting up reminder: /remind [time as hours:minutes] [text]
              My GitHub: `https://github.com/ShindQQ/WeatherAlertsBot`
              """);
     }
@@ -364,17 +467,22 @@ public sealed class UpdateHandler : IUpdateHandler
     /// </summary>
     /// <param name="chatId">Id of the chat to send to</param>
     /// <param name="messageForUser">Message which will be sent</param>
+    /// <param name="parseMode">Parse mode</param>
     /// <returns>Sent text message</returns>
-    private async Task HandleTextMessageAsync(long chatId, string messageForUser)
+    public async Task<int> HandleTextMessageAsync(long chatId, string messageForUser,
+        ParseMode parseMode = ParseMode.MarkdownV2)
     {
         try
         {
-            await _botClient.SendTextMessageAsync(chatId, messageForUser,
-                parseMode: ParseMode.MarkdownV2,
+            var message = await _botClient.SendTextMessageAsync(chatId, messageForUser,
+                parseMode: parseMode,
                 cancellationToken: _cancellationTokenSource.Token);
+
+            return message.MessageId;
         }
         catch (ApiRequestException)
         {
+            return -1;
         }
     }
 

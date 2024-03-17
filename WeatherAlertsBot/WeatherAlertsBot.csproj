@@ -18,6 +18,8 @@
 
     <ItemGroup>
         <PackageReference Include="CoreHtmlToImage" Version="1.0.6"/>
+        <PackageReference Include="Hangfire" Version="1.8.11"/>
+        <PackageReference Include="Hangfire.MySqlStorage" Version="2.0.3"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -26,11 +28,9 @@
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0"/>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
         <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6"/>
-        <PackageReference Include="Quartz" Version="3.8.1"/>
-        <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.8.1"/>
-        <PackageReference Include="Quartz.Extensions.Hosting" Version="3.8.1"/>
         <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0"/>
         <PackageReference Include="Telegram.Bot" Version="19.0.0"/>
+        <PackageReference Include="TimeZoneConverter" Version="6.1.0"/>
     </ItemGroup>
 
     <ItemGroup>

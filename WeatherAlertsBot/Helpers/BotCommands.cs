@@ -18,60 +18,65 @@ public static class BotCommands
     /// <summary>
     ///     String for weather command
     /// </summary>
-    public static readonly string WeatherCommand = "/weather";
+    public const string WeatherCommand = "/weather";
 
     /// <summary>
     ///     String for wf command
     /// </summary>
-    public static readonly string WeatherForecastCommand = "/wf";
+    public const string WeatherForecastCommand = "/wf";
 
     /// <summary>
     ///     String for al_map command
     /// </summary>
-    public static readonly string AlertsMapCommand = "/al_map";
+    public const string AlertsMapCommand = "/al_map";
 
     /// <summary>
     ///     String for al_map_stick command
     /// </summary>
-    public static readonly string AlertsMapStickerCommand = "/al_map_stick";
+    public const string AlertsMapStickerCommand = "/al_map_stick";
 
     /// <summary>
     ///     String for al_lost command
     /// </summary>
-    public static readonly string AlertsLostCommand = "/al_lost";
+    public const string AlertsLostCommand = "/al_lost";
 
     /// <summary>
     ///     Subscription command
     /// </summary>
-    public static readonly string SubscribeCommand = "/sub";
+    public const string SubscribeCommand = "/sub";
 
     /// <summary>
     ///     UnSubscription command
     /// </summary>
-    public static readonly string UnsubscribeCommand = "/unsub";
+    public const string UnsubscribeCommand = "/unsub";
 
     /// <summary>
     ///     Subscription al_lost command
     /// </summary>
-    public static readonly string SubscribeOnAlertsLostCommand = "/sub_al_lost";
+    public const string SubscribeOnAlertsLostCommand = "/sub_al_lost";
 
     /// <summary>
     ///     Subscription on wf command
     /// </summary>
-    public static readonly string SubscribeOnWeatherForecastCommand = "/sub_wf";
+    public const string SubscribeOnWeatherForecastCommand = "/sub_wf";
 
     /// <summary>
     ///     UnSubscription from al_lost command
     /// </summary>
-    public static readonly string UnsubscribeFromAlertsLostCommand = "/unsub_al_lost";
+    public const string UnsubscribeFromAlertsLostCommand = "/unsub_al_lost";
 
     /// <summary>
     ///     UnSubscription from wf command
     /// </summary>
-    public static readonly string UnsubscribeFromWeatherForecastCommand = "/unsub_wf";
+    public const string UnsubscribeFromWeatherForecastCommand = "/unsub_wf";
 
     /// <summary>
     ///     Receiving list of subscriptions for selected user command
     /// </summary>
-    public static readonly string GetListOfSubscriptionsCommand = "/sub_list";
+    public const string GetListOfSubscriptionsCommand = "/sub_list";
+
+    /// <summary>
+    ///     Creating reminder command
+    /// </summary>
+    public const string Reminder = "/remind";
 }

@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire;
+using Hangfire.MySql;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Quartz;
+using Newtonsoft.Json;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -14,53 +16,46 @@ using WeatherAlertsBot.TelegramBotHandlers;
 using WeatherAlertsBot.UserServices;
 using IUpdateHandler = WeatherAlertsBot.TelegramBotHandlers.IUpdateHandler;
 
-var botClient = new TelegramBotClient(BotConfiguration.BotAccessToken);
+var telegramBotClient = new TelegramBotClient(BotConfiguration.BotAccessToken);
 
 using CancellationTokenSource cancellationTokenSource = new();
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
     {
-        services.AddSingleton<ITelegramBotClient>(botClient);
+        var configuration = hostContext.Configuration;
+        var dbConnectionString = configuration.GetConnectionString("DbConnection")!;
+
+        services.AddSingleton<ITelegramBotClient>(telegramBotClient);
         services.AddScoped<IUpdateHandler, UpdateHandler>();
         services.AddSingleton(cancellationTokenSource);
         services.AddScoped<ISubscriberRepository, SubscriberRepository>().AddDbContext<BotContext>(options =>
-            options.UseMySql(hostContext.Configuration.GetConnectionString("DbConnection"),
+            options.UseMySql(dbConnectionString,
                 new MySqlServerVersion(new Version(8, 0, 30))));
 
-        services.Configure<QuartzOptions>(options =>
-        {
-            options.Scheduling.IgnoreDuplicates = true;
-            options.Scheduling.OverWriteExistingData = true;
-        });
+        services.Configure<BackgroundJobOptions>(configuration.GetSection(BackgroundJobOptions.ConfigName));
+        services.AddHostedService<NotifySubscribersJob>();
 
-        services.AddQuartz(q =>
-        {
-            q.SchedulerId = "Bot-Id";
+        services.AddHangfire(options => options
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSerializerSettings(new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            })
+            .UseStorage(new MySqlStorage(dbConnectionString,
+                new MySqlStorageOptions
+                {
+                    QueuePollInterval = TimeSpan.FromSeconds(10),
+                    TablesPrefix = "Hangfire",
+                    PrepareSchemaIfNecessary = true
+                })));
 
-            q.UseSimpleTypeLoader();
-            q.UseInMemoryStore();
-            q.UseDefaultThreadPool(tp => { tp.MaxConcurrency = 10; });
-
-            var jobKey = new JobKey("notify job", "notify group");
-
-            q.UseMicrosoftDependencyInjectionJobFactory();
-
-            q.AddJob<NotifySubscribersJob>(j => j
-                .StoreDurably()
-                .WithIdentity(jobKey)
-            );
-
-            q.AddTrigger(t => t
-                .ForJob(jobKey)
-                .WithCronSchedule("0 0 0 1/1 * ? *")
-                .StartAt(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 21, 59, 59))
-            );
-        });
-        services.AddQuartzHostedService(options => { options.WaitForJobsToComplete = true; });
+        services.AddHangfireServer();
     }).Build();
 
-botClient.StartReceiving(
+telegramBotClient.StartReceiving(
     HandleUpdateAsync,
     HandlePollingErrorAsync,
     new ReceiverOptions(),
