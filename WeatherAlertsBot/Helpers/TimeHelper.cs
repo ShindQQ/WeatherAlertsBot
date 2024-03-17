@@ -4,17 +4,17 @@ public static class TimeHelper
 {
     public static TimeZoneInfo GetUkraineTimeZoneInfo()
     {
-        const string jerusalemTimeZoneId = "FLE Standard Time";
+        const string ukraineTimeId = "FLE Standard Time";
 
-        return TimeZoneInfo.FindSystemTimeZoneById(jerusalemTimeZoneId);
+        return TimeZoneInfo.FindSystemTimeZoneById(ukraineTimeId);
     }
 
     public static DateTime GetUkraineCurrentTime()
     {
         var timeZoneInfo = GetUkraineTimeZoneInfo();
-        var jerusalemTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneInfo);
+        var ukraineTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneInfo);
 
-        return jerusalemTime;
+        return ukraineTime;
     }
 
     public static TimeSpan CalculateOffset(string timeZoneName, DateTime executeAt)
@@ -22,7 +22,7 @@ public static class TimeHelper
         var dateTimeUtcNow = DateTime.UtcNow;
         var userLocalTime = dateTimeUtcNow.ConvertToUserLocalTime(timeZoneName);
 
-        var result = executeAt.ToUniversalTime().ConvertToUserLocalTime(timeZoneName) - userLocalTime;
+        var result = executeAt.ConvertToUserLocalTime(timeZoneName) - userLocalTime;
         return result;
     }
 }
