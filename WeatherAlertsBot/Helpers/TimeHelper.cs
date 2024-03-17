@@ -19,7 +19,7 @@ public static class TimeHelper
 
     public static TimeSpan CalculateOffset(TimeZoneInfo timeZoneInfo, DateTime executeAt)
     {
-        var dateTimeUtcNow = DateTime.UtcNow;
+        var dateTimeUtcNow = DateTime.Now;
         var userLocalTime = dateTimeUtcNow.ConvertToTimeZone(timeZoneInfo);
 
         var result = executeAt.ConvertToTimeZone(timeZoneInfo) - userLocalTime;
