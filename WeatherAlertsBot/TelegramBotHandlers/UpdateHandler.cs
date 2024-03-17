@@ -273,7 +273,7 @@ public sealed class UpdateHandler : IUpdateHandler
             var parts = userMessageText.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
 
             var time = DateTime.Parse(parts[1]);
-            var timeZoneInfo = TimeHelper.GetUkraineTimeZoneInfo();
+            
             var offset = TimeHelper.CalculateOffset(time);
 
             var text = string.Join(" ", parts.Skip(2));
