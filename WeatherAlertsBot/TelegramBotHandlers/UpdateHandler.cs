@@ -1,4 +1,6 @@
-﻿using Hangfire;
+﻿using System.Net;
+using System.Text;
+using Hangfire;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
@@ -277,7 +279,9 @@ public sealed class UpdateHandler : IUpdateHandler
             var offset = TimeHelper.CalculateOffset(time);
 
             var text = string.Join(" ", parts.Skip(2));
-
+            
+            text = WebUtility.UrlEncode(text);
+            
             if (offset.TotalSeconds < 0)
             {
                 await HandleTextMessageAsync(chatId, "Time cannot be in the past");
@@ -286,7 +290,7 @@ public sealed class UpdateHandler : IUpdateHandler
             
             _backgroundJobClient.Enqueue(() => HandleReminderMessageAsync(chatId, text, offset));
         }
-        catch
+        catch (Exception ex)
         {
             await HandleErrorMessage(chatId);
         }
@@ -302,6 +306,7 @@ public sealed class UpdateHandler : IUpdateHandler
     public async Task HandleReminderMessageAsync(long chatId, string userMessageText,
         TimeSpan offset)
     {
+        userMessageText = WebUtility.UrlDecode(userMessageText);
         var shortenMessage = userMessageText[..Math.Min(userMessageText.Length, 30)];
 
         var notificationText = $"""
@@ -488,7 +493,7 @@ public sealed class UpdateHandler : IUpdateHandler
 
             return message.MessageId;
         }
-        catch (ApiRequestException)
+        catch (ApiRequestException ex)
         {
             return -1;
         }
