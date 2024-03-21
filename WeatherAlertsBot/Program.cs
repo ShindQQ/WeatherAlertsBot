@@ -49,9 +49,12 @@ var host = Host.CreateDefaultBuilder(args)
                 {
                     QueuePollInterval = TimeSpan.FromSeconds(10),
                     TablesPrefix = "Hangfire",
-                    PrepareSchemaIfNecessary = true
+                    PrepareSchemaIfNecessary = true,
+                    InvisibilityTimeout = TimeSpan.FromHours(24)
                 })));
-
+        
+        GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
+        
         services.AddHangfireServer();
     }).Build();
 

@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Text;
 using Hangfire;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -290,7 +289,7 @@ public sealed class UpdateHandler : IUpdateHandler
             
             _backgroundJobClient.Enqueue(() => HandleReminderMessageAsync(chatId, text, offset));
         }
-        catch (Exception ex)
+        catch
         {
             await HandleErrorMessage(chatId);
         }
@@ -306,41 +305,54 @@ public sealed class UpdateHandler : IUpdateHandler
     public async Task HandleReminderMessageAsync(long chatId, string userMessageText,
         TimeSpan offset)
     {
-        userMessageText = WebUtility.UrlDecode(userMessageText);
-        var shortenMessage = userMessageText[..Math.Min(userMessageText.Length, 30)];
-
-        var notificationText = $"""
-                                {shortenMessage}\.\.\.
-                                {offset.Hours:00}:{offset.Minutes:00}
-                                """;
-
-        var messageId = await HandleTextMessageAsync(chatId, notificationText, ParseMode.Html);
-
-        await _botClient.PinChatMessageAsync(chatId, messageId);
-
-        while (offset is { Hours: > 0, Minutes: > 0 })
+        try
         {
-            notificationText = $"""
-                                {shortenMessage}...
-                                {offset.Hours:00}:{offset.Minutes:00}
-                                """;
+            userMessageText = WebUtility.UrlDecode(userMessageText);
+            var doesNeedDots = userMessageText.Length > 30;
+            var shortenMessage = userMessageText[..Math.Min(userMessageText.Length, 30)];
 
-            try
+            if(doesNeedDots)
+                shortenMessage += @"\.\.\.";
+            
+            var notificationText = $"""
+                                    {shortenMessage}
+                                    {offset.Hours:00}:{offset.Minutes:00}
+                                    """;
+
+            var messageId = await HandleTextMessageAsync(chatId, notificationText, ParseMode.Html);
+
+            shortenMessage = shortenMessage.Replace(@"\.\.\.", "...");
+            
+            await _botClient.PinChatMessageAsync(chatId, messageId);
+
+            while (offset.Hours > 0 || offset.Minutes > 0)
             {
-                await _botClient.EditMessageTextAsync(chatId, messageId, notificationText);
-            }
-            catch
-            {
-                // ignored
+                notificationText = $"""
+                                    {shortenMessage}
+                                    {offset.Hours:00}:{offset.Minutes:00}
+                                    """;
+
+                try
+                {
+                    await _botClient.EditMessageTextAsync(chatId, messageId, notificationText);
+                }
+                catch
+                {
+                    // ignored
+                }
+
+                await Task.Delay(60000);
+                offset += TimeSpan.FromMinutes(-1);
             }
 
-            await Task.Delay(60000);
-            offset += TimeSpan.FromMinutes(-1);
+            await _botClient.DeleteMessageAsync(chatId, messageId);
+
+            await HandleTextMessageAsync(chatId, userMessageText);
         }
-
-        await _botClient.DeleteMessageAsync(chatId, messageId);
-
-        await HandleTextMessageAsync(chatId, userMessageText);
+        catch
+        {
+            // ignored
+        }
     }
 
     /// <summary>
