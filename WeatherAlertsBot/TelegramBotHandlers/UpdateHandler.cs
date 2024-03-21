@@ -318,7 +318,7 @@ public sealed class UpdateHandler : IUpdateHandler
 
         await _botClient.PinChatMessageAsync(chatId, messageId);
 
-        while (offset.Minutes > 0)
+        while (offset is { Hours: > 0, Minutes: > 0 })
         {
             notificationText = $"""
                                 {shortenMessage}...
