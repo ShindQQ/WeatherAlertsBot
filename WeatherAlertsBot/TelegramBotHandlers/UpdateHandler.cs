@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Hangfire;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
@@ -20,8 +19,6 @@ namespace WeatherAlertsBot.TelegramBotHandlers;
 public sealed class UpdateHandler : IUpdateHandler
 {
     private static readonly char[] Separators = [' '];
-
-    private readonly IBackgroundJobClient _backgroundJobClient;
 
     /// <summary>
     ///     A client interface to use Telegram Bot API
@@ -44,17 +41,14 @@ public sealed class UpdateHandler : IUpdateHandler
     /// <param name="telegramBotClient">A client interface to use Telegram Bot API</param>
     /// <param name="subscriberRepository">Service for work with db context</param>
     /// <param name="cancellationTokenSource">Cancellation Token Source</param>
-    /// <param name="backgroundJobClient">Hangfire job client</param>
     public UpdateHandler(
         ITelegramBotClient telegramBotClient,
         ISubscriberRepository subscriberRepository,
-        CancellationTokenSource cancellationTokenSource,
-        IBackgroundJobClient backgroundJobClient)
+        CancellationTokenSource cancellationTokenSource)
     {
         _botClient = telegramBotClient;
         _subscriberRepository = subscriberRepository;
         _cancellationTokenSource = cancellationTokenSource;
-        _backgroundJobClient = backgroundJobClient;
     }
 
     /// <summary>
@@ -287,7 +281,7 @@ public sealed class UpdateHandler : IUpdateHandler
                 return;
             }
             
-            _backgroundJobClient.Enqueue(() => HandleReminderMessageAsync(chatId, text, offset));
+            Task.Run(() => HandleReminderMessageAsync(chatId, text, offset));
         }
         catch
         {
