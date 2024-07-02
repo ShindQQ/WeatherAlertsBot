@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Globalization;
+using System.Net;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
@@ -267,19 +268,18 @@ public sealed class UpdateHandler : IUpdateHandler
         {
             var parts = userMessageText.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
 
-            var time = DateTime.Parse(parts[1]);
+            var time = DateTime.ParseExact(parts[1] + ' ' + parts[2], "d/M H:mm", CultureInfo.InvariantCulture);
             
             var offset = TimeHelper.CalculateOffset(time);
-
-            var text = string.Join(" ", parts.Skip(2));
-            
-            text = WebUtility.UrlEncode(text);
             
             if (offset.TotalSeconds < 0)
             {
                 await HandleTextMessageAsync(chatId, "Time cannot be in the past");
                 return;
             }
+            
+            var text = string.Join(" ", parts.Skip(3));
+            text = WebUtility.UrlEncode(text);
             
             Task.Run(() => HandleReminderMessageAsync(chatId, text, offset));
         }
@@ -417,7 +417,7 @@ public sealed class UpdateHandler : IUpdateHandler
              For subscribing on `{BotCommands.WeatherForecastCommand}` command `{BotCommands.SubscribeOnWeatherForecastCommand}` \[city\_name\]\!
              For unsubscribing from `{BotCommands.WeatherForecastCommand}` command `{BotCommands.UnsubscribeFromWeatherForecastCommand}` \[city\_name\]\!
              For receiving list of all your subscriptions send me `{BotCommands.GetListOfSubscriptionsCommand}`\!
-             Setting up reminder: `{BotCommands.Reminder}` \[time as hours\:minutes\] \[text\]
+             Setting up reminder: `{BotCommands.Reminder}` \[time as day:\month hours\:minutes\] \[text\]
              My GitHub: `https://github.com/ShindQQ/WeatherAlertsBot`
              """);
     }
