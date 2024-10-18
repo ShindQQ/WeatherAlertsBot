@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
+    <ItemGroup Label="My important dependencies">
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.3"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.3">
             <PrivateAssets>all</PrivateAssets>
@@ -19,6 +19,7 @@
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0"/>
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0"/>
         <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2"/>
+        <PackageReference Include="Ukrainian.System.ComponentModel.Annotations" Version="0.0.1"/>
     </ItemGroup>
 
 </Project>

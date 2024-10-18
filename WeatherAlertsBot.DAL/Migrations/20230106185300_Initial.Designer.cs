@@ -9,7 +9,7 @@ using WeatherAlertsBot.DAL.Contexts;
 
 namespace WeatherAlertsBot.DAL.Migrations
 {
-    [DbContext(typeof(BotContext))]
+    [DbContext(typeof(КонтекстБота))]
     [Migration("20230106185300_Initial")]
     partial class Initial
     {

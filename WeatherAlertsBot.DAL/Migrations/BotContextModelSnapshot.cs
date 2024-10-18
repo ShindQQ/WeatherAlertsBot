@@ -8,7 +8,7 @@ using WeatherAlertsBot.DAL.Contexts;
 
 namespace WeatherAlertsBot.DAL.Migrations
 {
-    [DbContext(typeof(BotContext))]
+    [DbContext(typeof(КонтекстБота))]
     partial class BotContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

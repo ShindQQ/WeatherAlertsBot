@@ -1,11 +1,11 @@
 ﻿using Telegram.Bot.Types;
 using WeatherAlertsBot.Configuration;
-using WeatherAlertsBot.Helpers;
+using WeatherAlertsBot.Помічники;
 using WeatherAlertsBot.OpenWeatherApi.Models;
 using WeatherAlertsBot.OpenWeatherApi.Models.CurrentWeather;
 using WeatherAlertsBot.OpenWeatherApi.Models.GeoCodingAPI;
 using WeatherAlertsBot.OpenWeatherApi.Models.WeatherForecast;
-using WeatherAlertsBot.RequestHandlers;
+using WeatherAlertsBot.ОбробникиЗапитів;
 
 namespace WeatherAlertsBot.OpenWeatherApi;
 
@@ -22,10 +22,10 @@ public static class WeatherHandler
     /// <returns>WeatherResult</returns>
     public static async Task<WeatherResult?> GetCurrentWeatherByCoordinatesAsync(float lattitude, float longitude)
     {
-        var url = ApIsLinks.OpenWeatherApiUrl + ApIsLinks.CurrentWeatherUrl
-                                              + $"?units=metric&lat={lattitude}&lon={longitude}&appid={BotConfiguration.OpenWeatherApiKey}";
+        var url = ПосиланняАПІ.OpenWeatherApiUrl + ПосиланняАПІ.CurrentWeatherUrl
+                                              + $"?units=metric&lat={lattitude}&lon={longitude}&appid={КонфігураціяБота.OpenWeatherApiKey}";
 
-        return await ApisRequestsHandler.GetResponseFromApiAsync<WeatherResult>(url);
+        return await ОбробникАПІЗапитів.ВзятиВідгукВідАпіАсінх<WeatherResult>(url);
     }
 
     /// <summary>
@@ -37,10 +37,10 @@ public static class WeatherHandler
     public static async Task<WeatherForecastResult?> GetWeatherForecastByCoordinatesAsync(float lattitude,
         float longitude)
     {
-        var url = ApIsLinks.OpenWeatherApiUrl + ApIsLinks.WeatherForecastUrl
-                                              + $"?units=metric&cnt=8&lat={lattitude}&lon={longitude}&appid={BotConfiguration.OpenWeatherApiKey}";
+        var url = ПосиланняАПІ.OpenWeatherApiUrl + ПосиланняАПІ.WeatherForecastUrl
+                                              + $"?units=metric&cnt=8&lat={lattitude}&lon={longitude}&appid={КонфігураціяБота.OpenWeatherApiKey}";
 
-        return await ApisRequestsHandler.GetResponseFromApiAsync<WeatherForecastResult>(url);
+        return await ОбробникАПІЗапитів.ВзятиВідгукВідАпіАсінх<WeatherForecastResult>(url);
     }
 
     /// <summary>
@@ -50,10 +50,10 @@ public static class WeatherHandler
     /// <returns>CoordinatesInfo</returns>
     private static async Task<IEnumerable<CoordinatesInfo>?> GetLattitudeAndLongitudeByCityNameAsync(string cityName)
     {
-        var url = ApIsLinks.OpenWeatherApiUrl + ApIsLinks.GeoAPIUrl +
-                  $"?q={cityName}&appid={BotConfiguration.OpenWeatherApiKey}";
+        var url = ПосиланняАПІ.OpenWeatherApiUrl + ПосиланняАПІ.GeoAPIUrl +
+                  $"?q={cityName}&appid={КонфігураціяБота.OpenWeatherApiKey}";
 
-        return await ApisRequestsHandler.GetResponseFromApiAsync<IEnumerable<CoordinatesInfo>>(url);
+        return await ОбробникАПІЗапитів.ВзятиВідгукВідАпіАсінх<IEnumerable<CoordinatesInfo>>(url);
     }
 
     /// <summary>
