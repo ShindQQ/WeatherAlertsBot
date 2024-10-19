@@ -1,4 +1,4 @@
-using WeatherAlertsBot.Helpers;
+using WeatherAlertsBot.Помічники;
 using WeatherAlertsBot.OpenWeatherApi.Models;
 using WeatherAlertsBot.OpenWeatherApi.Models.WeatherForecast;
 
@@ -23,7 +23,7 @@ public static class WeatherImageGenerator
                                     text-align:center;
                                     position:absolute;top:0px;left:0px">
                                         <img
-                                        src="{ApIsLinks.OpenWeatherApiIcons}{currentWeather.IconType}@2x.png"
+                                        src="{ПосиланняАПІ.OpenWeatherApiIcons}{currentWeather.IconType}@2x.png"
                                           >
                                         <h1 style="font-size:14px;color:white">Weather in {currentWeather.CityName}</h1>
                                         <h1 style="font-size:14px;color:white">Temperature {currentWeather.Temperature:N2} &degC</h1>
@@ -31,7 +31,7 @@ public static class WeatherImageGenerator
                                     </div>
                                     """;
 
-        return HtmlConverter.HtmlConverter.FromHtmlString(weatherForecastImage, 500);
+        return HtmlКонвертер.HtmlКонвертер.ІзHtmlРядка(weatherForecastImage, 500);
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ public static class WeatherImageGenerator
                  <div style="display:inline-block;">
                      <div style="height:430px;width:320px;">
                          <img
-                         src="{ApIsLinks.OpenWeatherApiIcons}{weatherData.WeatherForecastCurrentWeather.First().IconType}@4x.png"
+                         src="{ПосиланняАПІ.OpenWeatherApiIcons}{weatherData.WeatherForecastCurrentWeather.First().IconType}@4x.png"
                            >
                          <h1 style="font-size:22px;color:white">Weather in {weatherForecast.WeatherForecastCity.CityName}</h1>
                          <h1 style="font-size:22px;color:white">On {weatherData.Date[..^3]}</h1>
@@ -64,6 +64,6 @@ public static class WeatherImageGenerator
                  </div>
              """);
 
-        return HtmlConverter.HtmlConverter.FromHtmlString(result + "</div>", 1300);
+        return HtmlКонвертер.HtmlКонвертер.ІзHtmlРядка(result + "</div>", 1300);
     }
 }

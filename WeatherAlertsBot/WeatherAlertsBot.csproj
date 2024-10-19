@@ -17,20 +17,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CoreHtmlToImage" Version="1.0.6"/>
-        <PackageReference Include="Hangfire" Version="1.8.11"/>
-        <PackageReference Include="Hangfire.MySqlStorage" Version="2.0.3"/>
+        <PackageReference Include="CoreHtmlToImage" Version="1.0.6" />
+        <PackageReference Include="Hangfire" Version="1.8.11" />
+        <PackageReference Include="Hangfire.MySqlStorage" Version="2.0.3" /> 
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6"/>
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0"/>
-        <PackageReference Include="Telegram.Bot" Version="19.0.0"/>
-        <PackageReference Include="TimeZoneConverter" Version="6.1.0"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+        <PackageReference Include="Ukrainian.Microsoft.Extensions.Hosting" Version="0.0.1" />
+        <PackageReference Include="Ukrainian.System.Runtime" Version="0.0.3" />
+        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+        <PackageReference Include="Telegram.Bot" Version="19.0.0" />
+        <PackageReference Include="TimeZoneConverter" Version="6.1.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -40,7 +42,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\WeatherAlertsBot.DAL\WeatherAlertsBot.DAL.csproj"/>
+        <ProjectReference Include="..\WeatherAlertsBot.DAL\WeatherAlertsBot.DAL.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -59,7 +61,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="..\.dockerignore"/>
+        <None Remove="..\.dockerignore" />
     </ItemGroup>
 
 </Project>
