@@ -363,7 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # Hiding 
-appsettings.json
 Dockerfile
 .dockerignore
 docker-compose.yml
