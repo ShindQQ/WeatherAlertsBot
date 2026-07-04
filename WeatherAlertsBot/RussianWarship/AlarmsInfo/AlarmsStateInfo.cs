@@ -7,9 +7,9 @@ namespace WeatherAlertsBot.RussianWarship.AlarmsInfo;
 /// </summary>
 public sealed class AlarmsStateInfo
 {
-    /// <summary>
-    ///     States of Ukraine
-    /// </summary>
-    [JsonPropertyName("states")]
-    public Dictionary<string, StateObject> States { get; set; } = null!;
+	/// <summary>
+	///     States of Ukraine
+	/// </summary>
+	[JsonPropertyName("states")]
+	public Dictionary<string, StateObject> States { get; set; } = null!;
 }

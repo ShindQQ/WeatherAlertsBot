@@ -5,13 +5,13 @@
 /// </summary>
 public sealed class SubscriberCommandDto
 {
-    /// <summary>
-    ///     Id of the subscriber command
-    /// </summary>
-    public int? Id { get; set; }
+	/// <summary>
+	///     Id of the subscriber command
+	/// </summary>
+	public int? Id { get; set; }
 
-    /// <summary>
-    ///     Name of the command
-    /// </summary>
-    public string? CommandName { get; set; }
+	/// <summary>
+	///     Name of the command
+	/// </summary>
+	public string? CommandName { get; set; }
 }

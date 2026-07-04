@@ -7,25 +7,27 @@ namespace WeatherAlertsBot.Configuration;
 /// </summary>
 public static class BotConfiguration
 {
-    /// <summary>
-    ///     Api key for Open Weather API
-    /// </summary>
-    public static readonly string OpenWeatherApiKey;
+	/// <summary>
+	///     Api key for Open Weather API
+	/// </summary>
+	public static readonly string OpenWeatherApiKey;
 
-    /// <summary>
-    ///     Bot access token
-    /// </summary>
-    public static readonly string BotAccessToken;
+	/// <summary>
+	///     Bot access token
+	/// </summary>
+	public static readonly string BotAccessToken;
 
-    /// <summary>
-    ///     Constructor
-    /// </summary>
-    static BotConfiguration()
-    {
-        var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", true, true).Build();
+	/// <summary>
+	///     Constructor
+	/// </summary>
+	static BotConfiguration()
+	{
+		var configuration = new ConfigurationBuilder()
+			.AddJsonFile("appsettings.json", true, true)
+			.AddUserSecrets(typeof(BotConfiguration).Assembly, true)
+			.Build();
 
-        OpenWeatherApiKey = configuration["OpenWeatherApiKey"]!;
-        BotAccessToken = configuration["BotAccessToken"]!;
-    }
+		OpenWeatherApiKey = configuration["OpenWeatherApiKey"]!;
+		BotAccessToken = configuration["BotAccessToken"]!;
+	}
 }

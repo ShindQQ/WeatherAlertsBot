@@ -5,6 +5,6 @@
 /// </summary>
 public enum ImageFormat
 {
-    Jpg,
-    Png
+	Jpg,
+	Png
 }

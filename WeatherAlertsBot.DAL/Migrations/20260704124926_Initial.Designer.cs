@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WeatherAlertsBot.DAL.Contexts;
 
 #nullable disable
@@ -10,7 +11,7 @@ using WeatherAlertsBot.DAL.Contexts;
 namespace WeatherAlertsBot.DAL.Migrations
 {
     [DbContext(typeof(BotContext))]
-    [Migration("20230106185300_Initial")]
+    [Migration("20260704124926_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -18,20 +19,22 @@ namespace WeatherAlertsBot.DAL.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.1")
-                .HasAnnotation("Relational:MaxIdentifierLength", 64);
+                .HasAnnotation("ProductVersion", "10.0.9")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("SubscriberSubscriberCommand", b =>
                 {
                     b.Property<int>("CommandsId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    b.Property<long>("SubsrcibersChatId")
+                    b.Property<long>("SubscribersChatId")
                         .HasColumnType("bigint");
 
-                    b.HasKey("CommandsId", "SubsrcibersChatId");
+                    b.HasKey("CommandsId", "SubscribersChatId");
 
-                    b.HasIndex("SubsrcibersChatId");
+                    b.HasIndex("SubscribersChatId");
 
                     b.ToTable("SubscriberSubscriberCommand");
                 });
@@ -50,11 +53,13 @@ namespace WeatherAlertsBot.DAL.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CommandName")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -71,7 +76,7 @@ namespace WeatherAlertsBot.DAL.Migrations
 
                     b.HasOne("WeatherAlertsBot.DAL.Entities.Subscriber", null)
                         .WithMany()
-                        .HasForeignKey("SubsrcibersChatId")
+                        .HasForeignKey("SubscribersChatId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

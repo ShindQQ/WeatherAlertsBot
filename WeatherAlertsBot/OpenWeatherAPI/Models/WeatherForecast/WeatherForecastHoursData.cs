@@ -7,27 +7,27 @@ namespace WeatherAlertsBot.OpenWeatherApi.Models.WeatherForecast;
 /// </summary>
 public sealed class WeatherForecastHoursData
 {
-    /// <summary>
-    ///     Temperature data for weather forecast
-    /// </summary>
-    [JsonPropertyName("main")]
-    public WeatherForecastTemperatureData WeatherForecastTemperatureData { get; set; } = null!;
+	/// <summary>
+	///     Temperature data for weather forecast
+	/// </summary>
+	[JsonPropertyName("main")]
+	public WeatherForecastTemperatureData WeatherForecastTemperatureData { get; set; } = null!;
 
-    /// <summary>
-    ///     Current weather for selected time
-    /// </summary>
-    [JsonPropertyName("weather")]
-    public List<WeatherForecastCurrentWeather> WeatherForecastCurrentWeather { get; set; } = new();
+	/// <summary>
+	///     Current weather for selected time
+	/// </summary>
+	[JsonPropertyName("weather")]
+	public List<WeatherForecastCurrentWeather> WeatherForecastCurrentWeather { get; set; } = new();
 
-    /// <summary>
-    ///     Probability of precipitation for selected time
-    /// </summary>
-    [JsonPropertyName("pop")]
-    public float ProbabilityOfPrecipitation { get; set; }
+	/// <summary>
+	///     Probability of precipitation for selected time
+	/// </summary>
+	[JsonPropertyName("pop")]
+	public float ProbabilityOfPrecipitation { get; set; }
 
-    /// <summary>
-    ///     Time of selected request
-    /// </summary>
-    [JsonPropertyName("dt_txt")]
-    public string Date { get; set; } = string.Empty;
+	/// <summary>
+	///     Time of selected request
+	/// </summary>
+	[JsonPropertyName("dt_txt")]
+	public string Date { get; set; } = string.Empty;
 }

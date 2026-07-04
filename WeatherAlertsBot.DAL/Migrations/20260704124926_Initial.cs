@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -11,23 +11,18 @@ namespace WeatherAlertsBot.DAL.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterDatabase()
-                .Annotation("MySql:CharSet", "utf8mb4");
-
             migrationBuilder.CreateTable(
                 name: "SubscriberCommands",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    CommandName = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CommandName = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SubscriberCommands", x => x.Id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
+                });
 
             migrationBuilder.CreateTable(
                 name: "Subscribers",
@@ -38,19 +33,18 @@ namespace WeatherAlertsBot.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Subscribers", x => x.ChatId);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
+                });
 
             migrationBuilder.CreateTable(
                 name: "SubscriberSubscriberCommand",
                 columns: table => new
                 {
-                    CommandsId = table.Column<int>(type: "int", nullable: false),
-                    SubsrcibersChatId = table.Column<long>(type: "bigint", nullable: false)
+                    CommandsId = table.Column<int>(type: "integer", nullable: false),
+                    SubscribersChatId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SubscriberSubscriberCommand", x => new { x.CommandsId, x.SubsrcibersChatId });
+                    table.PrimaryKey("PK_SubscriberSubscriberCommand", x => new { x.CommandsId, x.SubscribersChatId });
                     table.ForeignKey(
                         name: "FK_SubscriberSubscriberCommand_SubscriberCommands_CommandsId",
                         column: x => x.CommandsId,
@@ -58,18 +52,17 @@ namespace WeatherAlertsBot.DAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SubscriberSubscriberCommand_Subscribers_SubsrcibersChatId",
-                        column: x => x.SubsrcibersChatId,
+                        name: "FK_SubscriberSubscriberCommand_Subscribers_SubscribersChatId",
+                        column: x => x.SubscribersChatId,
                         principalTable: "Subscribers",
                         principalColumn: "ChatId",
                         onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
+                });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SubscriberSubscriberCommand_SubsrcibersChatId",
+                name: "IX_SubscriberSubscriberCommand_SubscribersChatId",
                 table: "SubscriberSubscriberCommand",
-                column: "SubsrcibersChatId");
+                column: "SubscribersChatId");
         }
 
         /// <inheritdoc />

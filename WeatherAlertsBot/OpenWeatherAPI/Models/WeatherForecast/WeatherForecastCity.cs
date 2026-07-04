@@ -7,9 +7,9 @@ namespace WeatherAlertsBot.OpenWeatherApi.Models.WeatherForecast;
 /// </summary>
 public sealed class WeatherForecastCity
 {
-    /// <summary>
-    ///     Name of the city
-    /// </summary>
-    [JsonPropertyName("name")]
-    public string CityName { get; set; } = string.Empty;
+	/// <summary>
+	///     Name of the city
+	/// </summary>
+	[JsonPropertyName("name")]
+	public string CityName { get; set; } = string.Empty;
 }

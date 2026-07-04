@@ -7,9 +7,9 @@ namespace WeatherAlertsBot.RussianWarship.LiquidationsInfo;
 /// </summary>
 public sealed class RussianInvasion
 {
-    /// <summary>
-    ///     Data about enemies looses
-    /// </summary>
-    [JsonPropertyName("data")]
-    public RussianWarshipInfo RussianWarshipInfo { get; set; } = null!;
+	/// <summary>
+	///     Data about enemies looses
+	/// </summary>
+	[JsonPropertyName("data")]
+	public RussianWarshipInfo RussianWarshipInfo { get; set; } = null!;
 }

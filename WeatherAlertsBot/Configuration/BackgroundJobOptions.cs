@@ -2,11 +2,11 @@
 
 public sealed record BackgroundJobOptions
 {
-    public const string ConfigName = "BackgroundJob";
+	public const string ConfigName = "BackgroundJob";
 
-    public int CheckTimerInMinutes { get; init; }
+	public int CheckTimerInMinutes { get; init; }
 
-    public int TimerIntervalInMilliseconds => CheckTimerInMinutes * 60 * 1000;
+	public int TimerIntervalInMilliseconds => CheckTimerInMinutes * 60 * 1000;
 
-    public int ExecuteAt { get; init; }
+	public int ExecuteAt { get; init; }
 }

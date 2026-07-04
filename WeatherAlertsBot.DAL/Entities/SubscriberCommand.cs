@@ -8,20 +8,20 @@ namespace WeatherAlertsBot.DAL.Entities;
 /// </summary>
 public sealed class SubscriberCommand
 {
-    /// <summary>
-    ///     Id of the command for the user
-    /// </summary>
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
+	/// <summary>
+	///     Id of the command for the user
+	/// </summary>
+	[Key]
+	[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+	public int Id { get; set; }
 
-    /// <summary>
-    ///     Name of the command
-    /// </summary>
-    public string CommandName { get; set; } = string.Empty;
+	/// <summary>
+	///     Name of the command
+	/// </summary>
+	public string CommandName { get; set; } = string.Empty;
 
-    /// <summary>
-    ///     Users subscribed on this command
-    /// </summary>
-    public List<Subscriber> Subsrcibers { get; set; } = new();
+	/// <summary>
+	///     Users subscribed on this command
+	/// </summary>
+	public List<Subscriber> Subscribers { get; set; } = new();
 }

@@ -8,15 +8,15 @@ namespace WeatherAlertsBot.DAL.Entities;
 /// </summary>
 public sealed class Subscriber
 {
-    /// <summary>
-    ///     Id of the chat for the user
-    /// </summary>
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public long ChatId { get; set; }
+	/// <summary>
+	///     Id of the chat for the user
+	/// </summary>
+	[Key]
+	[DatabaseGenerated(DatabaseGeneratedOption.None)]
+	public long ChatId { get; set; }
 
-    /// <summary>
-    ///     List of the commands for the user
-    /// </summary>
-    public List<SubscriberCommand> Commands { get; set; } = new();
+	/// <summary>
+	///     List of the commands for the user
+	/// </summary>
+	public List<SubscriberCommand> Commands { get; set; } = new();
 }

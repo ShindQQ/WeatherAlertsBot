@@ -7,9 +7,9 @@ namespace WeatherAlertsBot.RussianWarship.AlarmsInfo;
 /// </summary>
 public sealed class StateObject
 {
-    /// <summary>
-    ///     Is there alarm or not
-    /// </summary>
-    [JsonPropertyName("alertnow")]
-    public bool Enabled { get; set; }
+	/// <summary>
+	///     Is there alarm or not
+	/// </summary>
+	[JsonPropertyName("alertnow")]
+	public bool Enabled { get; set; }
 }

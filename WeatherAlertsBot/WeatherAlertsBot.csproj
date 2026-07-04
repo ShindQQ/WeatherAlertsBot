@@ -1,34 +1,27 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-        <LangVersion>preview</LangVersion>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <LangVersion>preview</LangVersion>
+        <UserSecretsId>3a00fbf4-3fec-4d83-89b0-4a77ea518adc</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="CoreHtmlToImage" Version="1.0.6"/>
-        <PackageReference Include="Hangfire" Version="1.8.11"/>
-        <PackageReference Include="Hangfire.MySqlStorage" Version="2.0.3"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.3">
+        <PackageReference Include="Hangfire" Version="1.8.23"/>
+        <PackageReference Include="Hangfire.PostgreSql" Version="1.21.1"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.9"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.9"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9"/>
         <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6"/>
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0"/>
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.9"/>
         <PackageReference Include="Telegram.Bot" Version="19.0.0"/>
         <PackageReference Include="TimeZoneConverter" Version="6.1.0"/>
     </ItemGroup>
